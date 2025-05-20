@@ -4,18 +4,18 @@ import java.sql.Date;
 
 public class SearchDTO {
 
-	private String sch_id;
+	private String user_id;
 	private int board_idx;
 	private String sch_keyword;
 	private Date sch_date;
 	private String sch_type;
 
-	public String getSch_id() {
-		return sch_id;
+	public String getUser_id() {
+		return user_id;
 	}
 
-	public void setSch_id(String sch_id) {
-		this.sch_id = sch_id;
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
 	}
 
 	public int getBoard_idx() {

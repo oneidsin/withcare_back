@@ -23,7 +23,7 @@ public class SearchController {
 	@Autowired SearchService svc;
     private Logger log = LoggerFactory.getLogger(getClass());
 
-
+    // 검색하는 기능
     @PostMapping("/search")
     public Map<String, Object> searchPosts(@RequestBody SearchResultDTO dto, HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();

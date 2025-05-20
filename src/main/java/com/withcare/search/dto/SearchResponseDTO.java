@@ -10,7 +10,15 @@ public class SearchResponseDTO {
 	private String id;
 	private int keyword_count;
 	private Date created_date;
+	private int sch_idx;
 
+	public int getSch_idx() {
+		return sch_idx;
+	}
+
+	public void setSch_idx(int sch_idx) {
+		this.sch_idx = sch_idx;
+	}
 	public int getPost_idx() {
 		return post_idx;
 	}

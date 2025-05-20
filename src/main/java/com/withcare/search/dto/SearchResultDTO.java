@@ -5,7 +5,16 @@ public class SearchResultDTO {
 	private String keyword;
 	private String search_type; // title, title_content, writer
 	private Integer board_idx; // optional
+	private int sch_idx;
 
+	public int getSch_idx() {
+		return sch_idx;
+	}
+
+	public void setSch_idx(int sch_idx) {
+		this.sch_idx = sch_idx;
+	}
+		
 	public String getKeyword() {
 		return keyword;
 	}
