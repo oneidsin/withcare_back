@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.profile.dao.ProfileDAO">
+
+	<!-- <insert id="saveProfile"
+		parameterType="com.withcare.profile.dto.ProfileDTO">
+		INSERT INTO profile (
+		id, cancer_idx, stage_idx, profile_photo, intro, profile_yn, access_cnt
+		) VALUES (
+		#{id}, #{cancerIdx}, #{stageIdx}, #{profilePhoto}, #{intro}, #{profileYn},
+		#{accessCnt}
+		)
+	</insert> -->
+
+	<!-- 프로필 보기 -->
+	<select id="getProfileById" parameterType="String"
+		resultType="com.withcare.profile.dto.ProfileDTO">
+		SELECT
+		id,
+		cancer_idx,
+		stage_idx,
+		profile_photo,
+		intro,
+		profile_yn,
+		access_cnt
+		FROM profile
+		WHERE id = #{id} ORDER BY access_cnt
+		DESC LIMIT 1
+	</select>
+
+	<!-- 프로필 수정 -->
+	<update id="updateProfile"
+		parameterType="com.withcare.profile.dto.ProfileDTO">
+		UPDATE profile
+		SET
+		cancer_idx = #{cancer_idx},
+		stage_idx = #{stage_idx},
+		profile_photo = #{profile_photo},
+		intro = #{intro},
+		profile_yn = #{profile_yn}
+		WHERE
+		id = #{id}
+	</update>
+	
+	<!-- 프로필 추가 -->
+	<insert id="insertProfile" parameterType="String">
+    INSERT INTO profile (id, cancer_idx, stage_idx, profile_photo, intro, profile_yn, access_cnt)
+    VALUES (#{id}, NULL, NULL, NULL, NULL, 0, 0)
+	</insert>
+
+
+
+</mapper>
+   
+   

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.admin.dao.CrawlDAO">
+    <!-- 크롤링해서 가져온 것으로 게시글 작성 -->
+    <insert id="insertCrawlPost" parameterType="map"
+            useGeneratedKeys="true" keyProperty="post_idx">
+        INSERT INTO post(id, board_idx, post_title, post_content, com_yn, post_blind_yn)
+        VALUES (#{id}, #{board_idx}, #{post_title}, #{post_content}, false, false)
+    </insert>
+
+    <!-- 크롤링 했을시에 파일이 있다면 파일 저장 -->
+    <insert id="insertCrawlFile" parameterType="map">
+        INSERT INTO file(post_idx, file_url)
+        VALUES (#{post_idx}, #{file_url})
+    </insert>
+
+    <!-- 제목 기준으로 중복 체크 -->
+    <select id="duplicateUrl" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM post
+        WHERE post_title = #{param1}
+    </select>
+</mapper>

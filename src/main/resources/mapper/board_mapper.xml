@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   <mapper namespace="com.withcare.board.dao.BoardDAO">
+   
+		<insert id="boardWrite" parameterType="com.withcare.board.dto.BoardDTO"
+		        useGeneratedKeys="true" keyColumn="board_idx" keyProperty="board_idx">
+		    INSERT INTO board (board_name, blind_yn, anony_yn, com_yn, lv_idx) 
+		    	VALUES (#{board_name}, #{blind_yn}, #{anony_yn}, #{com_yn},#{lv_idx});
+		</insert>
+   
+   		<update id="boardUpdate" parameterType="com.withcare.board.dto.BoardDTO">
+   			UPDATE board SET board_name=#{board_name}, anony_yn=#{anony_yn}, com_yn=#{com_yn}, lv_idx=#{lv_idx}
+   				WHERE board_idx = #{board_idx}
+   		</update>
+   
+      	<update id="boardDelete" parameterType="com.withcare.board.dto.BoardDTO">
+   			UPDATE board SET blind_yn=#{blind_yn}
+   				WHERE board_idx = #{board_idx}
+   		</update>
+   		
+	   	<select id="boardLevel" parameterType="int" resultType="int">
+	        SELECT lv_idx FROM board WHERE board_idx = #{board_idx}
+	    </select>
+	
+	    <select id="userLevel" parameterType="String" resultType="int">
+	        SELECT lv_idx FROM member WHERE id = #{id}
+	    </select>
+	    
+	    <select id="boardComYn" resultType="boolean">
+    		SELECT com_yn FROM board WHERE board_idx = #{board_idx}
+		</select>
+
+   </mapper>

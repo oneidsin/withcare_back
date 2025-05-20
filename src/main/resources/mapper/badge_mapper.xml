@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.profile.dao.BadgeDAO">
+    <!-- 유저가 획득한 배지와 획득하지 않은 배지 전부 가져옴 -->
+    <select id="getMemberBadgeList" parameterType="String" resultType="map">
+        SELECT
+            mb.id,
+            b.bdg_idx,
+            b.bdg_name,
+            b.bdg_icon,
+            b.bdg_condition,
+            mb.bdg_sym_yn,
+            (mb.user_badge_idx IS NOT NULL) AS is_acquired
+        FROM
+            badge b
+                LEFT JOIN
+            member_badge mb ON b.bdg_idx = mb.bdg_idx AND mb.id = #{id}
+        WHERE
+            b.bdg_active_yn = TRUE
+        ORDER BY
+            is_acquired DESC, b.bdg_idx ASC
+    </select>
+
+    <!-- 유저가 획득한 배지만 조회 -->
+    <select id="getMemberAcquiredBadge" parameterType="String" resultType="map">
+        SELECT * FROM member_badge WHERE id = #{id}
+    </select>
+
+    <!-- 배지 획득 여부 확인 -->
+    <select id="isBadgeAcquired" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM member_badge
+        WHERE id = #{id} AND bdg_idx = #{bdg_idx}
+    </select>
+
+    <!-- 배지 획득 (서비스단에서 중복 체크) -->
+    <insert id="insertAcquiredBadge" parameterType="map">
+        INSERT INTO member_badge (id, bdg_idx, bdg_sym_yn)
+        VALUES (#{id}, #{bdg_idx}, FALSE)
+    </insert>
+
+    <!-- 대표 배지 초기화 (bdg_sym_yn 을 false 로 초기화)-->
+    <update id="clearAllBadgeSym" parameterType="map">
+        UPDATE member_badge
+        SET bdg_sym_yn = FALSE
+        WHERE id = #{id}
+    </update>
+
+    <!-- 대표 배지 설정 -->
+    <update id="updateBadgeSym" parameterType="map">
+        UPDATE member_badge
+        SET bdg_sym_yn = TRUE
+        WHERE id = #{id} AND bdg_idx = #{bdg_idx}
+    </update>
+</mapper>

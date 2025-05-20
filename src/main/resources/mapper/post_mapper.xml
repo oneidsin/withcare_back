@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   <mapper namespace="com.withcare.post.dao.PostDAO">
+   		
+		<insert id="postWrite" parameterType="com.withcare.post.dto.PostDTO" useGeneratedKeys="true" keyProperty="post_idx" keyColumn="post_idx">
+		    INSERT INTO post (board_idx, id, post_title, post_content, com_yn, post_blind_yn)
+		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn}, #{post_blind_yn})
+		</insert>
+   		
+   		<select id="postWriter" parameterType="int" resultType="String">
+		    SELECT id FROM post WHERE post_idx = #{post_idx}
+		</select>
+		
+		<select id="userLevel" parameterType="String" resultType="int">
+		    SELECT lv_idx FROM member WHERE id = #{id}
+		</select>
+   		
+   		<update id="postUpdate" parameterType="com.withcare.post.dto.PostDTO">
+   			UPDATE post SET post_title = #{post_title}, post_content = #{post_content}
+   				WHERE post_idx = #{post_idx}
+   		</update>
+   		
+   		<update id="postDelete" parameterType="com.withcare.post.dto.PostDTO">
+   			UPDATE post SET post_blind_yn = #{post_blind_yn} WHERE post_idx = #{post_idx}
+   		</update>
+   		
+   		<select id="postDetail" parameterType="int" resultType="com.withcare.post.dto.PostDTO">
+   			SELECT * FROM post WHERE post_idx=#{post_idx}
+   		</select>
+   		
+   		<update id="upHit">
+   			UPDATE post SET post_view_cnt = post_view_cnt+1 WHERE post_idx = #{post_idx}
+   		</update>
+   		
+		<select id="postList" resultType="com.withcare.post.dto.PostDTO">
+		    SELECT 
+		        p.post_idx,
+		        p.post_title,
+		        p.post_content,
+		        p.post_view_cnt,
+		        p.com_yn,
+		        p.post_create_date,
+		        p.post_update_date,
+		        p.post_blind_yn,
+        		p.board_idx
+		    FROM post p
+		    WHERE p.board_idx = #{param3}
+		    ORDER BY p.post_idx DESC
+		    LIMIT #{param2} OFFSET #{param1}
+		</select>
+		
+		<select id="likeCnt" resultType="int">
+			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=1
+		</select>
+		
+		<select id="dislikeCnt" resultType="int">
+			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=-1
+		</select>
+		
+		<select id="postPages" resultType="int">
+		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx}
+		</select>
+   		
+		<select id="LikeType" parameterType="map" resultType="int">
+			SELECT like_type FROM likeYn WHERE id=#{param1} AND post_idx=#{param2}
+		</select>
+		
+		<insert id="likeInsert" parameterType="com.withcare.post.dto.LikeDislikeDTO">
+			INSERT INTO likeYn(id, post_idx, like_type)
+				VALUES(#{id}, #{post_idx}, #{like_type})
+		</insert>
+				
+		<delete id="likeDelete">
+			DELETE FROM likeYn WHERE id = #{param1} AND post_idx = #{param2}
+		</delete>
+		
+		<update id="likeUpdate" parameterType="com.withcare.post.dto.LikeDislikeDTO">
+			UPDATE likeYn SET like_type = #{like_type}
+				WHERE id = #{id} AND post_idx = #{post_idx}
+		</update>
+   		
+		<insert id="fileInsert" parameterType="com.withcare.post.dto.FileDTO" useGeneratedKeys="true" keyProperty="file_idx" keyColumn="file_idx">
+		    INSERT INTO file (post_idx, file_url)
+		    VALUES (#{post_idx}, #{file_url})
+		</insert>
+		
+   		<delete id="fileDelete" parameterType="String">
+		    DELETE FROM file WHERE file_idx = #{file_idx}
+		</delete>
+		
+		<select id="fileInfo" parameterType="String" resultType="map">
+		    SELECT file_idx, file_url, post_idx FROM file WHERE file_idx = #{file_idx}
+		</select>
+		
+		<select id="fileList" parameterType="int" resultType="map">
+		    SELECT file_idx, file_url
+		    FROM file
+		    WHERE post_idx = #{post_idx}
+		</select>
+		
+   </mapper>

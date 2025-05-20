@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+
+<mapper namespace="com.withcare.member.dao.LoginDAO">
+
+<select id="login" parameterType="map" resultType="int">
+ 	SELECT COUNT(id) FROM member 
+ 		WHERE id =#{id} AND pw = #{pw}
+ </select>
+ 
+ <select id="findId" resultType="String">
+    SELECT id FROM member WHERE name = #{name} AND year = #{year} AND email = #{email}
+</select>
+
+<select id="findPw" resultType="String">
+    SELECT pw FROM member WHERE id = #{id} AND name = #{name} AND year = #{year} AND email = #{email}
+</select>
+
+<update id="updatePw" parameterType="map">
+    UPDATE member SET pw = #{newPw, jdbcType=VARCHAR} WHERE id = #{id}
+</update>
+
+<update id="visitCnt" parameterType="string">
+	 UPDATE profile SET access_cnt = IFNULL(access_cnt, 0) + 1 WHERE id = #{id}
+</update>
+
+ 
+</mapper>
