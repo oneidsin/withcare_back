@@ -7,7 +7,7 @@
 		<insert id="boardWrite" parameterType="com.withcare.board.dto.BoardDTO"
 		        useGeneratedKeys="true" keyColumn="board_idx" keyProperty="board_idx">
 		    INSERT INTO board (board_name, blind_yn, anony_yn, com_yn, lv_idx) 
-		    	VALUES (#{board_name}, #{blind_yn}, #{anony_yn}, #{com_yn},#{lv_idx});
+		    	VALUES (#{board_name}, #{blind_yn}, #{anony_yn}, #{com_yn}, #{lv_idx});
 		</insert>
    
    		<update id="boardUpdate" parameterType="com.withcare.board.dto.BoardDTO">

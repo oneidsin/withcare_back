@@ -1,13 +1,18 @@
 package com.withcare.post.service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +33,8 @@ public class PostService {
 	@Autowired PostDAO dao;
 	@Autowired BoardDAO boardDao;
 	
-	private final String uploadDir = System.getProperty("user.home") + "/uploads";
+	@Value("${file.upload-dir}")
+	private String uploadDir; // 우선 user.home 에 있는 uploads 폴더로 경로 지정해뒀습니다. (서혜 언니는 다른 경로 지정 필수)
 	
 	public boolean postWrite(PostDTO dto) {
 	    // 게시판 com_yn 가져오기
@@ -41,52 +47,83 @@ public class PostService {
 	}
 
 	public boolean saveFiles(int post_idx, MultipartFile[] files) {
-		
+		List<String> savedFileNames = new ArrayList<>();
 		boolean success = true;
-		
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) continue;
 
-            try {
-                String originalName = file.getOriginalFilename();
-                String extension = "";
+        try {
+	        for (MultipartFile file : files) {
+	        	if (file.isEmpty()) continue; // file 이 없어도 에러 안나게 해놓은 거
+	        	
+	            if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한
+	                throw new IllegalArgumentException("파일 사이즈 초과");
+	            }
+	            
+	            // MIME 타입 검사
+	            if (!file.getContentType().startsWith("image/")) {
+	                throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
+	            }
+	
+	            // 확장자 검사 (jpg, jpeg, png만 허용)
+	            String origin_name = file.getOriginalFilename();
+	            if (origin_name == null || origin_name.lastIndexOf(".") == -1) {
+	                throw new IllegalArgumentException("파일 이름이 잘못되었습니다.");
+	            }
+	
+	            String ext = origin_name.substring(origin_name.lastIndexOf(".") + 1).toLowerCase(); // 작성자가 대문자로 넣으면 그거 변환
+	            if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
+	                throw new IllegalArgumentException("jpg, jpeg, png 확장자만 업로드 가능합니다.");
+	            }
+	
+	            String extension = origin_name.substring(origin_name.lastIndexOf(".")); // 확장자 "." 에서 자르기
+	            
+	            // UUID로 파일명 생성
+	            String savedName = UUID.randomUUID().toString() + extension;
+	            
+	                // 파일 저장 경로 생성
+	                Path path = Paths.get(uploadDir, savedName);
+	
+	                // 폴더가 없으면 생성
+	                Files.createDirectories(path.getParent());
+	
+	                // 실제 파일 저장
+	                file.transferTo(path.toFile());
+	
+	                // DB에 파일 URL 저장
+	                Map<String, Object> param = new HashMap<>();
+	                param.put("post_idx", post_idx);
+	                param.put("file_url", savedName);  // 혹은 full path로 저장하고 싶으면 변경
+	
+	                dao.fileInsert(param);
+	                savedFileNames.add(savedName); // 성공한 파일만 저장
+	                
+	            } 
+	        	
+	        	return true; // 모두 성공했을 경우
+	        	
+        }catch (Exception e) {
+	                e.printStackTrace();
 
-                if (originalName != null && originalName.contains(".")) {
-                    extension = originalName.substring(originalName.lastIndexOf("."));
+            // 저장된 파일 시스템에서 삭제
+            for (String savedName : savedFileNames) {
+                try {
+                    Path path = Paths.get(uploadDir, savedName);
+                    Files.deleteIfExists(path);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    log.error("파일 시스템 삭제 실패: " + savedName, ex);
                 }
 
-                // UUID로 파일명 생성
-                String savedName = java.util.UUID.randomUUID().toString() + extension;
-
-                // 파일 저장 경로 생성
-                java.nio.file.Path path = java.nio.file.Paths.get(uploadDir, savedName);
-
-                // 폴더가 없으면 생성
-                java.nio.file.Files.createDirectories(path.getParent());
-
-                // 파일 저장
-                file.transferTo(path.toFile());
-
-                // DB에 파일 URL 저장
-                Map<String, Object> param = new HashMap<>();
-                param.put("post_idx", post_idx);
-                param.put("file_url", savedName);  // 혹은 full path로 저장하고 싶으면 변경
-
-                dao.fileInsert(param);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                success = false;
-                
-                // 파일 저장 실패시에도 무조건 실패처리할지, 로그만 남기고 진행할지 정책에 따라 조정 필요
+                // DB에서도 삭제
+                dao.fileDelete(savedName); // file_url 기준으로 삭제
             }
+            return false;
         }
-        return success;
+    
     }
 
 	public boolean postUpdate(PostDTO dto, String userId, MultipartFile[] files, List<String> keepFileIdx) {
 	    String writerId = dao.postWriter(dto.getPost_idx());
-	    if (writerId == null || !writerId.equals(userId)) {
+	    if (writerId == null || !writerId.equals(userId)) { // 작성자 id 가 없거나 사용자랑 다르면 update 실행 안돼요. (관리자 수정은 필요 없다고 해서 뺐습니다.)
 	        return false;
 	    }
 
@@ -98,8 +135,8 @@ public class PostService {
 	            List<Map<String, String>> currentFiles = dao.fileList(dto.getPost_idx());
 
 	            for (Map<String, String> file : currentFiles) {
-	            	String fileIdx = String.valueOf(file.get("file_idx"));
-	                if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) {
+	            	String fileIdx = String.valueOf(file.get("file_idx")); // String으로 변환시켜줌
+	                if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) { // 위와 동일
 	                    dao.fileDelete(fileIdx);
 	                    deleteFileIdx(file.get("file_url"));
 	                }
@@ -116,7 +153,7 @@ public class PostService {
 
 	private void deleteFileIdx(String savedName) {
 	    try {
-	        java.nio.file.Path path = java.nio.file.Paths.get(uploadDir, savedName);
+	        java.nio.file.Path path = java.nio.file.Paths.get(uploadDir, savedName); // 파일 삭제하기
 	        java.nio.file.Files.deleteIfExists(path);
 	    } catch (Exception e) {
 	        log.error("파일 삭제 실패: " + savedName, e);
@@ -164,7 +201,7 @@ public class PostService {
 	public Map<String, Object> postList(int page, int board_idx) {
 	    Map<String, Object> result = new HashMap<String, Object>();
 	    result.put("page", page);
-	    int offset = (page - 1) * post_count; // 페이징 처리하지기
+	    int offset = (page - 1) * post_count; // 페이지 시작 위치 계산
 
 	    List<PostDTO> postList = dao.postList(offset, post_count, board_idx); // 게시글 목록, 한 페이지 당 보여줄 게시글 수, 게시판 번호
 	    int totalPosts = dao.postPages(board_idx);
@@ -197,7 +234,7 @@ public class PostService {
 
 	    Integer currentType = dao.LikeType(id, post_idx); // Integer 가 아니라 int 면 null 값 지정 못함. (아무것도 안 눌렀을 때 상태)
 	    
-	    if (currentType == null) {
+	    if (currentType == null) { // 처음에 null 이면 0 으로 변환시켜서 int 타입으로 설정
 	        currentType = 0;
 	    }
 	    
