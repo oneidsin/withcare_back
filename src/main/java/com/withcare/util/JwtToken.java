@@ -14,14 +14,16 @@ import io.jsonwebtoken.security.Keys;
 public class JwtToken {
     
     public static class JwtUtils {
-        private static SecretKey pri_key;
+        private static SecretKey pri_key = null;
 
-        static {
-            pri_key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        }
-
+        // Getter
         public static SecretKey getPri_key() {
             return pri_key;
+        }
+
+        // Setter로는 새로운 키를 생성해야한다
+        public static void setPri_key() {
+            JwtUtils.pri_key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         }
 
        public static String setToken(Map<String, Object> map) {
