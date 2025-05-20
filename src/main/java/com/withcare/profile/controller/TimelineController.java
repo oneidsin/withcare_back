@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.profile.service.TimelineService;
-import com.withcare.util.JwtToken;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @RestController
@@ -29,8 +28,7 @@ public class TimelineController {
 
 	Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	TimelineService svc;
+	@Autowired TimelineService svc;
 
 	// 토큰에서 사용자 아이디 추출
 	private String get_token(String authorizationHeader) {
