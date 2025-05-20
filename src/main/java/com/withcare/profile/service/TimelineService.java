@@ -29,32 +29,32 @@ public class TimelineService {
     }
 
     // 타임라인 수정
-    public void update_timeline(TimelineDTO dto) {
-        dao.update_timeline(dto);
+    public void updateTimeline(TimelineDTO dto) {
+        dao.updateTimeline(dto);
     }
 
     // 타임라인 삭제
-    public boolean del_timeline(int time_idx, String id) {
+    public boolean delTimeline(int time_idx, String id) {
     	
-        String ownerId = dao.getTimelineOwnerId(time_idx);
+        String loginId = dao.get_token(time_idx);
 
-        if (ownerId == null) {
+        if (loginId == null) {
             log.warn("삭제 대상 타임라인 없음, time_idx={}", time_idx);
             return false;
         }
 
-        if (!ownerId.equals(id)) {
-            log.warn("삭제 권한 없음, 요청자: {}, 작성자: {}", id, ownerId);
+        if (!loginId.equals(id)) {
+            log.warn("삭제 권한 없음, 요청자: {}, 작성자: {}", id, loginId);
             return false;
         }
 
-        dao.del_timeline(time_idx);
+        dao.delTimeline(time_idx);
         return true;
     }
 
     // 유저의 타임라인 리스트
-    public Map<String, List<TimelineDTO>> timeline_list(String id) {
-        List<TimelineDTO> list = dao.timeline_list(id);
+    public Map<String, List<TimelineDTO>> timelineList(String id) {
+        List<TimelineDTO> list = dao.timelineList(id);
         Map<String, List<TimelineDTO>> result = new TreeMap<>(Collections.reverseOrder());
 
         for (TimelineDTO dto : list) {
@@ -70,8 +70,10 @@ public class TimelineService {
         return result;
     }
 
-	public List<TimelineDTO> public_list() {
-		return dao.public_list();
+	public List<TimelineDTO> publicList(String id) {
+		return dao.publicList(id);
 	}
+
+	
 
 }
