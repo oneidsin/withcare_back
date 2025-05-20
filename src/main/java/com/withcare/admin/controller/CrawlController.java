@@ -4,10 +4,7 @@ import com.withcare.admin.service.CrawlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +12,7 @@ import java.util.Map;
 @CrossOrigin
 @RestController
 public class CrawlController {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    Logger log = LoggerFactory.getLogger(getClass());
 
     Map<String, Object> result = null;
 
@@ -23,7 +20,7 @@ public class CrawlController {
     CrawlService svc;
 
     // 청년일보 크롤링
-    @GetMapping("/{id}/saveCrawlPostYouth")
+    @GetMapping("/{id}/crawl/saveCrawlPostYouth")
     public Map<String, Object> saveCrawlPostYouth(@PathVariable String id) {
         result = new HashMap<>();
         result.put("result", svc.saveCrawlPostYouth(id));
@@ -31,7 +28,7 @@ public class CrawlController {
     }
 
     // 하이닥 크롤링
-    @GetMapping("/{id}/saveCrawlPostHidoc")
+    @GetMapping("/{id}/crawl/saveCrawlPostHidoc")
     public Map<String, Object> saveCrawlPostHidoc(@PathVariable String id) {
         result = new HashMap<>();
         result.put("result", svc.saveCrawlPostHidoc(id));
@@ -39,12 +36,18 @@ public class CrawlController {
     }
 
     // 국민건강보험공단 크롤링
-    @GetMapping("/{id}/saveCrawlPostInsurance")
+    @GetMapping("/{id}/crawl/saveCrawlPostInsurance")
     public Map<String, Object> saveCrawlPostInsurance(@PathVariable String id) {
         result = new HashMap<>();
         result.put("result", svc.saveCrawlPostInsurance(id));
         return result;
     }
 
-    //
+    // 관리자가 크롤링 활성화 여부를 수정
+    @PutMapping("/{id}/crawl/updateCrawlYn/{sourceIdx}")
+    public Map<String, Object> updateCrawlYn(@PathVariable String id, @PathVariable int sourceIdx) {
+        result = new HashMap<>();
+        result.put("result", svc.updateCrawlYn(id, sourceIdx));
+        return result;
+    }
 }

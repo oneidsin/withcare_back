@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.admin.dao.CrawlManagementDAO">
+    <!-- 현재 활성화 중인 크롤 정보 가져오기(getActiveCrawlSources) -->
+    <select id="getActiveCrawlSources" resultType="com.withcare.admin.dto.CrawlManagementDTO">
+        SELECT *
+        FROM crawl_management
+        WHERE crawl_yn = TRUE
+    </select>
+
+    <!-- 마지막 크롤링 시간 업데이트(updateLastCrawlAt) -->
+    <update id="updateLastCrawlAt">
+        UPDATE crawl_management
+        SET last_crawl_at = NOW()
+        WHERE source_idx = #{sourceIdx}
+    </update>
+</mapper>

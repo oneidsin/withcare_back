@@ -387,4 +387,8 @@ public class CrawlService {
     }
 
 
+    public boolean updateCrawlYn(String id, int sourceIdx) {
+        int row = dao.updateCrawlYn(id, sourceIdx);
+        return row > 0;
+    }
 }

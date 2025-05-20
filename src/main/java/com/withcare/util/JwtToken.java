@@ -12,29 +12,27 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 public class JwtToken {
-    
+
     public static class JwtUtils {
         private static SecretKey pri_key = null;
 
-        // Getter
         public static SecretKey getPri_key() {
             return pri_key;
         }
 
-        // Setter로는 새로운 키를 생성해야한다
         public static void setPri_key() {
             JwtUtils.pri_key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         }
 
-       public static String setToken(Map<String, Object> map) {
+        public static String setToken(Map<String, Object> map) {
             return Jwts.builder()
-                .setHeaderParam("alg", "HS256")
-                .setHeaderParam("typ", "JWT")
-                .setClaims(map)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 10)))  // 10시간 유효
-                .signWith(pri_key)
-                .compact();
+                    .setHeaderParam("alg", "HS256")
+                    .setHeaderParam("typ", "JWT")
+                    .setClaims(map)
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 10)))  // 10시간 유효
+                    .signWith(pri_key)
+                    .compact();
         }
 
         public static String setToken(String key, Object value) {
@@ -48,10 +46,10 @@ public class JwtToken {
 
             try {
                 Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(pri_key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                        .setSigningKey(pri_key)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
                 for (String key : claims.keySet()) {
                     resp.put(key, claims.get(key));
                 }
