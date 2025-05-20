@@ -1,6 +1,7 @@
 package com.withcare.profile.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.profile.service.TimelineService;
+import com.withcare.util.JwtToken;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @RestController
@@ -24,8 +27,7 @@ public class TimelineController {
     
     Logger log = LoggerFactory.getLogger(getClass());
     
-    @Autowired
-    TimelineService svc;
+    @Autowired TimelineService svc;
     
     // 토큰에서 사용자 아이디 추출
     private String get_token(String authorizationHeader) {
@@ -87,5 +89,30 @@ public class TimelineController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
         }
     }
+    
+    // 유저의 타임라인 리스트
+    @GetMapping ("/timeline/list")
+    public ResponseEntity<?> timeline_list(@RequestHeader("Authorization") String token){
+    	Map<String, Object> claims = JwtToken.JwtUtils.readToken(token);
+    	String id = (String) claims.get("id");
+    	
+    	if (id == null || id.isEmpty()) {
+    		return ResponseEntity.status(401).body("유효하지 않은 토큰입니다.");
+    	}
+    	
+    Map<String, List<TimelineDTO>> t_list_by_year = svc.timeline_list(id);
+    		
+    return ResponseEntity.ok(t_list_by_year);
+    
+    }
+    
+    // 타 유저의 공개 타임라인 리스트
+   @GetMapping ("/timeline/pubic")
+   public ResponseEntity<?> public_list() {
+	   List<TimelineDTO> public_timeline = svc.public_list();
+	   return ResponseEntity.ok(public_timeline);
+   }
+   
+    
 
 }

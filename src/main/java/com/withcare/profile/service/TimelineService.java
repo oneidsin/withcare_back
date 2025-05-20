@@ -1,5 +1,13 @@
 package com.withcare.profile.service;
 
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,4 +51,27 @@ public class TimelineService {
         dao.del_timeline(time_idx);
         return true;
     }
+
+    // 유저의 타임라인 리스트
+    public Map<String, List<TimelineDTO>> timeline_list(String id) {
+        List<TimelineDTO> list = dao.timeline_list(id);
+        Map<String, List<TimelineDTO>> result = new TreeMap<>(Collections.reverseOrder());
+
+        for (TimelineDTO dto : list) {
+            Date day = dto.getDay();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(day);
+            int yearInt = cal.get(Calendar.YEAR);
+            String year = String.valueOf(yearInt);
+            result.computeIfAbsent(year, k -> new ArrayList<>()).add(dto);
+        }
+
+
+        return result;
+    }
+
+	public List<TimelineDTO> public_list() {
+		return dao.public_list();
+	}
+
 }
