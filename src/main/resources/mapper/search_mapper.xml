@@ -11,6 +11,10 @@
 		VALUES (#{sch_id}, #{board_idx}, #{sch_keyword}, #{sch_type})
 	</insert>
 
+	<insert id="insertSearchHistory">
+		INSERT INTO search_history (user_id, sch_idx, board_idx, sch_keyword, sch_date, sch_type)
+		VALUES (#{user_id}, #{sch_idx}, #{board_idx}, #{sch_keyword}, NOW(), #{sch_type})
+	</insert>
 	<select id="searchPosts"
 		resultType="com.withcare.search.dto.SearchResponseDTO">
 		SELECT
