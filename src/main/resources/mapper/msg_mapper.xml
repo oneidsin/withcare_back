@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+
+<mapper namespace="com.withcare.msg.dao.MsgDAO">
+
+	<!-- Send MSG -->
+	<insert id="sendMsg" parameterType="com.withcare.msg.dto.MsgDTO">
+		INSERT INTO message (sender_id, receiver_id, msg_content, msg_sent_at,
+		msg_read, sender_msg_status, receiver_msg_status)
+		VALUES (#{sender_id}, #{receiver_id}, #{msg_content}, #{msg_sent_at},
+		#{msg_read},"N","N")
+	</insert>
+
+
+
+
+
+
+</mapper>

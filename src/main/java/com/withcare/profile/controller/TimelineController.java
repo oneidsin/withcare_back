@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,16 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.profile.service.TimelineService;
-import com.withcare.util.JwtToken;
 import com.withcare.util.JwtToken.JwtUtils;
 
+@CrossOrigin
 @RestController
 public class TimelineController {
 
 	Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	TimelineService svc;
+	@Autowired TimelineService svc;
 
 	// 토큰에서 사용자 아이디 추출
 	private String get_token(String authorizationHeader) {
