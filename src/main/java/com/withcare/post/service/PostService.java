@@ -153,8 +153,8 @@ public class PostService {
 
 	private void deleteFileIdx(String savedName) {
 	    try {
-	        java.nio.file.Path path = java.nio.file.Paths.get(uploadDir, savedName); // 파일 삭제하기
-	        java.nio.file.Files.deleteIfExists(path);
+	        Path path = Paths.get(uploadDir, savedName); // 파일 삭제하기
+	        Files.deleteIfExists(path);
 	    } catch (Exception e) {
 	        log.error("파일 삭제 실패: " + savedName, e);
 	    }

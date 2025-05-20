@@ -200,7 +200,7 @@ public class PostController {
 	    return result;
 	}
 	
-	// 게시글 동록된 이미지 리스트 조회 (얘 없으면 위에서 파일 수정 시에 파일 못 불러와요)
+	// 게시글 등록된 이미지 리스트 조회 (얘 없으면 위에서 파일 수정 시에 파일 못 불러와요)
 	@GetMapping("/file/list/{post_idx}")
 	public List<Map<String, String>> fileList(@PathVariable int post_idx) {
 	    return svc.fileList(post_idx); // 정상적으로 동작하는 기존 서비스 메서드
