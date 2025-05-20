@@ -7,7 +7,7 @@
     <insert id="insertCrawlPost" parameterType="map"
             useGeneratedKeys="true" keyProperty="post_idx">
         INSERT INTO post(id, board_idx, post_title, post_content, com_yn, post_blind_yn)
-        VALUES (#{id}, #{board_idx}, #{post_title}, #{post_content}, false, false)
+        VALUES (#{id}, #{board_idx}, #{post_title}, #{post_content}, FALSE, FALSE)
     </insert>
 
     <!-- 크롤링 했을시에 파일이 있다면 파일 저장 -->
@@ -22,4 +22,11 @@
         FROM post
         WHERE post_title = #{param1}
     </select>
+
+    <!-- 크롤링 활성화 여부 업데이트 -->
+    <update id="updateCrawlYn">
+        UPDATE crawl_management
+        SET crawl_yn = #{crawl_yn}
+        WHERE source_idx = #{sourceIdx}
+    </update>
 </mapper>
