@@ -4,6 +4,8 @@ import java.sql.Date;
 
 // 회원 정보 + 차단 정보 결합해 보여줄 전용 DTO 생성
 // MemberDTO + BlockListDTO 조합은 프론트에서 처리할 때 불편해서 비추천.
+//실제로 여기에 저장되는건 아니고 select 할 때 정보를 담는 바구니 용도로 사용하고 있습니다.
+//실제 정보는 DB에 저장됩니다.
 public class AdminMemberDTO {
 
     private String id;

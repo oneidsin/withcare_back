@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.admin.dto.AdminMemberDTO;
+import com.withcare.admin.dto.AdminMemberDetailDTO;
 import com.withcare.admin.service.AdminService;
 import com.withcare.member.dto.MemberDTO;
+import com.withcare.post.dto.PostDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @CrossOrigin
@@ -70,29 +72,56 @@ public class AdminController {
 		return result;
 	}
 	
+	// 멤버 리스트 확인
 	@PostMapping("/admin/member/list")
-	public List<AdminMemberDTO> adminMemberList(
-	        @RequestBody(required = false) Map<String, Object> params) {
+	public Map<String, Object> adminMemberList(
+	        @RequestBody(required = false) Map<String, Object> params
+	        ,@RequestHeader Map<String, String> header) {
 		
-	    String searchId = (String) params.get("searchId");
-		String sortField = (String) params.get("sortField");
-		String sortOrder= (String) params.get("sortOrder");
-		String blockFilter = (String) params.get("blockFilter");
+		result = new HashMap<String, Object>();
 		
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		boolean login = false;
+		
+		// 로그인 유효성 체크
+		if (loginId == null || loginId.isEmpty()) {
+			result.put("success", false);
+			login = true;
+			return result;
+		}
+		
+		// 로그인 사용자 레벨 확인
+		int user_lv = svc.userLevel(loginId);
+		
+		// 관리자 레벨 체크
+		if (user_lv != 7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		// null 이면 가져오지 말아라
+	    String searchId = (params != null) ? (String) params.get("searchId") : null;
+		String sortField = (params != null) ? (String) params.get("sortField") : null;
+		String sortOrder= (params != null) ? (String) params.get("sortOrder") : null;
+		String blockFilter = (params != null) ? (String) params.get("blockFilter") : null;
+		
+		// page, size 초기화
 	    int page = 1;
 	    int size = 10;
 		
-        if (params.get("page") != null) {
+	    // null 아닐때만 가져와라
+        if (params != null && params.get("page") != null) {
             page = Integer.parseInt(params.get("page").toString());
         }
 	    
-        if (params.get("size") != null) {
+        if (params != null && params.get("size") != null) {
             size = Integer.parseInt(params.get("size").toString());
         }
         
+        // start 초기화
 		int start = (page - 1) * size;
 		
-		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("searchId", searchId);
 		result.put("start", start);
 		result.put("size", size);
@@ -100,7 +129,60 @@ public class AdminController {
 		result.put("sortOrder", sortOrder);
 		result.put("blockFilter", blockFilter);
 		
-	    return svc.adminMemberList(result);
+		List<AdminMemberDTO> memberList = svc.adminMemberList(result);
+		
+		result.put("success", true);
+		result.put("data", memberList);
+		result.put("loginId", loginId);
+		
+	    return result;
+	}
+	
+	// 회원 정보 상세보기
+	@PostMapping("/admin/member/detail")
+	public Map<String, Object> adminMemberDetail(
+			@RequestBody Map<String, String> param,
+			@RequestHeader Map<String, String>header){
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		String targetId = param.get("id");
+		
+		AdminMemberDetailDTO detail = svc.adminMemberDetail(targetId);
+		
+		result.put("success", true);
+		result.put("data", detail);
+		return result;
+	}
+	
+	
+	@PostMapping("/admin/member/post")
+	public Map<String, Object> adminMemberPost(
+			@RequestBody Map<String, String>param,
+			@RequestHeader Map<String, String>header){
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		String targetId = param.get("id");
+		List<PostDTO> posts = svc.adminMemberPost(targetId);
+		
+		result.put("success", true);
+		result.put("data", posts);
+		
+		return result;
 	}
 	
 }

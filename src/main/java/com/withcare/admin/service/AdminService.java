@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.withcare.admin.dao.AdminDAO;
 import com.withcare.admin.dto.AdminMemberDTO;
+import com.withcare.admin.dto.AdminMemberDetailDTO;
+import com.withcare.post.dto.PostDTO;
 
 @Service
 public class AdminService {
@@ -27,6 +29,16 @@ public class AdminService {
 
 	public List<AdminMemberDTO> adminMemberList(Map<String, Object> params) {
 		return dao.adminMemberList(params);
+	}
+
+
+	public AdminMemberDetailDTO adminMemberDetail(String targetId) {
+		return dao.adminMemberDetail(targetId);
+	}
+
+
+	public List<PostDTO> adminMemberPost(String targetId) {
+		return dao.adminMemberPost(targetId);
 	}
 
 }

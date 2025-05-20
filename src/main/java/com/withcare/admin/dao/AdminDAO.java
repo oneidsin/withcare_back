@@ -6,6 +6,8 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.admin.dto.AdminMemberDTO;
+import com.withcare.admin.dto.AdminMemberDetailDTO;
+import com.withcare.post.dto.PostDTO;
 
 @Mapper
 public interface AdminDAO {
@@ -15,6 +17,10 @@ public interface AdminDAO {
 	int levelUpdate(Map<String, Object> params);
 
 	List<AdminMemberDTO> adminMemberList(Map<String, Object> params);
+
+	AdminMemberDetailDTO adminMemberDetail(String targetId);
+
+	List<PostDTO> adminMemberPost(String targetId);
 
 
 }
