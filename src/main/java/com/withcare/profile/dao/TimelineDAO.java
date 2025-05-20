@@ -1,17 +1,22 @@
 package com.withcare.profile.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.withcare.profile.dto.TimelineDTO;
 
 @Mapper
 public interface TimelineDAO {
 
-	void writeTimeline(TimelineDTO dto);
+    // 타임라인 작성
+    void writeTimeline(TimelineDTO dto);
 
-	int update_timeline(TimelineDTO dto);
+    // 타임라인 수정
+    void update_timeline(TimelineDTO dto);
 
-	int del_timeline(int time_idx);
+    // 타임라인 삭제
+    void del_timeline(@Param("time_idx") int time_idx);
 
-
+    // 삭제 권한 체크용: time_idx로 작성자 아이디 조회
+    String getTimelineOwnerId(@Param("time_idx") int time_idx);
 }

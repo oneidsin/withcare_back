@@ -6,53 +6,86 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.profile.service.TimelineService;
-
-
+import com.withcare.util.JwtToken.JwtUtils;
 
 @RestController
 public class TimelineController {
-	
-	Logger log = LoggerFactory.getLogger(getClass());
-	
-	Map<String, Object> result = null;
-	
-	@Autowired TimelineService svc;
-	
-	
-	@PostMapping("/timeline/write") // id 들어가야 되는 거 아니야?
-	public Map<String, Object> writeTimeline (@RequestBody TimelineDTO dto){
-		log.info("일정 요청 등록: {}", dto);
-		
-		svc.writeTimeline(dto);
-		
-		result = new HashMap<String,Object>();
-		result.put("status", "success");
-		result.put("msg", "타임라인 등록이 완료 되었습니다.");
-		
-		return result;
-	}
-	
-	@PutMapping("/timeline/update")
-	public ResponseEntity<String> update_timeline (@RequestBody TimelineDTO dto){
-		svc.update_timeline(dto);
-		
-		return ResponseEntity.ok("updated");
-	}
-	
-	@DeleteMapping("/timeline/delete")
-	public ResponseEntity<String> del_timeline (@RequestBody TimelineDTO dto) {
-		svc.del_timeline(dto.getTime_idx());
-		return ResponseEntity.ok("deleted");
-	}
-	
+    
+    Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Autowired
+    TimelineService svc;
+    
+    // 토큰에서 사용자 아이디 추출
+    private String get_token(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            return (String) JwtUtils.readToken(token).get("id");
+        }
+        return null;
+    }
+    
+    // 타임라인 작성
+    @PostMapping("/timeline/write")
+    public Map<String, Object> writeTimeline(
+            @RequestBody TimelineDTO dto,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        
+        String userId = get_token(authorizationHeader);
+        log.info("사용자 아이디: {}", userId);
+        
+        dto.setTime_user_id(userId);
+        
+        svc.writeTimeline(dto);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", "success");
+        result.put("msg", "타임라인 등록이 완료 되었습니다.");
+        
+        return result;
+    }
+    
+    // 타임라인 수정
+    @PutMapping("/timeline/update")
+    public ResponseEntity<String> updateTimeline(
+            @RequestBody TimelineDTO dto,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        
+        String userId = get_token(authorizationHeader);
+        log.info("사용자 아이디: {}", userId);
+        
+        dto.setTime_user_id(userId);
+        svc.update_timeline(dto);
+        
+        return ResponseEntity.ok("updated");
+    }
+    
+    // 타임라인 삭제
+    @DeleteMapping("/timeline/delete")
+    public ResponseEntity<String> del_timeline(
+            @RequestBody TimelineDTO dto,
+            @RequestHeader("Authorization") String authorizationHeader) {
+        
+        String userId = get_token(authorizationHeader);
+        log.info("사용자 아이디: {}", userId);
+
+        boolean deleted = svc.del_timeline(dto.getTime_idx(), userId);
+        if (deleted) {
+            return ResponseEntity.ok("deleted");
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
+        }
+    }
 
 }

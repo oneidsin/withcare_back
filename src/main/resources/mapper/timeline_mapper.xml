@@ -5,24 +5,32 @@
 
 <mapper namespace="com.withcare.profile.dao.TimelineDAO">
 
-	<insert id="writeTimeline" parameterType="com.withcare.profile.dto.TimelineDTO">
+    <insert id="writeTimeline" parameterType="com.withcare.profile.dto.TimelineDTO">
         INSERT INTO timeline (time_user_id, day, time_title, time_content, time_public_yn)
-        VALUES ( #{time_user_id}, #{day}, #{time_title}, #{time_content}, #{time_public_yn})
+        VALUES (#{time_user_id}, #{day}, #{time_title}, #{time_content}, #{time_public_yn})
     </insert>
-    
+
     <update id="update_timeline" parameterType="com.withcare.profile.dto.TimelineDTO">
-        UPDATE timeline SET
-        time_user_id = #{time_user_id},
-        time_title = #{time_title},
-        time_content = #{time_content},
-        time_public_yn = #{time_public_yn},
-        day = #{day}
-        WHERE time_idx = #{time_idx}
+        UPDATE timeline
+        SET day = #{day},
+            time_title = #{time_title},
+            time_content = #{time_content},
+            time_public_yn = #{time_public_yn},
+            time_update_date = NOW()
+        WHERE time_idx = #{time_idx} AND time_user_id = #{time_user_id}
     </update>
-    
+
     <delete id="del_timeline" parameterType="int">
-    	DELETE FROM timeline WHERE time_idx = #{time_idx}
+        DELETE FROM timeline WHERE time_idx = #{time_idx}
     </delete>
+
+    <!-- 작성자 아이디 조회 -->
+    <select id="getTimelineOwnerId" parameterType="int" resultType="string">
+        SELECT time_user_id FROM timeline WHERE time_idx = #{time_idx}
+    </select>
+
+
+
 
 
 </mapper>
