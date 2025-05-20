@@ -19,6 +19,10 @@
         day = #{day}
         WHERE time_idx = #{time_idx}
     </update>
+    
+    <delete id="del_timeline" parameterType="int">
+    	DELETE FROM timeline WHERE time_idx = #{time_idx}
+    </delete>
 
 
 </mapper>

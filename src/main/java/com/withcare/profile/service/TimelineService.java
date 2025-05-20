@@ -23,4 +23,8 @@ public class TimelineService {
 		dao.update_timeline(dto);		
 	}
 
+	public void del_timeline(int time_idx) {
+		dao.del_timeline(time_idx);
+	}
+
 }

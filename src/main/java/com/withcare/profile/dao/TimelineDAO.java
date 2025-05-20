@@ -11,5 +11,7 @@ public interface TimelineDAO {
 
 	int update_timeline(TimelineDTO dto);
 
+	int del_timeline(int time_idx);
+
 
 }

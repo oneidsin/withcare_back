@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,12 @@ public class TimelineController {
 		svc.update_timeline(dto);
 		
 		return ResponseEntity.ok("updated");
+	}
+	
+	@DeleteMapping("/timeline/delete")
+	public ResponseEntity<String> del_timeline (@RequestBody TimelineDTO dto) {
+		svc.del_timeline(dto.getTime_idx());
+		return ResponseEntity.ok("deleted");
 	}
 	
 
