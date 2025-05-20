@@ -73,6 +73,12 @@ public class CrawlService {
                         // 2-1. 제목 가져오기
                         String post_title = driver.findElement(By.cssSelector("div.art_top > h2")).getText();
 
+                        // 키워드 필터링: 제목에 '암' 또는 '암환자'가 포함되지 않으면 제외
+                        if (!(post_title.contains("암") || post_title.contains("암환자"))) {
+                            log.info("제외된 기사 제목(키워드 불일치): {}", post_title);
+                            continue;
+                        }
+
                         // 제목 기준 중복 체크(DB 조회)
                         if (dao.duplicateUrl(post_title)) {
                             log.info("이미 수집된 기사 제목 : {}", post_title);
@@ -96,7 +102,6 @@ public class CrawlService {
                         } catch (Exception e) {
                             System.out.println("이미지 없음");
                         }
-
 
                         // 크롤링한 데이터를 result 에 저장
                         Map<String, Object> result = new HashMap<>();
@@ -140,4 +145,246 @@ public class CrawlService {
 
         return results;
     }
+
+    // 하이닥 크롤링
+    public List<Map<String, Object>> saveCrawlPostHidoc(String id) {
+        // 크롬 드라이버 경로 설정
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+
+        // 옵션 객체 생성
+        ChromeOptions options = new ChromeOptions();
+        //options.addArguments("--start-maximized"); // 크롬 시작시 전체화면(현재는 X)
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--remote-allow-origins=*");
+        WebDriver driver = new ChromeDriver(options);
+
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        int page_num = 1; // 크롤링을 시작할 페이지
+        final int MAX_PAGES = 1; // 크롤링이 끝나는 페이지
+
+        // 크롤링을 시작할 URL
+        String base_url = "https://news.hidoc.co.kr/news/articleList.html?page=";
+
+        try {
+            while (page_num <= MAX_PAGES) {
+                String current_page = base_url + page_num;
+                System.out.println("\n > 크롤링하는 페이지 : " + page_num);
+                driver.get(current_page);
+                Thread.sleep(2000);
+
+                // 1. 링크를 미리 String으로 저장
+                List<WebElement> article_elements = driver.findElements(
+                        By.cssSelector("#section-list > ul > li > div > h2 > a")
+                );
+                List<String> article_urls = new ArrayList<>();
+                for (WebElement element : article_elements) {
+                    String href = element.getAttribute("href");
+                    article_urls.add(href);
+                }
+
+                System.out.println("수집한 기사 링크 수: " + article_urls.size());
+
+                // 2. 각 링크를 순회하며 기사 정보 가져오기
+                for (int i = 0; i < article_urls.size(); i++) {
+                    try {
+                        String original_url = article_urls.get(i);
+
+                        driver.get(original_url);
+                        Thread.sleep(2000);
+
+                        // 2-1. 제목 가져오기
+                        String post_title = driver.findElement(By.cssSelector("#snsAnchor > div > header > h1")).getText();
+
+                        // 키워드 필터링: 제목에 '암' 또는 '암환자'가 포함되지 않으면 제외
+                        if (!(post_title.contains("암") || post_title.contains("암환자") || post_title.contains("청년"))) {
+                            log.info("제외된 기사 제목(키워드 불일치): {}", post_title);
+                            continue;
+                        }
+
+                        // 제목 기준 중복 체크(DB 조회)
+                        if (dao.duplicateUrl(post_title)) {
+                            log.info("이미 수집된 기사 제목 : {}", post_title);
+                            continue;
+                        }
+
+                        // 2-2. 본문 가져오기
+                        String post_content = driver.findElement(By.cssSelector("#article-view-content-div")).getText();
+                        // 2-3. 본문에 기사 url 추가
+                        post_content += "\n\n[출처] " + original_url;
+
+                        // 2-3. 이미지
+                        String img_url = "";
+                        try {
+                            // 본문 전체에서 가장 첫 번째 img 태그를 가져옴
+                            WebElement img = driver.findElement(By.cssSelector("div.smartOutput img"));
+                            img_url = img.getAttribute("src");
+                            if (!img_url.startsWith("http") && !img_url.startsWith("https")) {
+                                img_url = "https://news.hidoc.co.kr/" + img_url;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("이미지 없음");
+                        }
+
+                        // 크롤링한 데이터를 result 에 저장
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("id", id); // 작성자 id
+                        result.put("board_idx", 2);
+                        result.put("post_title", post_title);
+                        result.put("post_content", post_content);
+
+                        // 크롤링한 데이터를 DB 에 insert
+                        dao.insertCrawlPost(result);
+                        log.info("크롤링 결과 : {}", result.get("post_idx"));
+                        // 크롤링한 데이터 중 이미지가 있으면 file 테이블에 insert
+                        if (!img_url.isEmpty()) {
+                            result.put("file_url", img_url);
+                            dao.insertCrawlFile(result);
+                        }
+
+                        // 크롤링한 결과 전체를 리스트로 묶어 리턴
+                        results.add(result);
+
+                        System.out.println("\n[기사 " + (i + 1) + "]");
+                        System.out.println("제목: " + post_title);
+                        System.out.println("본문: " + post_content);
+                        System.out.println("이미지: " + img_url);
+
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        System.out.println("기사 " + (i + 1) + " 처리 실패: " + e.getMessage());
+                    }
+                }
+
+                page_num++;
+                Thread.sleep(2000);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+            System.out.println("\n크롤링 완료!");
+        }
+
+        return results;
+    }
+
+    // 국민건강보험공단 크롤링
+    public List<Map<String, Object>> saveCrawlPostInsurance(String id) {
+        // 크롬 드라이버 경로 설정
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+
+        // 옵션 객체 생성
+        ChromeOptions options = new ChromeOptions();
+        //options.addArguments("--start-maximized"); // 크롬 시작시 전체화면(현재는 X)
+        options.addArguments("--disable-popup-blocking");
+        options.addArguments("--remote-allow-origins=*");
+        WebDriver driver = new ChromeDriver(options);
+
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        int page_num = 0; // 크롤링을 시작할 페이지
+        final int MAX_PAGES = 20; // 크롤링이 끝나는 페이지
+
+        // 크롤링을 시작할 URL
+        String base_url = "https://www.nhis.or.kr/nhis/together/wbhaea01600m01.do?mode=list&&articleLimit=10&srSearchVal=%EC%95%94&srSearchKey=article_title&article.offset=";
+
+        try {
+            while (page_num <= MAX_PAGES) {
+                String current_page = base_url + page_num;
+                System.out.println("\n > 크롤링하는 페이지 : " + page_num);
+                driver.get(current_page);
+                Thread.sleep(2000);
+
+                // 1. 링크를 미리 String으로 저장
+                List<WebElement> article_elements = driver.findElements(
+                        By.cssSelector("#cms-content > div > div > div > div > table > tbody > tr > td.a-l > a")
+                );
+                List<String> article_urls = new ArrayList<>();
+                for (WebElement element : article_elements) {
+                    String href = element.getAttribute("href");
+                    article_urls.add(href);
+                }
+
+                System.out.println("수집한 기사 링크 수: " + article_urls.size());
+
+                // 2. 각 링크를 순회하며 기사 정보 가져오기
+                for (int i = 0; i < article_urls.size(); i++) {
+                    try {
+                        String original_url = article_urls.get(i);
+
+                        driver.get(original_url);
+                        Thread.sleep(2000);
+
+                        // 2-1. 제목 가져오기
+                        String post_title = driver.findElement(By.cssSelector("#cms-content > div > div > div > div > div > p.title")).getText();
+
+                        // 제목 기준 중복 체크(DB 조회)
+                        if (dao.duplicateUrl(post_title)) {
+                            log.info("이미 수집된 기사 제목 : {}", post_title);
+                            continue;
+                        }
+
+                        // 2-2. 본문 가져오기
+                        String post_content = driver.findElement(By.cssSelector("#cms-content > div > div > div > div > div > div.post-content")).getText();
+                        // 2-3. 본문에 기사 url 추가
+                        post_content += "\n\n[출처] " + original_url;
+
+                        // 2-3. 이미지
+                        String img_url = "";
+                        try {
+                            // 본문 전체에서 가장 첫 번째 img 태그를 가져옴
+                            WebElement img = driver.findElement(By.cssSelector("#cms-content > div > div > div > div > div > div.post-content > div > p > img.fr-fic fr-dib"));
+                            img_url = img.getAttribute("src");
+                            if (!img_url.startsWith("http") && !img_url.startsWith("https")) {
+                                img_url = "https://news.hidoc.co.kr/" + img_url;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("이미지 없음");
+                        }
+
+                        // 크롤링한 데이터를 result 에 저장
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("id", id); // 작성자 id
+                        result.put("board_idx", 2);
+                        result.put("post_title", post_title);
+                        result.put("post_content", post_content);
+
+                        // 크롤링한 데이터를 DB 에 insert
+                        dao.insertCrawlPost(result);
+                        log.info("크롤링 결과 : {}", result.get("post_idx"));
+                        // 크롤링한 데이터 중 이미지가 있으면 file 테이블에 insert
+                        if (!img_url.isEmpty()) {
+                            result.put("file_url", img_url);
+                            dao.insertCrawlFile(result);
+                        }
+
+                        // 크롤링한 결과 전체를 리스트로 묶어 리턴
+                        results.add(result);
+
+                        System.out.println("\n[기사 " + (i + 1) + "]");
+                        System.out.println("제목: " + post_title);
+                        System.out.println("본문: " + post_content);
+                        System.out.println("이미지: " + img_url);
+
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                        System.out.println("기사 " + (i + 1) + " 처리 실패: " + e.getMessage());
+                    }
+                }
+
+                page_num += 10;
+                Thread.sleep(2000);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+            System.out.println("\n크롤링 완료!");
+        }
+
+        return results;
+    }
+
+
 }

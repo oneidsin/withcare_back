@@ -29,4 +29,22 @@ public class CrawlController {
         result.put("result", svc.saveCrawlPostYouth(id));
         return result;
     }
+
+    // 하이닥 크롤링
+    @GetMapping("/{id}/saveCrawlPostHidoc")
+    public Map<String, Object> saveCrawlPostHidoc(@PathVariable String id) {
+        result = new HashMap<>();
+        result.put("result", svc.saveCrawlPostHidoc(id));
+        return result;
+    }
+
+    // 국민건강보험공단 크롤링
+    @GetMapping("/{id}/saveCrawlPostInsurance")
+    public Map<String, Object> saveCrawlPostInsurance(@PathVariable String id) {
+        result = new HashMap<>();
+        result.put("result", svc.saveCrawlPostInsurance(id));
+        return result;
+    }
+
+    //
 }
