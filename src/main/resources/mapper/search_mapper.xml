@@ -22,24 +22,27 @@
 		p.post_title AS title,
 		p.post_content AS content,
 		p.id AS writer,
-		p.post_create_date AS created_date,
+		p.post_create_date AS
+		created_date,
 		p.post_view_cnt as post_view_cnt
 		FROM post p
-		LEFT JOIN profile pr ON p.id = pr.id
+		LEFT JOIN
+		profile pr ON p.id = pr.id
 		WHERE p.post_blind_yn = false
-		AND ((p.post_title LIKE CONCAT('%', '하', '%') OR p.post_content LIKE
+		AND
+		((p.post_title LIKE CONCAT('%', '하', '%') OR p.post_content LIKE
 		CONCAT('%', '', '%'))
 		p.id LIKE CONCAT('%%')
-		
-		);
 
-		<!-- 최근 검색어 (옵션 기능) -->
-		<select id="recentSearches" parameterType="String"
-			resultType="com.withcare.search.dto.SearchDTO">
-			SELECT * FROM search WHERE sch_id = #{user_id} ORDER BY sch_date DESC LIMIT
-			10
-		</select>
-		
+		);
+	</select>
+	<!-- 최근 검색어 (옵션 기능) -->
+	<select id="recentSearches" parameterType="String"
+		resultType="com.withcare.search.dto.SearchDTO">
+		SELECT * FROM search WHERE sch_id = #{user_id} ORDER BY sch_date DESC LIMIT
+		10
+	</select>
+
 </mapper>
 
 
