@@ -37,6 +37,16 @@
 	<update id="msgDelOut">
 		UPDATE message SET sender_msg_status="D" WHERE msg_idx = #{msg_idx}
 	</update>
+	
+	<!-- SAVE MSG (INBOX 기준) -->
+	<update id="msgSave">
+		UPDATE message SET receiver_msg_status="S" WHERE msg_idx = #{msg_idx}
+	</update>
+	
+	<!-- SAVE MSG (OUTBOX 기준) -->
+	<update id="msgSaveOut">
+		UPDATE message SET sender_msg_status="S" WHERE msg_idx = #{msg_idx}
+	</update>
 
 
 

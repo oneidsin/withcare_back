@@ -54,4 +54,14 @@ public class MsgService {
 		dao.msgDelOut(idx);
 	}
 
+	// SAVE MSG (받은 쪽지 기준)
+	public void msgSave(int idx) {
+		dao.msgSave(idx);
+	}
+	
+	// SAVE MSG (보낸 쪽지 기준)
+	public void msgSaveOut(int idx) {
+		dao.msgSaveOut(idx);
+	}
+
 }

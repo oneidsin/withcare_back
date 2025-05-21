@@ -27,4 +27,10 @@ public interface MsgDAO {
 	// DEL MSG (OUT BOX 기준)
 	void msgDelOut(int idx);
 
+	// SAVE MSG (IN BOX 기준)
+	void msgSave(int idx);
+
+	// SAVE MSG (OUT BOX 기준)
+	void msgSaveOut(int idx);
+
 }

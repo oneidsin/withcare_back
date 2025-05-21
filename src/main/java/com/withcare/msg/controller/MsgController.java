@@ -63,6 +63,20 @@ public class MsgController {
 		return "✉️ 보낸 쪽지가 삭제 처리 되었습니다.";
 	}
 	
+	// SAVE MSG (INBOX 기준)
+	@PutMapping("msg/save/inbox")
+	public String msgSave (@RequestParam("msg_idx") int idx) {
+		svc.msgSave(idx);
+		return "📬 받은 쪽지가 보관 처리 되었습니다.";
+	}
+			
+	// SAVE MSG (OUTBOX 기준)
+	@PutMapping("msg/save/outbox")
+	public String msgSaveOut (@RequestParam("msg_idx") int idx) {
+		svc.msgSaveOut(idx);
+		return "📬️ 보낸 쪽지가 보관 처리 되었습니다.";
+	}
+	
 		
 	
 
