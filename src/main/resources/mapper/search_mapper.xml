@@ -29,7 +29,7 @@
 		WHERE p.post_blind_yn = false
 		AND ((p.post_title LIKE CONCAT('%', '하', '%') OR p.post_content LIKE
 		CONCAT('%', '', '%'))
-		p.id LIKE CONCAT('%kim%')
+		p.id LIKE CONCAT('%%')
 		
 		);
 
@@ -40,5 +40,6 @@
 			10
 		</select>
 		
-		
 </mapper>
+
+
