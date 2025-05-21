@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.statistic.dao.BlockStatDAO">
+
+	<!-- 전체 차단 건수 -->
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(*) FROM block_list
+	</select>
+
+	<!-- 주간 차단 건수 -->
+	<select id="getWeeklyCount" resultType="int">
+		SELECT COUNT(*)
+		FROM block_list
+		WHERE block_start_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+	</select>
+
+	<!-- 차단 사유별 분포 -->
+	<select id="getBlockReason" resultType="map">
+		SELECT
+		block_reason,
+		COUNT(*) AS reason_count,
+		ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM block_list), 2) AS percentage
+		FROM block_list
+		GROUP BY block_reason
+		ORDER BY reason_count DESC
+	</select>
+
+</mapper>
+   
