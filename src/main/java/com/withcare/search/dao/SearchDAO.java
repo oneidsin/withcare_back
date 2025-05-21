@@ -12,12 +12,15 @@ import com.withcare.search.dto.SearchResultDTO;
 public interface SearchDAO {
 
 		// 검색어 저장 목록
-	 int insertSearch(SearchDTO dto);
+	 	int insertSearch(SearchDTO dto);
+	 
 	    List<SearchResultDTO> getSearchResult(SearchDTO dto);
 	    
-	    
-	    
-	    // 최근 검색어 목록 (선택사항) 나중에 필요시 사용할 것!!
-	    List<SearchDTO> recentSearches(String user_id);
 		Integer findBoardIdxForSearch(SearchDTO dto);
+		
+		boolean recentKeyword(String sch_id, String sch_keyword);
+
+		List<SearchDTO> searchRecent(String sch_id);
+
+		List<SearchResultDTO> recommedPost(String latestKeyword);
 }

@@ -46,4 +46,37 @@ public class SearchController {
 
         return result;
     }
+    
+    // 최근 검색어 조회
+    @GetMapping("/recent/{sch_id}")
+    public Map<String, Object>searchRecent(
+    		@PathVariable String sch_id){
+    	result = new HashMap<>();
+    	try {
+        	List<SearchDTO> recentList = svc.searchRecent(sch_id);
+        	result.put("success", true);
+        	result.put("data", recentList);
+		} catch (Exception e) {
+	    	result.put("success", false);
+		}
+
+    	return result;
+    }
+    
+    @GetMapping("/recommend/{sch_id}")
+    public Map<String, Object>recommendPost(
+    		@PathVariable String sch_id){
+    	
+    	result = new HashMap<>();
+    	try {
+    		// 최근 검색어 10개 조회
+        	List<SearchResultDTO>recommedPost = svc.recommedPost(sch_id);
+        	result.put("success", true);
+        	result.put("data", recommedPost);
+		} catch (Exception e) {
+			result.put("success", false);
+		}
+    	return result;
+    }
+    
 }

@@ -1,22 +1,33 @@
 package com.withcare.search.dto;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 // 검색 테이블을 사용하는 DTO
 public class SearchDTO {
 
-	private String user_id;
+	private String sch_id;
 	private int board_idx;
 	private String sch_keyword;
 	private Timestamp sch_date;
 	private String sch_type;
+	private List<String>keywords; // 게시글 추천용 키워드 리스트
+	
 
-	public String getUser_id() {
-		return user_id;
+	public List<String> getKeywords() {
+		return keywords;
 	}
 
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
+	public void setKeywords(List<String> keywords) {
+		this.keywords = keywords;
+	}
+
+	public String getSch_id() {
+		return sch_id;
+	}
+
+	public void setSch_id(String sch_id) {
+		this.sch_id = sch_id;
 	}
 
 	public int getBoard_idx() {

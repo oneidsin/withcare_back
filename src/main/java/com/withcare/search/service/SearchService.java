@@ -1,5 +1,6 @@
 package com.withcare.search.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -19,16 +20,27 @@ public class SearchService {
     
     // 검색어 저장
     public int insertSearch(SearchDTO dto) {
-    	 // 1. 게시글 하나 조회해서 board_idx 가져오기
-        Integer boardIdx = dao.findBoardIdxForSearch(dto);
-        if (boardIdx != null) {
-            dto.setBoard_idx(boardIdx);
-        } else {
-            dto.setBoard_idx(0); // 또는 예외 처리
-        }
+    	// 72 시간 이내에 같은 키워드 있는지 확인
+    	boolean exists = dao.recentKeyword(dto.getSch_id(), dto.getSch_keyword());
+    	
+    	if (!exists) {
+       	 // 1. 게시글 하나 조회해서 board_idx 가져오기
+            Integer boardIdx = dao.findBoardIdxForSearch(dto);
+            
+            // board 테이블에 실제 존재하는 board_idx인지 확인
+            if (boardIdx != null && boardIdx != 0) {
+                dto.setBoard_idx(boardIdx);
+            } else {
+                dto.setBoard_idx(0); // 또는 예외 처리
+            }
+            // 2. search 테이블에 저장
+            return dao.insertSearch(dto);
+            
+		}else {
+			// 중복 있을 때는 저장하지 않고 0 반환
+			return 0;
+		}
 
-        // 2. search 테이블에 저장
-        return dao.insertSearch(dto);
     }
 
     // 검색 결과 조회
@@ -36,11 +48,18 @@ public class SearchService {
         return dao.getSearchResult(dto);
     }
 
-    
-    
-    // 향후 확장용: 최근 검색어 목록 조회 등 나중에 필요시 만들 것!
-    public List<SearchDTO> recentSearches(String user_id) {
-        return dao.recentSearches(user_id);
-    }    
+	public List<SearchDTO> searchRecent(String sch_id) {
+		return dao.searchRecent(sch_id);
+	}
+
+	public List<SearchResultDTO> recommedPost(String sch_id) {
+		List<SearchDTO>recentKeyword = dao.searchRecent(sch_id);
+		if (recentKeyword == null || recentKeyword.isEmpty()) {
+			return new ArrayList<>(); // 빈 리스트 반환
+		}
+		// 가장 최근 검색어 
+		String latestKeyword = recentKeyword.get(0).getSch_keyword();
+		return dao.recommedPost(latestKeyword);
+	}    
    
 }

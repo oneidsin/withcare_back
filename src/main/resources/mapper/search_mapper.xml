@@ -5,78 +5,89 @@
 
 <mapper namespace="com.withcare.search.dao.SearchDAO">
 
-	<!-- 검색어 저장 -->
-	<insert id="insertSearch"
-		parameterType="com.withcare.search.dto.SearchDTO">
-		INSERT INTO search (sch_id, board_idx, sch_keyword, sch_type)
-		VALUES (#{user_id}, #{board_idx},#{sch_keyword}, #{sch_type})
-	</insert>
+   <!-- 검색어 저장 -->
+   <insert id="insertSearch" parameterType="com.withcare.search.dto.SearchDTO">
+      INSERT INTO search (sch_id, board_idx, sch_keyword, sch_type)
+      	VALUES (#{sch_id}, #{board_idx},#{sch_keyword}, #{sch_type})
+   </insert>
 
-	<select id="findBoardIdxForSearch"
-		parameterType="com.withcare.search.dto.SearchDTO" resultType="int">
-		SELECT board_idx
-		FROM post
-		WHERE post_blind_yn = false
-		<choose>
-			<when test="sch_type == '제목'">
-				AND post_title LIKE CONCAT('%', #{sch_keyword}, '%')
-			</when>
-			<when test="sch_type == '제목+내용'">
-				AND (post_title LIKE CONCAT('%', #{sch_keyword}, '%')
-				OR post_content
-				LIKE CONCAT('%', #{sch_keyword}, '%'))
-			</when>
-			<when test="sch_type == '작성자'">
-				AND id LIKE CONCAT('%', #{sch_keyword}, '%')
-			</when>
-		</choose>
-		LIMIT 1
+	<!-- 최근 키워드 중복 체크 -->
+	<select id="recentKeyword" parameterType="map" resultType="boolean">
+      SELECT EXISTS (
+      	SELECT 1 FROM search
+          WHERE sch_id = #{sch_id}
+          AND sch_keyword = #{sch_keyword}
+          AND sch_date >= NOW() - INTERVAL 3 DAY
+      )
 	</select>
 
-	<!-- 검색 + 검색 기록 저장 -->
-	<select id="getSearchResult"
-		parameterType="com.withcare.search.dto.SearchDTO"
-		resultType="com.withcare.search.dto.SearchResultDTO">
+	<!-- 게시글에서 board_idx 조회 -->
+   	<select id="findBoardIdxForSearch" parameterType="com.withcare.search.dto.SearchDTO" resultType="int">
+      SELECT board_idx FROM post WHERE post_blind_yn = false
+      <choose>
+         <when test="sch_type == '제목'">
+            AND post_title LIKE CONCAT('%', #{sch_keyword}, '%')
+         </when>
+         <when test="sch_type == '제목+내용'">
+            AND (post_title LIKE CONCAT('%', #{sch_keyword}, '%')
+            OR post_content LIKE CONCAT('%', #{sch_keyword}, '%'))
+         </when>
+         <when test="sch_type == '작성자'">
+            AND id LIKE CONCAT('%', #{sch_keyword}, '%')
+         </when>
+      </choose>
+   </select>
 
-		<!-- 검색 결과 조회 (SELECT) -->
-		SELECT
-		p.post_idx,
-		p.board_idx,
-		p.post_title AS title,
-		p.post_content AS
-		content,
-		p.id AS writer,
-		p.post_create_date AS created_date,
-		p.post_view_cnt
-		FROM post p
-		LEFT JOIN profile pr ON p.id = pr.id
-		WHERE
-		p.post_blind_yn = false
-		<choose>
-			<when test="sch_type == '제목'">
-				AND p.post_title LIKE CONCAT('%', #{sch_keyword},
-				'%')
-			</when>
-			<when test="sch_type == '제목+내용'">
-				AND (p.post_title LIKE CONCAT('%', #{sch_keyword},
-				'%')
-				OR p.post_content LIKE CONCAT('%', #{sch_keyword}, '%'))
-			</when>
-			<when test="sch_type == '작성자'">
-				AND p.id LIKE CONCAT('%', #{sch_keyword}, '%')
-			</when>
-		</choose>
-	</select>
+   <!-- 검색 결과 조회 (SELECT) -->
+   <select id="getSearchResult" parameterType="com.withcare.search.dto.SearchDTO" resultType="com.withcare.search.dto.SearchResultDTO">
+      SELECT
+	      p.post_idx,
+	      p.board_idx,
+	      p.post_title AS title,
+	      p.post_content AS content,
+	      p.id AS writer,
+	      p.post_create_date AS created_date,
+	      p.post_view_cnt
+      FROM post p
+      LEFT JOIN profile pr ON p.id = pr.id
+      WHERE p.post_blind_yn = false
+      <choose>
+         <when test="sch_type == '제목'">
+            AND p.post_title LIKE CONCAT('%', #{sch_keyword},'%')
+         </when>
+         <when test="sch_type == '제목+내용'">
+            AND (p.post_title LIKE CONCAT('%', #{sch_keyword},'%')
+            	OR p.post_content LIKE CONCAT('%', #{sch_keyword}, '%'))
+         </when>
+         <when test="sch_type == '작성자'">
+            AND p.id LIKE CONCAT('%', #{sch_keyword}, '%')
+         </when>
+      </choose>
+   </select>
 
-	<!-- ✅ 최근 검색어 조회 (선택 기능) -->
-	<select id="recentSearches" parameterType="String"
-		resultType="com.withcare.search.dto.SearchDTO">
-		SELECT *
-		FROM search
-		WHERE sch_id = #{user_id}
-		ORDER BY
-		sch_date DESC
-		LIMIT 10
+   <!-- 최근 검색어 목록 -->
+   <select id="searchRecent" parameterType="String" resultType="com.withcare.search.dto.SearchDTO">
+      SELECT sch_keyword FROM search WHERE sch_id = #{sch_id}
+      	AND sch_date >= NOW() - INTERVAL 3 DAY
+		  	GROUP BY sch_keyword
+		    ORDER BY sch_date DESC LIMIT 10
+   </select>
+   
+   <select id="recommedPost" parameterType="String" resultType="com.withcare.search.dto.SearchResultDTO">
+	  SELECT
+	      p.post_idx,
+	      p.board_idx,
+	      p.post_title AS title,
+	      p.post_content AS content,
+	      p.id AS writer,
+	      p.post_create_date AS created_date,
+	      p.post_view_cnt
+	  FROM post p
+	  WHERE p.post_blind_yn = false
+	    AND (p.post_title LIKE CONCAT('%', #{keyword}, '%')
+	         OR p.post_content LIKE CONCAT('%', #{keyword}, '%'))
+	  ORDER BY p.post_view_cnt DESC
+	  LIMIT 5
 	</select>
 
 </mapper>
