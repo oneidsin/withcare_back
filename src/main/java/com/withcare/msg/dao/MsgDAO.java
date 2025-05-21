@@ -21,4 +21,10 @@ public interface MsgDAO {
 	// MSG DETAIL
 	MsgDTO msgDetail(int idx);
 
+	// DEL MSG (IN BOX 기준)
+	void msgDel(int idx);
+
+	// DEL MSG (OUT BOX 기준)
+	void msgDelOut(int idx);
+
 }

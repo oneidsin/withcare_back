@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +28,6 @@ public class MsgController {
 	@PostMapping ("/msg/send")
 	public String sendMsg (@RequestBody MsgDTO dto) {
 		svc.sendMsg(dto);
-		
 		return "📫 쪽지가 성공적으로 전송되었습니다.";
 	}
 	
@@ -49,7 +49,20 @@ public class MsgController {
 		return svc.msgDetail(idx);
 	}
 		
-	// DEL MSG
+	// DEL MSG (INBOX 기준)
+	@PutMapping("msg/delete/inbox")
+	public String msgDel (@RequestParam("msg_idx") int idx) {
+		svc.msgDel(idx);
+		return "✉️ 받은 쪽지가 삭제 처리 되었습니다.";
+	}
+		
+	// DEL MSG (OUTBOX 기준)
+	@PutMapping("msg/delete/outbox")
+	public String msgDelOut (@RequestParam("msg_idx") int idx) {
+		svc.msgDelOut(idx);
+		return "✉️ 보낸 쪽지가 삭제 처리 되었습니다.";
+	}
+	
 		
 	
 

@@ -44,4 +44,14 @@ public class MsgService {
 		return dao.msgDetail(idx);
 	}
 
+	// DELETE MSG (받은 쪽지 기준)
+	public void msgDel(int idx) {
+		dao.msgDel(idx);
+	}
+
+	// DELETE MSG (보낸 쪽지 기준)
+	public void msgDelOut(int idx) {
+		dao.msgDelOut(idx);
+	}
+
 }
