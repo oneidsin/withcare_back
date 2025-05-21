@@ -16,6 +16,8 @@ import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
+import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.LevelDTO;
 import com.withcare.profile.dto.TimelineDTO;
 
 @Service
@@ -104,6 +106,30 @@ public class AdminService {
 
 	public List<TimelineDTO> adminMemberTimeline(String targetId) {
 		return dao.adminMemberTimeline(targetId);
+	}
+
+
+	public boolean adminBdgAdd(BadgeDTO bdg) {
+		int row = dao.adminBdgAdd(bdg);
+		return row>0;
+	}
+
+
+	public boolean adminBdgUpdate(BadgeDTO bdg) {
+		int row = dao.adminBdgUpdate(bdg);
+		return row>0;
+	}
+
+
+	public boolean adminBdgDelete(BadgeDTO bdg) {
+		int row = dao.adminBdgDelete(bdg);
+		return row>0;
+	}
+
+
+	public boolean adminLevelAdd(LevelDTO level) {
+		int row = dao.adminLevelAdd(level);
+		return row>0;
 	}
 
 }

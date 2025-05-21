@@ -11,6 +11,8 @@ import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
+import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.LevelDTO;
 import com.withcare.profile.dto.TimelineDTO;
 
 @Mapper
@@ -33,6 +35,14 @@ public interface AdminDAO {
 	List<LikeDislikeDTO> adminMemberLike(String targetId);
 
 	List<TimelineDTO> adminMemberTimeline(String targetId);
+
+	int adminBdgAdd(BadgeDTO bdg);
+
+	int adminBdgUpdate(BadgeDTO bdg);
+
+	int adminBdgDelete(BadgeDTO bdg);
+
+	int adminLevelAdd(LevelDTO level);
 
 
 }

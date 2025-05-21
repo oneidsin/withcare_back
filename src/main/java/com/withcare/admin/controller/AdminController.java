@@ -20,6 +20,8 @@ import com.withcare.admin.service.AdminService;
 import com.withcare.member.dto.MemberDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
+import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.LevelDTO;
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
@@ -257,7 +259,7 @@ public class AdminController {
 		return result;
 	}
 	
-	/* 배지 추가
+	// 배지 추가
 	@PostMapping("/admin/bdg/add")
 	public Map<String, Object>adminBdgAdd(
 			@RequestBody BadgeDTO bdg,
@@ -266,23 +268,77 @@ public class AdminController {
 		result = new HashMap<String, Object>();
 		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
 		
+		boolean success = svc.adminBdgAdd(bdg);
+		
 		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
-			result.put("success", false);
+			result.put("success", success);
 			return result;
 		}
 		
-		boolean updated = svc.adminBdgAdd(bdg);
-		result.put("success", true);
-		
+		result.put("success", success);
 		return result;
 	}
-	*/
-	
+
 	// 배지 수정
+	@PutMapping("/admin/bdg/update")
+	public Map<String, Object>adminBdgUpdate(
+			@RequestBody BadgeDTO bdg,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		boolean success = svc.adminBdgUpdate(bdg);
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", success);
+			return result;
+		}
+		
+		result.put("success", success);
+		return result;
+		
+	}
 	
 	// 배지 삭제
+	@PutMapping("/admin/bdg/delete")
+	public Map<String, Object>adminBdgDelete(
+			@RequestBody BadgeDTO bdg,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		boolean success = svc.adminBdgDelete(bdg);
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", success);
+			return result;
+		}
+		
+		result.put("success", success);
+		return result;
+	}
 	
 	// 레벨 조건 추가
+	@PostMapping("/admin/level/add")
+	public Map<String, Object>adminLevelAdd(
+			@RequestBody LevelDTO level,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		boolean success = svc.adminLevelAdd(level);
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", success);
+			return result;
+		}
+		
+		result.put("success", success);
+		return result;
+	}
 	
 	// 레벨 조건 수정
 	

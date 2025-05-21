@@ -125,4 +125,24 @@
    			SELECT * FROM timeline WHERE time_user_id = #{id} AND time_public_yn = 1 ORDER BY day DESC
    		</select>
    		
+   		<insert id="adminBdgAdd" parameterType="com.withcare.profile.dto.BadgeDTO">
+		    INSERT INTO badge (bdg_name, bdg_icon, bdg_condition, bdg_active_yn)
+		    	VALUES (#{bdg_name}, #{bdg_icon}, #{bdg_condition}, #{bdg_active_yn})
+   		</insert>
+   		
+   		<update id="adminBdgUpdate" parameterType="com.withcare.profile.dto.BadgeDTO">
+ 			UPDATE badge SET bdg_name = #{bdg_name}, bdg_icon = #{bdg_icon}, bdg_condition = #{bdg_condition}, bdg_active_yn = #{bdg_active_yn}
+    			WHERE bdg_idx = #{bdg_idx}
+   		</update>
+   		
+ 		<update id="adminBdgDelete" parameterType="com.withcare.profile.dto.BadgeDTO">
+ 			UPDATE badge SET bdg_active_yn = #{bdg_active_yn}
+    			WHERE bdg_idx = #{bdg_idx}
+   		</update>
+   		
+   		<insert id="adminLevelAdd">
+		    INSERT INTO level (lv_no, lv_name, lv_icon, post_cnt, com_cnt, like_cnt, time_cnt, access_cnt)
+		    VALUES (#{lv_no}, #{lv_name}, #{lv_icon}, #{post_cnt}, #{com_cnt}, #{like_cnt}, #{time_cnt}, #{access_cnt})
+   		</insert>
+   		
    </mapper>
