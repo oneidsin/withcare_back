@@ -18,7 +18,9 @@ import com.withcare.admin.dto.AdminMemberDTO;
 import com.withcare.admin.dto.AdminMemberDetailDTO;
 import com.withcare.admin.service.AdminService;
 import com.withcare.member.dto.MemberDTO;
+import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
+import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @CrossOrigin
@@ -163,6 +165,7 @@ public class AdminController {
 	}
 	
 	
+	// 작성 게시글 목록 확인
 	@PostMapping("/admin/member/post")
 	public Map<String, Object> adminMemberPost(
 			@RequestBody Map<String, String>param,
@@ -184,5 +187,116 @@ public class AdminController {
 		
 		return result;
 	}
+	
+	// 댓글 + 멘션 목록 조회
+	@PostMapping("/admin/member/comments")
+	public Map<String, Object> adminMemberComments(
+			@RequestBody Map<String, String>param,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		String targetId = param.get("id");
+		
+		List<Map<String, Object>> commentList = svc.adminMemberComments(targetId);
+		
+		result.put("success", true);
+		result.put("data", commentList);
+		
+		return result;
+	}
+	
+	// 추천 누른 게시글 (비추천 X)
+	@PostMapping("/admin/member/like")
+	public Map<String, Object>adminMemberLike(
+			@RequestBody Map<String, String>param,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		String targetId = param.get("id");
+		
+		List<LikeDislikeDTO> likes = svc.adminMemberLike(targetId);
+		result.put("success", true);
+		result.put("data", likes);
+		
+		return result;
+	}
+	
+	@PostMapping("/admin/member/timelines")
+	public Map<String, Object>adminMemberTimeline(
+			@RequestBody Map<String, String>param,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		String targetId = param.get("id");
+		
+		List<TimelineDTO> timeline = svc.adminMemberTimeline(targetId);
+		result.put("success", true);
+		result.put("data", timeline);
+		
+		return result;
+	}
+	
+	/* 배지 추가
+	@PostMapping("/admin/bdg/add")
+	public Map<String, Object>adminBdgAdd(
+			@RequestBody BadgeDTO bdg,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		boolean updated = svc.adminBdgAdd(bdg);
+		result.put("success", true);
+		
+		return result;
+	}
+	*/
+	
+	// 배지 수정
+	
+	// 배지 삭제
+	
+	// 레벨 조건 추가
+	
+	// 레벨 조건 수정
+	
+	// 레벨 조건 삭제
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
