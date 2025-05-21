@@ -22,6 +22,11 @@
 	<select id="inbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
 		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE receiver_id = #{receiver_id} AND sender_msg_status = "N" ORDER BY msg_sent_at DESC
 	</select>
+	
+	<!-- MSG DETAIL -->
+	<select id="msgDetail" parameterType="int" resultType="com.withcare.msg.dto.MsgDTO">
+		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE msg_idx=#{msg_idx}
+	</select>
 
 
 

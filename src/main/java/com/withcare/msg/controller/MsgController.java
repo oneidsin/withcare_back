@@ -38,10 +38,19 @@ public class MsgController {
 	}
 	
 	// INBOX
-		@GetMapping("/msg/inbox")
-		public List<MsgDTO> inbox(@RequestParam("receiver_id") String id){
-			return svc.inbox(id);
-		}
+	@GetMapping("/msg/inbox")
+	public List<MsgDTO> inbox(@RequestParam("receiver_id") String id){
+		return svc.inbox(id);
+	}
+		
+	// MSG DETAIL
+	@GetMapping("/msg/detail")
+	public MsgDTO msgDetail (@RequestParam("msg_idx") int idx) {
+		return svc.msgDetail(idx);
+	}
+		
+	// DEL MSG
+		
 	
 
 	

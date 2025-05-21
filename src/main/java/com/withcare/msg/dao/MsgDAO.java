@@ -18,4 +18,7 @@ public interface MsgDAO {
 	// INBOX
 	List<MsgDTO> inbox(String id);
 
+	// MSG DETAIL
+	MsgDTO msgDetail(int idx);
+
 }

@@ -35,8 +35,13 @@ public class MsgService {
 	}
 	
 	// INBOX
-		public List<MsgDTO> inbox(String id) {
-			return dao.inbox(id);
-		}
+	public List<MsgDTO> inbox(String id) {
+		return dao.inbox(id);
+	}
+		
+	// MSG DETAIL
+	public MsgDTO msgDetail(int idx) {
+		return dao.msgDetail(idx);
+	}
 
 }
