@@ -54,7 +54,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	}
 	
 	
-	// 댓글 수정
+	// UPDATE COMMENT
 	@PutMapping("/post/detail/{post_idx}/edit")
 	public Map<String, Object> editCom (@RequestBody ComDTO dto, @RequestHeader Map<String, String> header){
 		
@@ -77,8 +77,27 @@ Logger log = LoggerFactory.getLogger(getClass());
 		return result;
 	}
 	
-	// 댓글 블라인드
-	// @PutMapping
+	// BLIND COMMENT
+	@PutMapping("/post/detail/{post_idx}/delete")
+	public Map<String, Object> delCom (@RequestBody ComDTO dto, @RequestHeader Map<String, String>header){
+
+	    String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    boolean login = false;
+	    
+		result = new HashMap<String, Object>();
+	    
+	    boolean success = false;
+	    if (id != null && !id.isEmpty()) {
+	    	success = svc.delCom(dto, id);
+	        login = true;
+	    }
+
+		result.put("idx", dto.getCom_idx());
+		result.put("success", success);
+	    result.put("loginYN", login);
+	    
+		return result;
+	}
 	
 	// 댓글 리스트 (조회)
 	// @GetMapping

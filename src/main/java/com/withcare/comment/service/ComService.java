@@ -28,6 +28,8 @@ public class ComService {
 		
 		return row > 0;
 	}
+	
+	// UPDATE COMMENT
 
 	public boolean updateCom(ComDTO dto) {
 		
@@ -35,6 +37,28 @@ public class ComService {
 		
 		return row > 0;
 	}
+	
+	// DELETE COMMENT
+
+	public boolean delCom(ComDTO dto, String id) {
+		
+		String writerId = dao.writerId(dto.getCom_idx());
+		if (id == null) {
+			return false;
+		}
+		
+		if (!writerId.equals(id)) {
+			int lv_idx = dao.userLevel(id);
+			if (lv_idx != 7) {
+				return false;
+			}
+		}
+		
+		int row = dao.delCom(dto);
+		return row > 0;
+	}
+	
+
 	
 
 }

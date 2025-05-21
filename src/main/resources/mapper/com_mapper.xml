@@ -15,4 +15,19 @@
 		UPDATE comment SET com_content = #{com_content} WHERE com_idx = #{com_idx} AND id = #{id}
 	</update>
 	
+	<!-- BLIND COMMENT -->
+	<update id="delCom" parameterType="com.withcare.comment.dto.ComDTO">
+		UPDATE comment SET com_blind_yn = #{com_blind_yn} WHERE com_idx = #{com_idx}
+	</update>
+	
+	<!-- 작성자 ID 가져오기 -->
+	<select id="writerId" parameterType="int" resultType="String">
+    	SELECT id FROM comment WHERE com_idx = #{com_idx}
+	</select>
+	
+	<!-- level 가져오기 -->
+	<select id="userLevel" parameterType="String" resultType="int">
+	    SELECT lv_idx FROM member WHERE id = #{id}
+	</select>
+	
    </mapper>

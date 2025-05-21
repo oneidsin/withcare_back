@@ -13,4 +13,11 @@ public interface ComDAO {
 	// UPDATE COMMENT
 	int updateCom(ComDTO dto);
 
+	String writerId(int com_idx);
+
+	int userLevel(String id);
+
+	// DELETE COMMENT
+	int delCom(ComDTO dto);
+
 }
