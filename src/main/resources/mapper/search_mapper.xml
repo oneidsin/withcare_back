@@ -4,43 +4,41 @@
 
 <mapper namespace="com.withcare.search.dao.SearchDAO">
 
-
-	<insert id="insertSearch" useGeneratedKeys="true"
-		keyProperty="sch_idx">
-		INSERT INTO search (sch_id, board_idx, sch_keyword, sch_type)
-		VALUES (#{sch_id}, #{board_idx}, #{sch_keyword}, #{sch_type})
+	<!-- 검색어 저장 -->
+	<insert id="insertSearch"
+		parameterType="com.withcare.search.dto.SearchDTO">
+		INSERT INTO search (sch_id, sch_keyword, sch_type)
+		VALUES (#{user_id}, #{sch_keyword}, #{sch_type})
 	</insert>
 
-	<insert id="insertSearchHistory">
-		INSERT INTO search_history (user_id, sch_idx, board_idx, sch_keyword, sch_date, sch_type)
-		VALUES (#{user_id}, #{sch_idx}, #{board_idx}, #{sch_keyword}, NOW(), #{sch_type})
-	</insert>
-	<select id="searchPosts"
-		resultType="com.withcare.search.dto.SearchResponseDTO">
+	<!-- 검색 실행 -->
+	<select id="getSearchResult"
+		parameterType="com.withcare.search.dto.SearchDTO"
+		resultType="com.withcare.search.dto.SearchResultDTO">
+
 		SELECT
-		p.post_idx AS postIdx,
-		p.post_title AS postTitle,
-		p.post_content
-		AS postContent,
-		p.id AS writerId,
-		p.post_create_date AS createdDate
-		FROM
-		post p
+		p.post_idx,
+		p.board_idx,
+		p.post_title AS title,
+		p.post_content AS content,
+		p.id AS writer,
+		p.post_create_date AS created_date,
+		p.post_view_cnt as post_view_cnt
+		FROM post p
+		LEFT JOIN profile pr ON p.id = pr.id
 		WHERE p.post_blind_yn = false
-		<choose>
-			<when test="search_type == 'title'">
-				AND p.post_title LIKE CONCAT('%', #{keyword}, '%')
-			</when>
-			<when test="search_type == 'title_content'">
-				AND (p.post_title LIKE CONCAT('%', #{keyword}, '%')
-				OR p.post_content LIKE CONCAT('%', #{keyword}, '%'))
-			</when>
-			<when test="search_type == 'writer'">
-				AND p.id LIKE CONCAT('%', #{keyword}, '%')
-			</when>
-			<otherwise>
-				AND 1 = 0
-			</otherwise>
-		</choose>
-	</select>
+		AND ((p.post_title LIKE CONCAT('%', '하', '%') OR p.post_content LIKE
+		CONCAT('%', '', '%'))
+		p.id LIKE CONCAT('%kim%')
+		
+		);
+
+		<!-- 최근 검색어 (옵션 기능) -->
+		<select id="recentSearches" parameterType="String"
+			resultType="com.withcare.search.dto.SearchDTO">
+			SELECT * FROM search WHERE sch_id = #{user_id} ORDER BY sch_date DESC LIMIT
+			10
+		</select>
+		
+		
 </mapper>

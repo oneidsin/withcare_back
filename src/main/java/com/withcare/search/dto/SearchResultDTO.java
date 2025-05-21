@@ -1,41 +1,61 @@
 package com.withcare.search.dto;
 
+import java.sql.Timestamp;
+
 public class SearchResultDTO {
 
-	private String keyword;
-	private String search_type; // title, title_content, writer
-	private Integer board_idx; // optional
-	private int sch_idx;
+	private int post_idx;
+	private int board_idx;
+	private String title;
+	private String content;
+	private String writer;
+	private Timestamp created_date;
 
-	public int getSch_idx() {
-		return sch_idx;
+	public int getPost_idx() {
+		return post_idx;
 	}
 
-	public void setSch_idx(int sch_idx) {
-		this.sch_idx = sch_idx;
-	}
-		
-	public String getKeyword() {
-		return keyword;
+	public void setPost_idx(int post_idx) {
+		this.post_idx = post_idx;
 	}
 
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
-	}
-
-	public String getSearch_type() {
-		return search_type;
-	}
-
-	public void setSearch_type(String search_type) {
-		this.search_type = search_type;
-	}
-
-	public Integer getBoard_idx() {
+	public int getBoard_idx() {
 		return board_idx;
 	}
 
-	public void setBoard_idx(Integer board_idx) {
+	public void setBoard_idx(int board_idx) {
 		this.board_idx = board_idx;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getWriter() {
+		return writer;
+	}
+
+	public void setWriter(String writer) {
+		this.writer = writer;
+	}
+
+	public Timestamp getCreated_date() {
+		return created_date;
+	}
+
+	public void setCreated_date(Timestamp created_date) {
+		this.created_date = created_date;
 	}
 }

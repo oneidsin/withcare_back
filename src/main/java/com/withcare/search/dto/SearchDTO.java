@@ -1,13 +1,13 @@
 package com.withcare.search.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class SearchDTO {
 
 	private String user_id;
 	private int board_idx;
 	private String sch_keyword;
-	private Date sch_date;
+	private Timestamp sch_date;
 	private String sch_type;
 
 	public String getUser_id() {
@@ -34,11 +34,11 @@ public class SearchDTO {
 		this.sch_keyword = sch_keyword;
 	}
 
-	public Date getSch_date() {
+	public Timestamp getSch_date() {
 		return sch_date;
 	}
 
-	public void setSch_date(Date sch_date) {
+	public void setSch_date(Timestamp sch_date) {
 		this.sch_date = sch_date;
 	}
 
