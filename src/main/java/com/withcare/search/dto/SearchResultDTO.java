@@ -2,6 +2,7 @@ package com.withcare.search.dto;
 
 import java.sql.Timestamp;
 
+// 검색하여 나오는 내용들을 끓어오는 DTO
 public class SearchResultDTO {
 
 	private int post_idx;

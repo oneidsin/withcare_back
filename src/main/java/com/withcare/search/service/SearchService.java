@@ -36,7 +36,9 @@ public class SearchService {
         return dao.getSearchResult(dto);
     }
 
-    // 향후 확장용: 최근 검색어 목록 조회 등
+    
+    
+    // 향후 확장용: 최근 검색어 목록 조회 등 나중에 필요시 만들 것!
     public List<SearchDTO> recentSearches(String user_id) {
         return dao.recentSearches(user_id);
     }    
