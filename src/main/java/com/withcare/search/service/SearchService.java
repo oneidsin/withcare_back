@@ -19,6 +19,15 @@ public class SearchService {
     
     // 검색어 저장
     public int insertSearch(SearchDTO dto) {
+    	 // 1. 게시글 하나 조회해서 board_idx 가져오기
+        Integer boardIdx = dao.findBoardIdxForSearch(dto);
+        if (boardIdx != null) {
+            dto.setBoard_idx(boardIdx);
+        } else {
+            dto.setBoard_idx(0); // 또는 예외 처리
+        }
+
+        // 2. search 테이블에 저장
         return dao.insertSearch(dto);
     }
 
