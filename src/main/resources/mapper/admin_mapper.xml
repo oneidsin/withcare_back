@@ -140,9 +140,31 @@
     			WHERE bdg_idx = #{bdg_idx}
    		</update>
    		
-   		<insert id="adminLevelAdd">
+   		<insert id="adminLevelAdd" parameterType="com.withcare.profile.dto.LevelDTO">
 		    INSERT INTO level (lv_no, lv_name, lv_icon, post_cnt, com_cnt, like_cnt, time_cnt, access_cnt)
-		    VALUES (#{lv_no}, #{lv_name}, #{lv_icon}, #{post_cnt}, #{com_cnt}, #{like_cnt}, #{time_cnt}, #{access_cnt})
+		    	VALUES (#{lv_no}, #{lv_name}, #{lv_icon}, #{post_cnt}, #{com_cnt}, #{like_cnt}, #{time_cnt}, #{access_cnt})
    		</insert>
    		
+		<update id="adminLevelUpdate" parameterType="com.withcare.profile.dto.LevelDTO">
+ 			UPDATE level SET 
+	 			lv_no = #{lv_no}, 
+	 			lv_name = #{lv_name},
+	 			lv_icon = #{lv_icon},
+		        post_cnt = #{post_cnt},
+		        com_cnt = #{com_cnt},
+		        like_cnt = #{like_cnt},
+		        time_cnt = #{time_cnt},
+		        access_cnt = #{access_cnt}
+	    	WHERE lv_idx = #{lv_idx}
+   		</update>
+   		
+   		<!-- 해당 레벨을 보유한 사용자가 몇 명인지 확인 -->
+		<select id="adminLevelCnt" resultType="int">
+		    SELECT COUNT(*) FROM member WHERE lv_idx = #{lv_idx}
+		</select>
+		
+		<!-- 레벨 삭제 -->
+		<delete id="adminLevelDelete">
+		    DELETE FROM level WHERE lv_idx = #{lv_idx}
+		</delete>
    </mapper>

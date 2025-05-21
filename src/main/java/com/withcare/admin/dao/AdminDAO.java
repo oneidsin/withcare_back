@@ -44,5 +44,9 @@ public interface AdminDAO {
 
 	int adminLevelAdd(LevelDTO level);
 
+	int adminLevelUpdate(LevelDTO level);
+
+	int adminLevelDelete(int lv_idx);
+
 
 }

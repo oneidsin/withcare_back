@@ -132,4 +132,16 @@ public class AdminService {
 		return row>0;
 	}
 
+
+	public boolean adminLevelUpdate(LevelDTO level) {
+		int row = dao.adminLevelUpdate(level);
+		return row>0;
+	}
+
+
+	public boolean adminLevelDelete(int lv_idx) {
+		int row = dao.adminLevelDelete(lv_idx);
+		return row>0;
+	}
+
 }

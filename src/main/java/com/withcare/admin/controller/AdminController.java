@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -341,9 +343,50 @@ public class AdminController {
 	}
 	
 	// 레벨 조건 수정
+	@PutMapping("/admin/level/update")
+	public Map<String, Object>adminLevelUpdate(
+			@RequestBody LevelDTO level,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		boolean success = svc.adminLevelUpdate(level);
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", success);
+			return result;
+		}
+		
+		result.put("success", success);
+		return result;
+	}
 	
 	// 레벨 조건 삭제
-	
+	@DeleteMapping("/admin/level/delete/{lv_idx}")
+	public Map<String, Object>adminLevelDelete(
+			@PathVariable int lv_idx,
+			@RequestHeader Map<String, String>header){
+		
+		result = new HashMap<String, Object>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+			result.put("success", false);
+			return result;
+		}
+		
+		// 레벨 사용자 있는 경우 삭제 불가
+		boolean deleted = svc.adminLevelDelete(lv_idx);
+		if (deleted) {
+			result.put("success", true);
+		}else {
+			result.put("success", true);
+			result.put("msg", "이미 레벨을 사용하고 있는 사용자가 있습니다.");
+		}
+		
+		return result;
+	}
 	
 	
 	
