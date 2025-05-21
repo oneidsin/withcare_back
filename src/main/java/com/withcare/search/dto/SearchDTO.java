@@ -2,6 +2,7 @@ package com.withcare.search.dto;
 
 import java.sql.Timestamp;
 
+// 검색 테이블을 사용하는 DTO
 public class SearchDTO {
 
 	private String user_id;
