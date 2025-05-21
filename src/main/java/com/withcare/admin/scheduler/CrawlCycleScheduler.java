@@ -23,7 +23,7 @@ public class CrawlCycleScheduler {
     @Autowired
     CrawlService svc;
 
-    // 3분마다 실행
+    // 30분마다 실행
     @Scheduled(cron = "0 */30 * * * *")
     public void checkCrawlSchedule() {
         try {
