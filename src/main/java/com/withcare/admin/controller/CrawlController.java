@@ -50,4 +50,13 @@ public class CrawlController {
         result.put("result", svc.updateCrawlYn(id, sourceIdx));
         return result;
     }
+
+    // 관리자가 크롤링 주기를 수정
+    @PutMapping("/{id}/crawl/updateCrawlCycle/{sourceIdx}")
+    public Map<String, Object> updateCrawlCycle(@PathVariable String id, @PathVariable int sourceIdx, @RequestBody Map<String, Object> req) {
+        result = new HashMap<>();
+        int crawl_cycle = Integer.parseInt(req.get("crawl_cycle").toString());
+        result.put("result", svc.updateCrawlCycle(id, sourceIdx, crawl_cycle));
+        return result;
+    }
 }
