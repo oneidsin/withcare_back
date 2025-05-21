@@ -13,4 +13,6 @@ public interface CrawlDAO {
     void insertCrawlFile(Map<String, Object> result);
 
     int updateCrawlYn(String id, int sourceIdx);
+
+    int updateCrawlCycle(String id, int sourceIdx, int crawl_cycle);
 }

@@ -29,4 +29,12 @@
         SET crawl_yn = #{crawl_yn}
         WHERE source_idx = #{sourceIdx}
     </update>
+
+    <!-- 크롤링 주기 설정 업데이트 -->
+    <update id="updateCrawlCycle">
+        UPDATE crawl_management
+        SET crawl_cycle = #{crawl_cycle},
+            crawl_cycle_updated_at = NOW()
+        WHERE source_idx = #{sourceIdx};
+    </update>
 </mapper>
