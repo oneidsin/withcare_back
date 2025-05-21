@@ -1,6 +1,6 @@
 package com.withcare.msg.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class MsgDTO {
 	
@@ -8,7 +8,7 @@ public class MsgDTO {
 	private String sender_id;
 	private String receiver_id;
 	private String msg_content;
-	private Date msg_sent_at;
+	private Timestamp msg_sent_at;
 	private boolean msg_read;
 	private String sender_msg_status;
 	private String receiver_msg_status;
@@ -37,12 +37,7 @@ public class MsgDTO {
 	public void setMsg_content(String msg_content) {
 		this.msg_content = msg_content;
 	}
-	public Date getMsg_sent_at() {
-		return msg_sent_at;
-	}
-	public void setMsg_sent_at(Date msg_sent_at) {
-		this.msg_sent_at = msg_sent_at;
-	}
+	
 	public boolean isMsg_read() {
 		return msg_read;
 	}
@@ -60,6 +55,12 @@ public class MsgDTO {
 	}
 	public void setReceiver_msg_status(String receiver_msg_status) {
 		this.receiver_msg_status = receiver_msg_status;
+	}
+	public Timestamp getMsg_sent_at() {
+		return msg_sent_at;
+	}
+	public void setMsg_sent_at(Timestamp msg_sent_at) {
+		this.msg_sent_at = msg_sent_at;
 	}
 	
 	

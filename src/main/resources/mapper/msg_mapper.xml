@@ -12,6 +12,16 @@
 		VALUES (#{sender_id}, #{receiver_id}, #{msg_content}, #{msg_sent_at},
 		#{msg_read},"N","N")
 	</insert>
+	
+	<!-- OUTBOX -->
+	<select id="outbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
+		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE sender_id = #{sender_id} AND sender_msg_status = "N" ORDER BY msg_sent_at DESC
+	</select>
+	
+	<!-- INBOX -->
+	<select id="inbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
+		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE receiver_id = #{receiver_id} AND sender_msg_status = "N" ORDER BY msg_sent_at DESC
+	</select>
 
 
 
