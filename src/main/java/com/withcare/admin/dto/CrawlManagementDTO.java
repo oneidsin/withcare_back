@@ -1,6 +1,6 @@
 package com.withcare.admin.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class CrawlManagementDTO {
     private int source_idx;
@@ -9,7 +9,17 @@ public class CrawlManagementDTO {
     private String base_url;
     private int crawl_cycle;
     private String crawl_cate;
-    private Date last_crawl_at;
+    private Timestamp last_crawl_at;
+    private Timestamp crawl_cycle_updated_at;
+
+    public Timestamp getCrawl_cycle_updated_at() {
+        return crawl_cycle_updated_at;
+    }
+
+    public void setCrawl_cycle_updated_at(Timestamp crawl_cycle_updated_at) {
+        this.crawl_cycle_updated_at = crawl_cycle_updated_at;
+    }
+
     private boolean crawl_yn;
 
     public int getSource_idx() {
@@ -60,11 +70,11 @@ public class CrawlManagementDTO {
         this.crawl_cate = crawl_cate;
     }
 
-    public Date getLast_crawl_at() {
+    public Timestamp getLast_crawl_at() {
         return last_crawl_at;
     }
 
-    public void setLast_crawl_at(Date last_crawl_at) {
+    public void setLast_crawl_at(Timestamp last_crawl_at) {
         this.last_crawl_at = last_crawl_at;
     }
 
