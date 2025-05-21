@@ -1,5 +1,7 @@
 package com.withcare.comment.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.comment.dto.ComDTO;
@@ -19,5 +21,11 @@ public interface ComDAO {
 
 	// DELETE COMMENT
 	int delCom(ComDTO dto);
+
+	// COMMENT LIST 
+	List<ComDTO> comList(int post_idx);
+
+	// COUNT COMMENT
+	int comCnt(int post_idx);
 
 }

@@ -30,4 +30,14 @@
 	    SELECT lv_idx FROM member WHERE id = #{id}
 	</select>
 	
+	<!-- COMMENT LIST -->
+    <select id="comList" parameterType="int" resultType="com.withcare.comment.dto.ComDTO">
+        SELECT * FROM comment WHERE post_idx = #{post_idx} ORDER BY com_idx ASC
+    </select>
+
+    <!-- COUNT COMMENT -->
+    <select id="comCnt" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM comment WHERE post_idx = #{post_idx}
+    </select>
+	
    </mapper>
