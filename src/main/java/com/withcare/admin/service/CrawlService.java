@@ -391,4 +391,9 @@ public class CrawlService {
         int row = dao.updateCrawlYn(id, sourceIdx);
         return row > 0;
     }
+
+    public boolean updateCrawlCycle(String id, int sourceIdx, int crawl_cycle) {
+        int row = dao.updateCrawlCycle(id, sourceIdx, crawl_cycle);
+        return row > 0;
+    }
 }
