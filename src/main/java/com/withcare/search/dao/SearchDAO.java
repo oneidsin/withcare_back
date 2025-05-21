@@ -17,4 +17,5 @@ public interface SearchDAO {
 	    
 	    // 최근 검색어 목록 (선택사항)
 	    List<SearchDTO> recentSearches(String user_id);
+		Integer findBoardIdxForSearch(SearchDTO dto);
 }
