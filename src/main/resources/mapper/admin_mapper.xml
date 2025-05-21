@@ -99,4 +99,30 @@
 		        END DESC
 		</select>
    		
+   		<!-- 관리자 회원 댓글 리스트 보기 -->
+   		<select id="adminMemberCom" parameterType="String" resultType="com.withcare.comment.dto.ComDTO">
+   			SELECT * FROM comment WHERE id = #{targetId} ORDER BY com_create_date DESC
+   		</select>
+   		
+   		<!-- 관리자 회원 멘션 리스트 보기 -->
+   		<select id="adminMemberMen" parameterType="String" resultType="com.withcare.comment.dto.MenDTO">
+   			SELECT * FROM mention WHERE men_writer_id = #{targetId} ORDER BY men_create_date DESC
+   		</select>
+   		
+   		<!-- 관리자 회원 추천 게시글 리스트 보기 -->
+   		<select id="adminMemberLike" parameterType="String" resultType="com.withcare.post.dto.LikeDislikeDTO">
+		    SELECT
+		         l.id AS like_id, l.post_idx, l.like_type, l.like_date,
+		        p.post_idx, p.post_title, p.post_content, p.id AS post_writer,
+		        p.post_create_date, p.post_update_date, p.post_view_cnt
+		    FROM likeYn l
+		    JOIN post p ON l.post_idx = p.post_idx
+		    WHERE l.id = #{targetId} AND l.like_type = 1
+		    ORDER BY l.like_date DESC
+   		</select>
+   		
+   		<select id="adminMemberTimeline" parameterType="String" resultType="com.withcare.profile.dto.TimelineDTO">
+   			SELECT * FROM timeline WHERE time_user_id = #{id} AND time_public_yn = 1 ORDER BY day DESC
+   		</select>
+   		
    </mapper>

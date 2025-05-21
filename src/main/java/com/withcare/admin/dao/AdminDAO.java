@@ -7,7 +7,11 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.admin.dto.AdminMemberDTO;
 import com.withcare.admin.dto.AdminMemberDetailDTO;
+import com.withcare.comment.dto.ComDTO;
+import com.withcare.comment.dto.MenDTO;
+import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
+import com.withcare.profile.dto.TimelineDTO;
 
 @Mapper
 public interface AdminDAO {
@@ -21,6 +25,14 @@ public interface AdminDAO {
 	AdminMemberDetailDTO adminMemberDetail(String targetId);
 
 	List<PostDTO> adminMemberPost(String targetId);
+
+	List<ComDTO> adminMemberCom(String targetId);
+
+	List<MenDTO> adminMemberMen(String targetId);
+
+	List<LikeDislikeDTO> adminMemberLike(String targetId);
+
+	List<TimelineDTO> adminMemberTimeline(String targetId);
 
 
 }

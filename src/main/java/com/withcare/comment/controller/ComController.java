@@ -1,4 +1,4 @@
-package com.withcare.comment.com;
+package com.withcare.comment.controller;
 
 public class ComController {
 }
