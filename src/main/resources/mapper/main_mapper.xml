@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+
+<mapper namespace="com.withcare.main.dao.MainDAO">
+
+	<select id="ranking" resultType="map">
+	    SELECT m.id, m.lv_date, l.lv_name, l.lv_icon
+	    FROM member m JOIN level l ON m.lv_idx = l.lv_idx
+	    WHERE m.user_del_yn = 0
+	    ORDER BY m.lv_date DESC LIMIT 5
+	  </select>
+
+</mapper>
