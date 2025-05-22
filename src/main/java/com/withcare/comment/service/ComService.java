@@ -1,13 +1,10 @@
 package com.withcare.comment.service;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.withcare.noti.service.NotiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.withcare.comment.dao.ComDAO;
 import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
+import com.withcare.noti.service.NotiService;
 
 @Service
 public class ComService {
@@ -24,11 +22,9 @@ public class ComService {
 
     Map<String, Object> result = null;
 
-    @Autowired
-    ComDAO dao;
+    @Autowired ComDAO dao;
 
-    @Autowired
-    NotiService notiService;
+    @Autowired NotiService notiService;
 
     // WRITE COMMENT
 

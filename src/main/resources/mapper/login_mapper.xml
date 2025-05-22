@@ -6,9 +6,8 @@
 <mapper namespace="com.withcare.member.dao.LoginDAO">
 
 <select id="login" parameterType="map" resultType="int">
- 	SELECT COUNT(id) FROM member 
- 		WHERE id =#{id} AND pw = #{pw}
- </select>
+    SELECT COUNT(id) FROM member WHERE id = #{id} AND pw = #{pw} AND user_del_yn = 0 AND block_yn = 0
+</select>
  
  <select id="findId" resultType="String">
     SELECT id FROM member WHERE name = #{name} AND year = #{year} AND email = #{email}
