@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.comment.dto.ComDTO;
+import com.withcare.comment.dto.MenDTO;
 
 @Mapper
 public interface ComDAO {
@@ -24,8 +25,14 @@ public interface ComDAO {
 
 	// COMMENT LIST 
 	List<ComDTO> comList(int post_idx);
-
+	
 	// COUNT COMMENT
 	int comCnt(int post_idx);
+
+	// WRITE MENTION
+	void writeMention(MenDTO menDto);
+
+	// GET ID LIST
+	List<String> selectId();
 
 }
