@@ -18,8 +18,8 @@ public class NotiService {
     @Autowired
     NotiDAO dao;
 
-    public List<NotiDTO> getNoti(String id) {
-        List<NotiDTO> noti_list = dao.getNoti(id);
+    public List<NotiDTO> getNoti(Map<String, String> params) {
+        List<NotiDTO> noti_list = dao.getNoti(params.get("id"));
 
         for (NotiDTO noti : noti_list) {
             NotiDetailDTO detail = new NotiDetailDTO();
