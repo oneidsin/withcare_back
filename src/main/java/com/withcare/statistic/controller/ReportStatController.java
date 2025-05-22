@@ -33,7 +33,7 @@ public class ReportStatController {
 	 */
 
     // 종합, 주간 신고 건수 + 사유
-    @GetMapping("/summary")
+    @GetMapping("/stat/rep_summary")
     public Map<String, Object> getReportSummary() {
         Map<String, Object> result = new HashMap<>();
         result.put("totalAndWeekly", svc.getTotalAndWeeklyCount());
@@ -42,20 +42,12 @@ public class ReportStatController {
     }
 
     // 신고 처리 통계 (전체, 일주일)
-    @GetMapping("/summary_history")
+    @GetMapping("/stat/rep_summary_history")
     public Map<String, Object> getHistorySummary() {
         Map<String, Object> result = new HashMap<>();
         result.put("status", svc.getReportStatus());
         result.put("processReason", svc.getReportProcessReason());
         return result;
     }
-    
-    // 차단 통계
-    
-    
-    // 유저간 차단 통계
-    
-    
-    
 	
 }
