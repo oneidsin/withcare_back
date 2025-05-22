@@ -40,20 +40,27 @@ public class PostController {
 	        @RequestBody PostDTO dto, // 이거랑 multipartFile 이랑 자꾸 같이 쓰지 말라면서 겁나 갈궈서 그냥 파일 첨부랑 게시글 작성이랑 분리했습니당...ㅠ
 	        @RequestHeader Map<String, String> header) {
 
-	    Map<String, Object> result = new HashMap<>();
-
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
-	    
-	    dto.setId(loginId); // 사용자 ID 설정
-
-	    boolean success = false;
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
+        
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("loginYN", false);
+			return result;
+		}
+        
+        
 	    if (loginId != null && !loginId.isEmpty()) {
+	    	login = true;
+		    dto.setId(loginId); // 사용자 ID 설정
 	        success = svc.postWrite(dto);
-	        login = true;
+	        result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
 	    }
 	    
-	    result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
 	    result.put("success", success); // 성공 여부
 	    result.put("loginYN", login);
 
@@ -63,19 +70,35 @@ public class PostController {
 	// 파일 첨부
 	@PostMapping("/post/file/upload")
 	public Map<String, Object> fileUpload(
-	        @RequestParam("post_idx") int postIdx,
-	        @RequestParam("files") MultipartFile[] files,
+			@RequestParam int post_idx,
+	        @RequestParam MultipartFile[] files,
 	        @RequestHeader Map<String, String> header) {
 
-	    Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
 
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", success);
+			result.put("loginYN", false);
+			return result;
+		}
 	    
-	    boolean success = false;
 	    if (loginId != null && !loginId.isEmpty()) {
-		    success = svc.saveFiles(postIdx, files); // 파일 저장하기
-	        login = true;
+	    	login  = true;
+	    	String postWriter = svc.postWriter(post_idx);
+	    	
+	        if (postWriter != null && loginId.equals(postWriter)) {
+	            success = svc.saveFiles(post_idx, files); // 작성자가 맞으면 파일 저장
+	        } else {
+	            // 작성자 불일치
+	            success = false;
+	        }
+	    }else {
+	    	success = false;
 	    }
 	    
 	    result.put("success", success);
@@ -91,16 +114,30 @@ public class PostController {
 	        @RequestBody PostDTO dto,  // JSON 바디 바인딩하려면 @RequestBody 필수!
 	        @RequestHeader Map<String, String> header) {
 
-	    Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
 
 	    // 토큰에서 로그인 ID 꺼내기
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
-	    boolean success = false;
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("loginYN", false);
+			return result;
+		}
+
 
 	    if (loginId != null && !loginId.isEmpty()) {
-	        success = svc.postUpdate(dto, loginId, null, null); // 파일은 따로 처리하니까 null 넘겨줌
 	        login = true;
+	        String postWriter = svc.postWriter(dto.getPost_idx());
+	        if (postWriter != null && loginId.equals(postWriter)) {
+	        	 // 파일은 /post/file/update 에서 처리되므로 여기서는 파일에 대해 null 전달
+	        	success = svc.postUpdate(dto);
+			}else {
+				success = false;
+			}
 	    }
 
 	    result.put("idx", dto.getPost_idx());
@@ -115,7 +152,7 @@ public class PostController {
 	    return result;
 	}
 	
-	// 파일 수정
+	// 파일 수정 (기존 파일 삭제 및 새 파일 추가)
 	@PostMapping("/post/file/update")
 	public Map<String, Object> uploadFiles(
 	        @RequestParam("post_idx") int post_idx,
@@ -123,19 +160,36 @@ public class PostController {
 	        @RequestParam(value = "keepFileIdx", required = false)List<String>keepFileIdx,
 	        @RequestHeader Map<String, String>header) {
 
-	    Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
 	    
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
-	    boolean success = false;
-	    
-	    if (loginId != null) {
-	    	success = svc.updateFiles(post_idx, files, keepFileIdx);
-	        login = true;
-	    }
-	    
-	    result.put("success", success);
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("loginYN", false);
+			return result;
+		}
 
+	    if (loginId != null) {
+	        login = true;
+	        String postWriter = svc.postWriter(post_idx);
+	        if (postWriter != null && loginId.equals(postWriter)) {
+		    	success = svc.updateFiles(post_idx, files, keepFileIdx);
+			}else {
+				success = false;
+			}
+	    }
+	    result.put("loginYN", login);
+	    result.put("success", success);
+	    
+        // 선택적으로 업데이트된 파일 목록 반환
+        if (success) {
+             List<Map<String, String>> photoList = svc.fileList(post_idx);
+             result.put("photos", photoList);
+        }
 	    return result;
 	}
 	
@@ -146,15 +200,37 @@ public class PostController {
 			@RequestBody PostDTO dto,
 			@RequestHeader Map<String, String>header){
 
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
-	    
-		result = new HashMap<String, Object>();
-	    
-	    boolean success = false;
-	    if (loginId != null && !loginId.isEmpty()) {
-	    	success = svc.postDelete(dto, loginId);
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
+        
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("loginYN", false);
+			return result;
+		}
+        
+	    if (loginId != null) {
 	        login = true;
+	        String postWriter = svc.postWriter(dto.getPost_idx());
+            boolean authorized = false;
+            
+	    	if (postWriter != null && loginId.equals(postWriter)) {
+	            authorized = true;
+			}else if (postWriter != null) { // 게시글은 존재하지만 사용자가 작성자가 아닌 경우, 관리자인지 확인
+				int userLevel = svc.userLevel(loginId);
+				if (userLevel == 7) {
+					authorized = true;
+				}
+			}
+            if (authorized) {
+                success = svc.postDelete(dto);
+            } else {
+            	success = false;
+            }
 	    }
 
 		result.put("idx", dto.getPost_idx());
@@ -164,13 +240,28 @@ public class PostController {
 		return result;
 	}
 	
-	// 게시글 상세보기 (GetMapping)
+	// 게시글 상세보기 (GetMapping) 현재는 따로 조회 없음.
 	   @GetMapping("/post/detail/{post_idx}")
 	   public Map<String, Object>postDetail(
 	         @PathVariable int post_idx,
 	         @RequestHeader Map<String, String>header){
-
-	      return svc.postDetail(post_idx, true);
+		   
+	        Map<String, Object> result = new HashMap<>();
+	        String loginId = null;
+	        boolean login = false;
+	        boolean success = false;
+	        
+	        try {
+	            loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	        } catch (Exception e) {
+	            // 토큰 없거나 잘못됐으면 그냥 로그인 false 처리하고 게시글 상세보기는 진행
+	        	login = false;
+	        }
+	        
+	        if (loginId != null && !loginId.isEmpty()) {
+				login = true;
+			}
+	        return svc.postDetail(post_idx, true); // true는 조회수 증가
 	   }
 	
 	// 게시글 리스트 (GetMapping)
@@ -181,8 +272,24 @@ public class PostController {
 	        @RequestHeader Map<String, String> header) {
 
 	    Map<String, Object> result = new HashMap<>();
-	    result = svc.postList(page, board_idx);
+	    String loginId = null;
+	    boolean login = false;
 
+        try {
+            loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+        } catch (Exception e) {
+            // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행
+        }
+        
+        if (loginId != null && !loginId.isEmpty()) {
+            login = true;
+        }
+        
+	    Map<String, Object> listResult = svc.postList(page, board_idx);
+	    result.putAll(listResult);
+	    
+	    result.put("loginYN", login);
+	    result.put("loginId", loginId);
 	    return result;
 	}
 	
@@ -192,17 +299,23 @@ public class PostController {
 	        @RequestBody LikeDislikeDTO dto,
 	        @RequestHeader Map<String, String> header) {
 	    
-	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	    boolean login = false;
-	    
-	    Map<String, Object> result = new HashMap<>();
-	    
-	    dto.setId(loginId);
-	    
-	    boolean success = false;
+        Map<String, Object> result = new HashMap<>();
+        String loginId = null;
+        boolean login = false;
+        boolean success = false;
+        
+        try {
+    	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("loginYN", false);
+			return result;
+		}
+        
 	    if (loginId != null && !loginId.isEmpty()) {
+	    	login = true;
+		    dto.setId(loginId);
 	    	success = svc.handleLike(dto);
-	        login = true;
 	    }
 	    
 	    result.put("loginYN", login);

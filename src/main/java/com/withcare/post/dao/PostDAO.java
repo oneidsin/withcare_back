@@ -37,17 +37,19 @@ public interface PostDAO {
 
 	int dislikeCnt(int post_idx);
 
-	String postWriter(int post_idx);
+	String postWriter(int post_idx); // 게시글의 작성자 ID 가져오기
 
-	int userLevel(String userId);
+	Integer userLevel(String userId); // 사용자의 level_idx 가져오기, null 확인을 위해 Integer 반환
 
 	int fileInsert(Map<String, Object> param);
 
-	int fileIdx(String file_idx);
-
-	int fileDelete(String file_idx);
+	int fileDelete(String file_idx); // 기본 키 file_idx로 파일 삭제
 
 	List<Map<String, String>> fileList(int post_idx);
 
-	Map<String, String> fileInfo(String file_idx);
+	Map<String, String> fileInfo(String file_idx); // 단일 파일 정보 가져오기
+
+	PostDTO postIdx(int post_idx); // post_idx로 전체 게시글 상세 정보 가져오기 
+
+	int fileDeleteUrl(String savedName); // file_url로 파일 레코드 삭제
 }
