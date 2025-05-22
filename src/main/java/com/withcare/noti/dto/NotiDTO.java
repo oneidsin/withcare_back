@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 public class NotiDTO {
     private int noti_idx;
+    private int post_idx;
     private String noti_sender_id;
     private String relate_user_id;
     private String noti_type;
@@ -13,6 +14,14 @@ public class NotiDTO {
     private boolean noti_read_yn;
 
     private NotiDetailDTO detail; // 알림 상세 데이터 추가
+
+    public int getPost_idx() {
+        return post_idx;
+    }
+
+    public void setPost_idx(int post_idx) {
+        this.post_idx = post_idx;
+    }
 
     public NotiDetailDTO getDetail() {
         return detail;

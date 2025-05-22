@@ -23,9 +23,11 @@ public class NotiController {
 
     // 사용자의 알림 목록
     @GetMapping("/noti/list/{id}")
-    public List<NotiDTO> getNoti(@PathVariable String id) {
+    public Map<String, Object> getNoti(@PathVariable String id) {
         log.info("getNoti : {}", id);
-        return svc.getNoti(id);
+        result = new HashMap<>();
+        result.put("result", svc.getNoti(id));
+        return result;
     }
 
     // 알림 삭제 (1개)
@@ -35,7 +37,6 @@ public class NotiController {
         result = new HashMap<>();
         boolean success = svc.deleteNoti(id, noti_idx);
         result.put("success", success);
-        result.put("noti_idx", noti_idx);
         return result;
     }
 

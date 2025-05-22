@@ -4,7 +4,7 @@
 
 <mapper namespace="com.withcare.noti.dao.NotiDAO">
     <!-- 사용자의 알림 목록 가져오기 -->
-    <select id="getNoti" parameterType="map" resultType="com.withcare.noti.dto.NotiDTO">
+    <select id="getNoti" parameterType="map">
         SELECT * FROM notification
         WHERE relate_user_id = #{id}
         ORDER BY noti_date DESC
@@ -27,8 +27,8 @@
 
     <!-- 알림 테이블에 insert -->
     <insert id="insertNoti">
-        INSERT INTO notification (noti_sender_id, relate_user_id, relate_item_id, noti_type)
-        VALUES (#{noti_sender_id}, #{relate_user_id}, #{relate_item_id}, #{noti_type})
+        INSERT INTO notification (noti_sender_id, relate_user_id, relate_item_id, content_pre, noti_type)
+        VALUES (#{noti_sender_id}, #{relate_user_id}, #{relate_item_id}, #{content_pre}, #{noti_type})
     </insert>
 
     <!-- 댓글 IDX 로부터 댓글 작성자와 게시글 작성자 ID 조회 -->
