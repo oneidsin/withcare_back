@@ -39,18 +39,21 @@
     <select id="comCnt" parameterType="int" resultType="int">
         SELECT COUNT(*) FROM comment WHERE post_idx = #{post_idx}
     </select>
-    
-    <!-- WRITE MENTION -->
-    <insert id="writeMention" parameterType="com.withcare.comment.dto.MenDTO">
-        INSERT INTO mention (com_idx, men_id, men_writer_id, men_content, men_blind_yn)
-            VALUES (#{com_idx}, #{men_id}, #{men_writer_id},#{men_content}, 0)
-    </insert>
 
-    <!-- GET ID LIST -->
-    <select id="selectId" resultType="string">
-        SELECT id FROM member
-    </select>
-    
-    
-	
+	<!-- WRITE MENTION -->
+	<insert id="writeMention" parameterType="com.withcare.comment.dto.MenDTO">
+		INSERT INTO mention (com_idx, men_id, men_writer_id, men_content, men_blind_yn)
+		VALUES (#{com_idx}, #{men_id}, #{men_writer_id},#{men_content}, 0)
+	</insert>
+
+	<!-- GET ID LIST -->
+	<select id="selectId" resultType="string">
+		SELECT id FROM member
+	</select>
+
+	<!-- 게시글 작성자 ID 가져오기 -->
+	<select id="getPostWriterId">
+		SELECT id FROM post WHERE post_idx = #{post_idx}
+	</select>
+
    </mapper>
