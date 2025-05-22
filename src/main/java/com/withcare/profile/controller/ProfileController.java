@@ -1,9 +1,8 @@
 package com.withcare.profile.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.withcare.comment.dto.ComDTO;
+import com.withcare.comment.dto.MenDTO;
+import com.withcare.post.dto.LikeDislikeDTO;
+import com.withcare.post.dto.PostDTO;
 import com.withcare.profile.dto.ProfileDTO;
 import com.withcare.profile.service.ProfileService;
-import com.withcare.util.JwtToken;
+import com.withcare.search.dto.SearchDTO;
+import com.withcare.util.JwtToken.JwtUtils;
 
 @CrossOrigin
 @RestController
@@ -45,43 +49,100 @@ public class ProfileController {
 
 	// 프로필 열람 get
 	@GetMapping("/profile/{id}")
-	public Map<String, Object> getProfile(
+	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader Map<String, String> header) {
+
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			String token = header.get("authorization");
+			Map<String, Object> payload = JwtUtils.readToken(token);
+			String loginId = (String) payload.get("id");
+
+			if (loginId != null && loginId.equals(id)) {
+				ProfileDTO dto = svc.getProfile(id);
+				result.put("status", "success");
+				result.put("data", dto);
+			} else {
+				result.put("status", "fail");
+				result.put("message", "인증된 사용자만 접근할 수 있습니다.");
+			}
+
+		} catch (Exception e) {
+			result.put("status", "error");
+			result.put("message", "서버 오류: " + e.getMessage());
+		}
+
+		return result;
+	}
+
+	// 회원 개인 정보 수정 기능 put
+	@PutMapping("/profile/update")
+	public Map<String, Object> updateProfile(@RequestBody ProfileDTO dto,
+			@RequestHeader("Authorization") String token) {
+
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			// 1. 토큰 파싱 → 사용자 ID 추출
+			Map<String, Object> payload = JwtUtils.readToken(token);
+			String tokenId = (String) payload.get("id");
+
+			// 2. 사용자 ID로 프로필 정보 갱신
+			dto.setId(tokenId);
+			int updated = svc.updateProfile(dto);
+
+			result.put("status", updated > 0 ? "success" : "fail");
+
+		} catch (Exception e) {
+			result.put("status", "error");
+			result.put("message", e.getMessage());
+		}
+
+		return result;
+	}
+
+	// 타인이 프로필 확인하는 기능 get
+	@GetMapping("/profile/view/{id}")
+	public Map<String, Object> viewOtherProfile(
 	        @PathVariable("id") String id,
-	        HttpServletRequest header) {
+	        @RequestHeader(value = "authorization", required = false) String token) {
 
 	    Map<String, Object> result = new HashMap<>();
 
 	    try {
-	        // 1. Authorization 헤더에서 토큰 추출
-	        String authHeader = header.getHeader("Authorization");
-	        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+	        // 1. 토큰 없으면 로그인 필요
+	        if (token == null || token.trim().isEmpty()) {
 	            result.put("status", "fail");
-	            result.put("message", "인증 토큰이 필요합니다.");
+	            result.put("message", "로그인이 필요합니다.");
 	            return result;
 	        }
 
-	        String token = authHeader.substring(7); // "Bearer " 제거
-
-	        // 2. 토큰에서 사용자 정보 추출
-	        Map<String, Object> claims = JwtToken.JwtUtils.readToken(token);
-	        String tokenId = (String) claims.get("id");
-
-	        if (tokenId == null || tokenId.isEmpty()) {
+	        // 2. 토큰 유효성 검사 및 ID 추출
+	        Map<String, Object> payload = JwtUtils.readToken(token);
+	        if (payload == null || !payload.containsKey("id") || payload.get("id") == null) {
 	            result.put("status", "fail");
 	            result.put("message", "유효하지 않은 토큰입니다.");
 	            return result;
 	        }
 
-	        // 3. 프로필 조회 로직
-	        ProfileDTO dto = svc.getProfile(id);
+	        // 3. 프로필 기본 정보 조회
+	        ProfileDTO profile = svc.getProfileById(id);
 
-	        if (dto != null) {
-	            result.put("status", "success");
-	            result.put("data", dto);
-	        } else {
-	            result.put("status", "fail");
-	            result.put("message", "프로필을 찾을 수 없습니다.");
-	        }
+	        // 4. 활동 정보 조회
+	        List<PostDTO> posts = svc.getUserPosts(id);
+	        List<ComDTO> comments = svc.getUserComments(id);
+	        List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+	        List<SearchDTO> searches = svc.getUserSearches(id);
+	        List<MenDTO> mentions = svc.getUserMentions(id);
+
+	        // 5. 응답 조립
+	        result.put("status", "success");
+	        result.put("profile", profile);
+	        result.put("posts", posts);
+	        result.put("comments", comments);
+	        result.put("likes", likes);
+	        result.put("searches", searches);
+	        result.put("mentions", mentions);
 
 	    } catch (Exception e) {
 	        result.put("status", "error");
@@ -91,87 +152,45 @@ public class ProfileController {
 	    return result;
 	}
 
-	// 회원 개인 정보 수정 기능 put
-	@PutMapping("/profile/update")
-	public Map<String, Object> updateProfile(
-	    @RequestBody ProfileDTO dto,
-	    @RequestHeader("Authorization") String header
-	) {
-	    Map<String, Object> result = new HashMap<>();
+	@GetMapping("/profile/activity/{id}")
+	public Map<String, Object> getUserActivity(@PathVariable("id") String id,
+			@RequestHeader Map<String, String> header) {
 
-	    try {
-	        // 1. 토큰에서 ID 추출
-	        if (header == null || !header.startsWith("Bearer")) {
-	            result.put("status", "fail");
-	            result.put("message", "토큰이 없습니다.");
-	            return result;
-	        }
+		Map<String, Object> result = new HashMap<>();
 
-	        String token = header.substring(7);
-	        Map<String, Object> claims = JwtToken.JwtUtils.readToken(token);
-	        String tokenId = (String) claims.get("id");
+		try {
+			// 1. 토큰 추출 및 검증
+			String token = header.get("authorization");
+			if (token == null || token.trim().isEmpty()) {
+				result.put("status", "fail");
+				result.put("message", "로그인이 필요합니다.");
+				return result;
+			}
 
-	        if (tokenId == null || tokenId.isEmpty()) {
-	            result.put("status", "fail");
-	            result.put("message", "유효하지 않은 토큰입니다.");
-	            return result;
-	        }
+			// 2. 토큰 유효성 검사만 (사용자 ID 비교는 하지 않음)
+			JwtUtils.readToken(token); // 예외 발생 시 catch로 이동
 
-	        // 2. 토큰에서 추출한 ID로 수정
-	        dto.setId(tokenId);
-	        int updated = svc.updateProfile(dto);
-	        result.put("status", updated > 0 ? "success" : "fail");
+			// 3. 해당 사용자 활동 정보 조회
+			List<PostDTO> posts = svc.getUserPosts(id);
+			List<ComDTO> comments = svc.getUserComments(id);
+			List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+			List<SearchDTO> searches = svc.getUserSearches(id);
+			List<MenDTO> mentions = svc.getUserMentions(id);
 
-	    } catch (Exception e) {
-	        result.put("status", "error");
-	        result.put("message", e.getMessage());
-	    }
+			// 4. 응답 조립
+			result.put("status", "success");
+			result.put("posts", posts);
+			result.put("comments", comments);
+			result.put("likes", likes);
+			result.put("searches", searches);
+			result.put("mentions", mentions);
 
-	    return result;
-	}
+		} catch (Exception e) {
+			result.put("status", "error");
+			result.put("message", "서버 오류: " + e.getMessage());
+		}
 
-	// 타인이 프로필 확인하는 기능 get
-	@GetMapping("/profile/view/{id}")
-	public Map<String, Object> viewOtherProfile(
-	    @PathVariable("id") String id,
-	    @RequestHeader(value = "Authorization", required = false) String header
-	) {
-	    Map<String, Object> result = new HashMap<>();
-
-	    try {
-	        // 1. 토큰 유무 확인
-	        if (header == null || !header.startsWith("Bearer ")) {
-	            result.put("status", "fail");
-	            result.put("message", "인증 토큰이 필요합니다.");
-	            return result;
-	        }
-
-	        // 2. 토큰에서 사용자 정보 추출
-	        String token = header.substring(7); // "Bearer " 제거
-	        Map<String, Object> claims = JwtToken.JwtUtils.readToken(token);
-	        String tokenId = (String) claims.get("id");
-
-	        if (tokenId == null || tokenId.isEmpty()) {
-	            result.put("status", "fail");
-	            result.put("message", "유효하지 않은 토큰입니다.");
-	            return result;
-	        }
-
-	        // 3. 타인의 프로필 조회
-	        ProfileDTO dto = svc.getProfileById(id);
-	        if (dto != null) {
-	            result.put("status", "success");
-	            result.put("profile", dto);
-	        } else {
-	            result.put("status", "not_found");
-	        }
-
-	    } catch (Exception e) {
-	        result.put("status", "error");
-	        result.put("message", e.getMessage());
-	    }
-
-	    return result;
+		return result;
 	}
 
 }
