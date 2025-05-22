@@ -2,6 +2,7 @@ package com.withcare.search.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,14 @@ public class SearchService {
 		// 가장 최근 검색어 
 		String latestKeyword = recentKeyword.get(0).getSch_keyword();
 		return dao.recommedPost(latestKeyword);
+	}
+
+	public List<SearchResultDTO> recommendDefault() {
+		return dao.recommendDefault();
+	}
+
+	public List<Map<String, Object>> searchPopular() {
+		return dao.searchPopular();
 	}    
    
 }

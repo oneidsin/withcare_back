@@ -33,6 +33,7 @@ public class PostController {
 	
 	@Autowired PostService svc;
 	
+	// 토큰 수정 필요
 	// 게시글 작성 (PostMapping)
 	@PostMapping("/post/write")
 	public Map<String, Object> postWrite(
@@ -117,12 +118,22 @@ public class PostController {
 	// 파일 수정
 	@PostMapping("/post/file/update")
 	public Map<String, Object> uploadFiles(
-	        @RequestParam("post_idx") int postIdx,
-	        @RequestParam("files") MultipartFile[] files) {
+	        @RequestParam("post_idx") int post_idx,
+	        @RequestParam(value = "files", required = false) MultipartFile[] files,
+	        @RequestParam(value = "keepFileIdx", required = false)List<String>keepFileIdx,
+	        @RequestHeader Map<String, String>header) {
 
 	    Map<String, Object> result = new HashMap<>();
-
-	    boolean success = svc.saveFiles(postIdx, files);
+	    
+	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    boolean login = false;
+	    boolean success = false;
+	    
+	    if (loginId != null) {
+	    	success = svc.updateFiles(post_idx, files, keepFileIdx);
+	        login = true;
+	    }
+	    
 	    result.put("success", success);
 
 	    return result;

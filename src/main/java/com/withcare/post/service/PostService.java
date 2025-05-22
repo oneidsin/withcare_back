@@ -49,9 +49,15 @@ public class PostService {
 	public boolean saveFiles(int post_idx, MultipartFile[] files) {
 		List<String> savedFileNames = new ArrayList<>();
 		boolean success = true;
-
+		
+    	if (files == null || files.length == 0) {
+    	    return true; // 업로드할 파일이 없으면 true 반환
+    	}
+    	
         try {
 	        for (MultipartFile file : files) {
+
+	        	
 	        	if (file.isEmpty()) continue; // file 이 없어도 에러 안나게 해놓은 거
 	        	
 	            if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한
@@ -130,25 +136,10 @@ public class PostService {
 	    int row = dao.postUpdate(dto);
 
 	    if (row > 0) {
-	        if ((files != null && files.length > 0) || (keepFileIdx != null && !keepFileIdx.isEmpty())) {
-	            // 기존 파일 리스트 조회 및 삭제 (keepFileIdx를 기준으로 삭제)
-	            List<Map<String, String>> currentFiles = dao.fileList(dto.getPost_idx());
-
-	            for (Map<String, String> file : currentFiles) {
-	            	String fileIdx = String.valueOf(file.get("file_idx")); // String으로 변환시켜줌
-	                if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) { // 위와 동일
-	                    dao.fileDelete(fileIdx);
-	                    deleteFileIdx(file.get("file_url"));
-	                }
-	            }
-	        }
-
-	        // 새 파일 저장
-	        if (files != null && files.length > 0) {
-	            saveFiles(dto.getPost_idx(), files);
-	        }
+	        boolean filesUpdated = updateFiles(dto.getPost_idx(), files, keepFileIdx);
+	        return filesUpdated;
 	    }
-	    return row > 0;
+	    return false;
 	}
 
 	private void deleteFileIdx(String savedName) {
@@ -222,7 +213,6 @@ public class PostService {
 	    result.put("list", postMapList);
 	    result.put("totalPages", totalPages);
 	    result.put("totalPosts", totalPosts);
-	    result.put("page", page);
 
 	    return result;
 	}
@@ -286,5 +276,27 @@ public class PostService {
 	    }
 	    return row > 0;
 	    
+	}
+
+	public boolean updateFiles(int post_idx, MultipartFile[] files, List<String> keepFileIdx) {
+		// 현재 게시글에 등록된 파일 리스트 조회
+		List<Map<String, String>>currentFiles = dao.fileList(post_idx);
+		
+		// 삭제 대상 파일 결정 (keepFileIdx 에 없는 파일 삭제)
+		for (Map<String, String> file : currentFiles) {
+			String fileIdx = String.valueOf(file.get("file_idx"));
+			if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) {
+				// DB 에서 삭제
+				dao.fileDelete(fileIdx);
+				// 실제 파일 삭제
+				deleteFileIdx(file.get("file_url"));
+			}
+		}
+		// 새 파일 저장
+		if (files != null && files.length>0) {
+			return saveFiles(post_idx,files);
+		}
+		
+		return true;
 	}
 }

@@ -2,6 +2,7 @@
 package com.withcare.search.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -23,4 +24,8 @@ public interface SearchDAO {
 		List<SearchDTO> searchRecent(String sch_id);
 
 		List<SearchResultDTO> recommedPost(String latestKeyword);
+
+		List<SearchResultDTO> recommendDefault();
+
+		List<Map<String, Object>> searchPopular();
 }

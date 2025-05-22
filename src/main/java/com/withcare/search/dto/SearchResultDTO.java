@@ -11,7 +11,17 @@ public class SearchResultDTO {
 	private String content;
 	private String writer;
 	private Timestamp created_date;
+	private int like_count; // 추천수 저장용
+	private int relevance; // 우선 순위 저장용
 	
+	public int getRelevance() {
+		return relevance;
+	}
+
+	public void setRelevance(int relevance) {
+		this.relevance = relevance;
+	}
+
 	public int getPost_idx() {
 		return post_idx;
 	}
@@ -58,5 +68,13 @@ public class SearchResultDTO {
 
 	public void setCreated_date(Timestamp created_date) {
 		this.created_date = created_date;
+	}
+
+	public int getLike_count() {
+		return like_count;
+	}
+
+	public void setLike_count(int like_count) {
+		this.like_count = like_count;
 	}
 }
