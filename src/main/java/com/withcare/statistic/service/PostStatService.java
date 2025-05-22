@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.withcare.board.dto.BoardDTO;
 import com.withcare.statistic.dao.PostStatDAO;
+import com.withcare.statistic.dto.PostStatDTO;
 
 @Service
 public class PostStatService {
@@ -26,11 +26,7 @@ public class PostStatService {
 		return dao.getCommentWeeklyCount();
 	}
 
-	public double getPostAndCom() {
+	public List<PostStatDTO> getPostAndCom() {
 		return dao.getPostAndCom();
-	}
-
-	public List<BoardDTO> getBoardPostAndCom() {
-		return dao.getBoardPostAndCom();
 	}
 }

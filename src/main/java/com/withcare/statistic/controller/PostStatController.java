@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.withcare.board.dto.BoardDTO;
+import com.withcare.statistic.dto.PostStatDTO;
 import com.withcare.statistic.service.PostStatService;
 
 @CrossOrigin
@@ -33,15 +33,11 @@ public class PostStatController {
 	        return svc.getCommentWeeklyCount();
 	 }
 	 
-	 // 주간 게시글 수 해당 댓글 수 (최신 글 반응 확인용)
+	 // 주간 게시판별 게시글 수와 해당 댓글 수 (최신 글 반응 확인용)
 	 @GetMapping("/stat/postandcom")
-	    public double getPostAndCom() {
+	    public List<PostStatDTO> getPostAndCom() {
 	        return svc.getPostAndCom();
 	 }
 	 
-	 // 주간 댓글 수 / 전체 게시글 수 (전체 활동량 평가용)
-	 @GetMapping("/stat/boardpostandcom")
-	 public List<BoardDTO> getBoardPostAndCom() {
-	     return svc.getBoardPostAndCom();
-	 }
+	
 }
