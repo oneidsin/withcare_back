@@ -9,7 +9,7 @@ import com.withcare.msg.dto.MsgDTO;
 @Mapper
 public interface MsgDAO {
 
-	//Send MSG
+	// Send MSG
 	void sendMsg(MsgDTO dto);
 
 	// OUTBOX

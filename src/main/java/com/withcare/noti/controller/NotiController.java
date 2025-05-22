@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.noti.service.NotiService;
+import com.withcare.util.JwtToken;
 
 @CrossOrigin
 @RestController
@@ -29,10 +30,20 @@ public class NotiController {
 
     // 사용자의 알림 목록
     @GetMapping("/noti/list/{id}")
-    public Map<String, Object> getNoti(@PathVariable String id, @RequestParam(defaultValue = "0") int offset) {
+    public Map<String, Object> getNoti(@PathVariable String id, @RequestParam(defaultValue = "0") int offset,
+            @RequestHeader Map<String, String> header) {
         log.info("getNoti : {} {}", id, offset);
         result = new HashMap<>();
-        result.put("result", svc.getNoti(id, offset));
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean login = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            result.put("result", svc.getNoti(id, offset));
+            login = true;
+        }
+
+        result.put("loginYN", login);
         return result;
     }
 
