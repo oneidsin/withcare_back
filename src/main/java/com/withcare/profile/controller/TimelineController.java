@@ -34,12 +34,12 @@ public class TimelineController {
 
 	// 토큰에서 사용자 아이디 추출
 	private String get_token(String authorizationHeader) {
-		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-			String token = authorizationHeader.substring(7);
-			return (String) JwtUtils.readToken(token).get("id");
+		if (authorizationHeader != null) {
+			return (String) JwtUtils.readToken(authorizationHeader).get("id");
 		}
 		return null;
 	}
+
 
 	// 타임라인 작성
 	@PostMapping("/timeline/write")
