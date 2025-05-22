@@ -9,6 +9,24 @@ public class ProfileDTO {
 	private String intro;
 	private boolean profile_yn;
 	private int accessCnt;
+	private String cancer_name;
+	private String stage_name;
+
+	public String getCancer_name() {
+		return cancer_name;
+	}
+
+	public void setCancer_name(String cancer_name) {
+		this.cancer_name = cancer_name;
+	}
+
+	public String getStage_name() {
+		return stage_name;
+	}
+
+	public void setStage_name(String stage_name) {
+		this.stage_name = stage_name;
+	}
 
 	public int getCancer_idx() {
 		return cancer_idx;

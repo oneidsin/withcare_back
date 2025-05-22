@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.withcare.profile.dto.ProfileDTO;
 import com.withcare.search.dto.SearchDTO;
 import com.withcare.search.dto.SearchResultDTO;
 
@@ -19,13 +20,19 @@ public interface SearchDAO {
 	    
 		Integer findBoardIdxForSearch(SearchDTO dto);
 		
-		boolean recentKeyword(String sch_id, String sch_keyword);
+		int recentKeyword(String sch_id, String sch_keyword);
 
 		List<SearchDTO> searchRecent(String sch_id);
 
-		List<SearchResultDTO> recommedPost(String latestKeyword);
+		List<SearchResultDTO> recommendPost(String latestKeyword);
 
 		List<SearchResultDTO> recommendDefault();
 
 		List<Map<String, Object>> searchPopular();
+
+		List<SearchResultDTO> searchCancer(String cancerKeyword, String stageKeyword);
+
+		Integer searchHistory(String loginId);
+
+		ProfileDTO profileCancer(String loginId);
 }
