@@ -34,13 +34,14 @@ public class MemberController {
 	    result = new HashMap<>();
 
 	    String token = null;
-	    if (header != null && header.startsWith("Bearer ")) {
-	        token = header.substring(7);
+	    if (header != null && !header.isBlank()) {
+	    	token = header;
 	    } else {
-	        result.put("success", false);
-	        result.put("msg", "토큰이 없거나 형식이 잘못되었습니다.");
-	        return result;
+	    	result.put("success", false);
+	    	result.put("msg", "토큰이 없거나 형식이 잘못되었습니다.");
+	    	return result;
 	    }
+
 
 	    Map<String, Object> claims = JwtUtils.readToken(token);
 

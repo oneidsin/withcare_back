@@ -32,10 +32,18 @@ public class ComService {
 
 	// UPDATE COMMENT
 
-	public boolean updateCom(ComDTO dto) {
+	public boolean updateCom(ComDTO dto, String id) {
+		
+		String writerId = dao.writerId(dto.getCom_idx());
+		
+		if (!writerId.equals(id)) {
+			int lv_idx = dao.userLevel(id);
+			if (lv_idx != 7) {
+				return false;
+			}
+		}
 
 		int row = dao.updateCom(dto);
-
 		return row > 0;
 	}
 
