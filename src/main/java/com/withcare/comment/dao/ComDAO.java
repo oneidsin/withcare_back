@@ -35,4 +35,5 @@ public interface ComDAO {
 	// GET ID LIST
 	List<String> selectId();
 
+	String getPostWriterId(int post_idx);
 }
