@@ -31,9 +31,8 @@ public class MsgController {
 	// Send MSG
 	@PostMapping ("/msg/send")
 	public String sendMsg (@RequestBody MsgDTO dto, HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -46,9 +45,8 @@ public class MsgController {
 	// OUTBOX
 	@GetMapping("/msg/outbox")
 	public List<MsgDTO> outbox(HttpServletRequest request){
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -58,9 +56,8 @@ public class MsgController {
 	// INBOX
 	@GetMapping("/msg/inbox")
 	public List<MsgDTO> inbox(HttpServletRequest request){
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -70,9 +67,8 @@ public class MsgController {
 	// MSG DETAIL
 	@GetMapping("/msg/detail")
 	public MsgDTO msgDetail (@RequestParam("msg_idx") int idx, HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -82,9 +78,8 @@ public class MsgController {
 	// DEL MSG (INBOX 기준)
 	@PutMapping("/msg/delete/inbox")
 	public String msgDel (@RequestParam("msg_idx") int idx,HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -95,9 +90,8 @@ public class MsgController {
 	// DEL MSG (OUTBOX 기준)
 	@PutMapping("/msg/delete/outbox")
 	public String msgDelOut (@RequestParam("msg_idx") int idx,HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -108,9 +102,8 @@ public class MsgController {
 	// SAVE MSG (INBOX 기준)
 	@PutMapping("/msg/save/inbox")
 	public String msgSave (@RequestParam("msg_idx") int idx,HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
@@ -121,9 +114,8 @@ public class MsgController {
 	// SAVE MSG (OUTBOX 기준)
 	@PutMapping("/msg/save/outbox")
 	public String msgSaveOut (@RequestParam("msg_idx") int idx, HttpServletRequest request) {
-		String header = request.getHeader("Authorization");
+		String token = request.getHeader("Authorization");
 		
-		String token = header.replace("Bearer ", "");
 	    Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
 	    String id = (String) tokenData.get("id");
 	    
