@@ -18,8 +18,14 @@ public class NotiService {
     @Autowired
     NotiDAO dao;
 
-    public List<Map<String, Object>> getNoti(String id) {
-        return dao.getNoti(id);
+    private static final int LIMIT = 100; // 한 번에 가져올 알림 개수
+
+    public List<Map<String, Object>> getNoti(String id, int offset) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("limit", LIMIT);
+        params.put("offset", offset);
+        return dao.getNoti(params);
     }
 
     // 댓글 알림 저장
@@ -46,10 +52,22 @@ public class NotiService {
         dao.insertNoti(notiDTO);
     }
 
-
     // 알림 삭제(1개)
     public boolean deleteNoti(String id, int noti_idx) {
         int row = dao.deleteNoti(id, noti_idx);
         return row > 0;
     }
+
+    // 알림 전체 삭제
+    public boolean deleteAllNoti(String id) {
+        int row = dao.deleteAllNoti(id);
+        return row > 0;
+    }
+
+    // 알림 읽음 확인
+    public boolean readNoti(String id, int noti_idx) {
+        int row = dao.readNoti(id, noti_idx);
+        return row > 0;
+    }
+
 }

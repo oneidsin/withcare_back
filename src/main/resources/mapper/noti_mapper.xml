@@ -8,6 +8,7 @@
         SELECT * FROM notification
         WHERE relate_user_id = #{id}
         ORDER BY noti_date DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <!-- 알림이 댓글인지, 멘션인지, 쪽지인지를 확인 -->
@@ -41,9 +42,22 @@
         WHERE c.com_idx = #{com_idx}
     </select>
 
+    <!-- 알림 1개 삭제 -->
     <delete id="deleteNoti">
         DELETE FROM notification
         WHERE noti_idx = #{noti_idx} AND relate_user_id = #{id}
     </delete>
+
+    <!-- 알림 전체 삭제 -->
+    <delete id="deleteAllNoti">
+        DELETE FROM notification
+        WHERE relate_user_id = #{id}
+    </delete>
+
+    <update id="readNoti">
+        UPDATE notification
+        SET noti_read_yn = true
+        WHERE noti_idx = #{noti_idx};
+    </update>
 
 </mapper>

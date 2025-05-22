@@ -1,15 +1,21 @@
 package com.withcare.noti.controller;
 
-import com.withcare.noti.dto.NotiDTO;
-import com.withcare.noti.service.NotiService;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.withcare.noti.service.NotiService;
 
 @CrossOrigin
 @RestController
@@ -23,10 +29,10 @@ public class NotiController {
 
     // 사용자의 알림 목록
     @GetMapping("/noti/list/{id}")
-    public Map<String, Object> getNoti(@PathVariable String id) {
-        log.info("getNoti : {}", id);
+    public Map<String, Object> getNoti(@PathVariable String id, @RequestParam(defaultValue = "0") int offset) {
+        log.info("getNoti : {} {}", id, offset);
         result = new HashMap<>();
-        result.put("result", svc.getNoti(id));
+        result.put("result", svc.getNoti(id, offset));
         return result;
     }
 
@@ -40,5 +46,24 @@ public class NotiController {
         return result;
     }
 
+    // 알림 전체 삭제
+    @DeleteMapping("/noti/delAll/{id}")
+    public Map<String, Object> deleteAllNoti(@PathVariable String id) {
+        log.info("delete all noti : {}", id);
+        result = new HashMap<>();
+        boolean success = svc.deleteAllNoti(id);
+        result.put("success", success);
+        return result;
+    }
+
+    // 알림 읽음 확인
+    @PutMapping("/noti/read/{id}/{noti_idx}")
+    public Map<String, Object> readNoti(@PathVariable String id, @PathVariable int noti_idx) {
+        log.info("read Noti : {} {}", id, noti_idx);
+        result = new HashMap<>();
+        boolean success = svc.readNoti(id, noti_idx);
+        result.put("success", success);
+        return result;
+    }
 
 }

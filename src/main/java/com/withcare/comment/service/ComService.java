@@ -1,4 +1,5 @@
 package com.withcare.comment.service;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,14 +23,15 @@ public class ComService {
 
     Map<String, Object> result = null;
 
-    @Autowired ComDAO dao;
+    @Autowired
+    ComDAO dao;
 
-    @Autowired NotiService notiService;
+    @Autowired
+    NotiService notiService;
 
     // WRITE COMMENT
 
     public Map<String, Object> writeCom(ComDTO dto) {
-
         result = new HashMap<>();
 
         // 댓글 작성
@@ -43,41 +45,37 @@ public class ComService {
             if (!writer_id.equals(post_writer_id)) { // 본인 댓글은 알림 제외
                 notiService.sendCommentNoti(com_idx, post_idx, writer_id, post_writer_id);
             }
+
+            // 댓글 내용에서 멘션된 아이디 조회
+            String content = dto.getCom_content();
+            Set<String> mentionId = getId(content); // 아이디 갖고 올거에요
+
+            // 멘션 정보 저장할 것
+            for (String menId : mentionId) {
+                MenDTO menDto = new MenDTO();
+                menDto.setCom_idx(dto.getCom_idx()); // 어떤 댓글에서 멘션 했는지
+                menDto.setMen_id(menId); // 멘션 당한 사람 아이디
+                menDto.setMen_writer_id(dto.getId()); // 멘션한 사람 아이디
+                menDto.setMen_content(content); // 원본 댓글 내용
+                menDto.setMen_blind_yn(false); // 블라인드 여부
+
+                dao.writeMention(menDto); // DB에 저장
+
+                // 멘션 알림 저장 - 본인을 멘션한 경우는 알림 제외
+                if (!menId.equals(dto.getId())) {
+                    notiService.sendMentionNoti(dto.getCom_idx(), dto.getPost_idx(), dto.getId(), menId);
+                }
+            }
+
             result.put("success", true);
-            return result;
-        }
-        if (row == 0) {
+            result.put("idx", dto.getCom_idx());
+            result.put("mentioned", mentionId);
+        } else if (row == 0) {
             result.put("success", false);
             result.put("mentioned", new HashSet<String>());
-
-            return result;
         }
-
-        // 댓글 내용에서 멘션된 아이디 조회
-        String content = dto.getCom_content();
-        Set<String> mentionId = getId(content); // 아이디 갖고 올거에요
-
-        // 멘션 정보 저장할 것
-        for (String menId : mentionId) {
-            MenDTO menDto = new MenDTO();
-            menDto.setCom_idx(dto.getCom_idx()); // 어떤 댓글에서 멘션 했는지
-            menDto.setMen_id(menId); // 멘션 당한 사람 아이디
-            menDto.setMen_writer_id(dto.getId()); // 멘션한 사람 아이디
-            menDto.setMen_content(content); // 원본 댓글 내용
-            menDto.setMen_blind_yn(false); // 블라인드 여부
-
-            dao.writeMention(menDto); // DB에 저장
-
-            // 멘션 작성시 알림 저장
-            
-        }
-
-        result.put("success", true);
-        result.put("idx", dto.getCom_idx());
-        result.put("mentioned", mentionId);
 
         return result;
-
     }
 
     // GET MENTIONED ID

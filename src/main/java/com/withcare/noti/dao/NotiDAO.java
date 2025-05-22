@@ -8,11 +8,15 @@ import java.util.Map;
 
 @Mapper
 public interface NotiDAO {
-    List<Map<String, Object>> getNoti(String id);
+    List<Map<String, Object>> getNoti(Map<String, Object> params);
 
     int insertNoti(NotiDTO notiDTO);
 
     Map<String, String> getNotiInfoFromComment(int comIdx);
 
     int deleteNoti(String id, int noti_idx);
+
+    int deleteAllNoti(String id);
+
+    int readNoti(String id, int noti_idx);
 }
