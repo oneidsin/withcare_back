@@ -1,6 +1,7 @@
 package com.withcare.profile.dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class TimelineDTO {
 	
@@ -10,9 +11,22 @@ public class TimelineDTO {
     private String time_title;
     private String time_content;
     private Boolean time_public_yn;
-    private Date time_create_date;
-    private Date time_update_date;
+    private Timestamp time_create_date;
+    private Timestamp time_update_date;
     
+    
+	public Timestamp getTime_create_date() {
+		return time_create_date;
+	}
+	public void setTime_create_date(Timestamp time_create_date) {
+		this.time_create_date = time_create_date;
+	}
+	public Timestamp getTime_update_date() {
+		return time_update_date;
+	}
+	public void setTime_update_date(Timestamp time_update_date) {
+		this.time_update_date = time_update_date;
+	}
 	public int getTime_idx() {
 		return time_idx;
 	}
@@ -49,18 +63,7 @@ public class TimelineDTO {
 	public void setTime_public_yn(Boolean time_public_yn) {
 		this.time_public_yn = time_public_yn;
 	}
-	public Date getTime_create_date() {
-		return time_create_date;
-	}
-	public void setTime_create_date(Date time_create_date) {
-		this.time_create_date = time_create_date;
-	}
-	public Date getTime_update_date() {
-		return time_update_date;
-	}
-	public void setTime_update_date(Date time_update_date) {
-		this.time_update_date = time_update_date;
-	}
+	
     
     
 

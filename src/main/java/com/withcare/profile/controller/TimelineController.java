@@ -32,102 +32,152 @@ public class TimelineController {
 
 	@Autowired TimelineService svc;
 
-	// 토큰에서 사용자 아이디 추출
-	private String get_token(String authorizationHeader) {
-		if (authorizationHeader != null) {
-			return (String) JwtUtils.readToken(authorizationHeader).get("id");
-		}
-		return null;
-	}
-
-
-	// 타임라인 작성
+	// WRITE TIMELINE
 	@PostMapping("/timeline/write")
 	public Map<String, Object> writeTimeline(@RequestBody TimelineDTO dto,
-			@RequestHeader("Authorization") String authorizationHeader) {
+	        @RequestHeader Map<String, String> header) {
 
-		String loginId = get_token(authorizationHeader);
-		log.info("사용자 아이디: {}", loginId);
+	    log.info("header : {}", header);
+	    Map<String, Object> resp = new HashMap<>();
 
-		dto.setTime_user_id(loginId);
+	    String authorization = header.get("authorization");
+	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
 
-		svc.writeTimeline(dto);
+	    if (loginId == null || loginId.isEmpty()) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "로그인이 필요합니다.");
+	        return resp;
+	    }
 
-		Map<String, Object> result = new HashMap<>();
-		result.put("status", "success");
-		result.put("msg", "타임라인 등록이 완료 되었습니다.");
+	    dto.setTime_user_id(loginId); 
 
-		return result;
+	    svc.writeTimeline(dto);
+
+	    resp.put("status", "success");
+	    resp.put("msg", "타임라인 등록이 완료 되었습니다.");
+
+	    return resp;
 	}
 
-	// 타임라인 수정
+
+	// UPDATE TIMELINE
 	@PutMapping("/timeline/update")
-	public ResponseEntity<String> updateTimeline(@RequestBody TimelineDTO dto,
-			@RequestHeader("Authorization") String authorizationHeader) {
+	public Map<String, Object> updateTimeline(@RequestBody TimelineDTO dto,
+	        @RequestHeader Map<String, String> header) {
 
-		String loginId = get_token(authorizationHeader);
-		log.info("사용자 아이디: {}", loginId);
+	    log.info("header : {}", header);
+	    Map<String, Object> resp = new HashMap<>();
 
-		dto.setTime_user_id(loginId);
-		svc.updateTimeline(dto);
+	    String authorization = header.get("authorization");
+	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
 
-		return ResponseEntity.ok("updated");
+	    if (loginId == null || loginId.isEmpty()) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "로그인이 필요합니다.");
+	        return resp;
+	    }
+
+	    if (!loginId.equals(dto.getTime_user_id())) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "수정 권한이 없습니다.");
+	        return resp;
+	    }
+
+	    svc.updateTimeline(dto);
+
+	    resp.put("status", "success");
+	    resp.put("msg", "타임라인이 수정되었습니다.");
+
+	    return resp;
 	}
 
-	// 타임라인 삭제
+	// DELETE TIMELINE
 	@DeleteMapping("/timeline/delete")
-	public ResponseEntity<String> delTimeline(@RequestBody TimelineDTO dto,
-			@RequestHeader("Authorization") String authorizationHeader) {
+	public Map<String, Object> delTimeline(@RequestBody TimelineDTO dto,
+	        @RequestHeader Map<String, String> header) {
 
-		String loginId = get_token(authorizationHeader);
-		log.info("사용자 아이디: {}", loginId);
+	    log.info("header : {}", header);
+	    Map<String, Object> resp = new HashMap<>();
 
-		boolean deleted = svc.delTimeline(dto.getTime_idx(), loginId);
-		if (deleted) {
-			return ResponseEntity.ok("deleted");
-		} else {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
-		}
+	    String authorization = header.get("authorization");
+	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
+
+	    if (loginId == null || loginId.isEmpty()) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "로그인이 필요합니다.");
+	        return resp;
+	    }
+
+	    if (!loginId.equals(dto.getTime_user_id())) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "삭제 권한이 없습니다.");
+	        return resp;
+	    }
+
+	    boolean deleted = svc.delTimeline(dto.getTime_idx(), loginId);
+
+	    if (deleted) {
+	        resp.put("status", "success");
+	        resp.put("msg", "타임라인이 삭제되었습니다.");
+	    } else {
+	        resp.put("status", "fail");
+	        resp.put("msg", "삭제에 실패했습니다.");
+	    }
+
+	    return resp;
 	}
 
-	// 유저의 타임라인 리스트
+
+
+	// TIMELINE LIST
 	@GetMapping("/timeline/list")
-	public ResponseEntity<?> timelineList(@RequestHeader("Authorization") String authorizationHeader) {
-		
-		String id = get_token(authorizationHeader);
+	public Map<String, Object> timelineList(@RequestHeader Map<String, String> header) {
+	    Map<String, Object> resp = new HashMap<>();
 
-		if (id == null || id.isEmpty()) {
-			return ResponseEntity.status(401).body("로그인을 진행해주세요.");
-		}
+	    String authorization = header.get("authorization");
+	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
 
-		Map<String, List<TimelineDTO>> t_list_by_year = svc.timelineList(id);
+	    if (loginId == null || loginId.isEmpty()) {
+	        resp.put("status", "fail");
+	        resp.put("msg", "로그인을 진행해주세요.");
+	        return resp;
+	    }
 
-		return ResponseEntity.ok(t_list_by_year);
+	    Map<String, List<TimelineDTO>> t_list_by_year = svc.timelineList(loginId);
+	    resp.put("status", "success");
+	    resp.put("data", t_list_by_year);
 
+	    return resp;
 	}
 
-	// 타 유저의 공개 타임라인 리스트
+	// TIMELINE LIST (OTHER USER)
 	@GetMapping("/timeline/public/{id}") // {id}는 프로필 주인 id
-	public ResponseEntity<?> publicList(@PathVariable String id, @RequestHeader("Authorization") String auth_header) {
+	public Map<String, Object> publicList(@PathVariable String id, @RequestHeader Map<String, String> header) {
+	    Map<String, Object> resp = new HashMap<>();
 
-		String loginId = get_token(auth_header);
+	    String authorization = header.get("authorization");
+	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null; // 공개 리스트 조회
 
-		List<TimelineDTO> public_timeline = svc.publicList(id);
+	    List<TimelineDTO> public_timeline = svc.publicList(id);
 
-		List<Map<String, Object>> result = public_timeline.stream().map(t -> {
-			Map<String, Object> map = new HashMap<>();
-			map.put("time_idx", t.getTime_idx());
-			map.put("time_user_id", t.getTime_user_id());
-			map.put("day", t.getDay());
-			map.put("time_title", t.getTime_title());
-			map.put("time_content", t.getTime_content());
-			map.put("time_public_yn", t.getTime_public_yn());
-			map.put("time_update_date", t.getTime_update_date());
-			map.put("isMine", t.getTime_user_id().equals(id)); // 내가 쓴 글인지 구분
-			return map;
-		}).collect(Collectors.toList());
+	    List<Map<String, Object>> result = public_timeline.stream().map(t -> {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("time_idx", t.getTime_idx());
+	        map.put("time_user_id", t.getTime_user_id());
+	        map.put("day", t.getDay());
+	        map.put("time_title", t.getTime_title());
+	        map.put("time_content", t.getTime_content());
+	        map.put("time_public_yn", t.getTime_public_yn());
+	        map.put("time_update_date", t.getTime_update_date());
+	        map.put("isMine", t.getTime_user_id().equals(loginId)); // 로그인한 사용자가 쓴 글인지 구분
+	        return map;
+	    }).collect(Collectors.toList());
 
-		return ResponseEntity.ok(result);
+	    resp.put("status", "success");
+	    resp.put("data", result);
+
+	    return resp;
 	}
+
 
 }
