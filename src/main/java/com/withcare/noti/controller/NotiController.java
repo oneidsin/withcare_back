@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,16 +22,20 @@ public class NotiController {
     Map<String, Object> result = null;
 
     // 사용자의 알림 목록
-    @GetMapping("/noti")
-    public List<NotiDTO> getNoti(@RequestBody Map<String, String> params) {
-        log.info("getNoti : {}", params.get("id"));
-        return svc.getNoti(params);
+    @GetMapping("/noti/list/{id}")
+    public List<NotiDTO> getNoti(@PathVariable String id) {
+        log.info("getNoti : {}", id);
+        return svc.getNoti(id);
     }
 
-    @DeleteMapping("/noti/delete")
-    public Map<String, Object> deleteNoti(@RequestBody Map<String, String> params) {
-        log.info("deleteNoti : {}", params.get("id"));
-
+    // 알림 삭제 (1개)
+    @DeleteMapping("/noti/del/{id}/{noti_idx}")
+    public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable int noti_idx) {
+        log.info("deleteNoti : {} {}", id, noti_idx);
+        result = new HashMap<>();
+        boolean success = svc.deleteNoti(id, noti_idx);
+        result.put("success", success);
+        result.put("noti_idx", noti_idx);
         return result;
     }
 

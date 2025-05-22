@@ -5,7 +5,7 @@
    <mapper namespace="com.withcare.comment.dao.ComDAO">
    
    	<!-- WRITE COMMENT -->
-	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO" useGeneratedKeys="true" keyProperty="com_idx" keyColumn="post_idx">
+	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO" useGeneratedKeys="true" keyProperty="com_idx" keyColumn="com_idx">
 	    INSERT INTO comment (post_idx, id, com_content, com_blind_yn)
 	    VALUES (#{post_idx}, #{id}, #{com_content}, #{com_blind_yn})
 	</insert>
@@ -39,5 +39,10 @@
     <select id="comCnt" parameterType="int" resultType="int">
         SELECT COUNT(*) FROM comment WHERE post_idx = #{post_idx}
     </select>
-	
-   </mapper>
+
+	<!-- 게시글 작성자 ID 가져오기 -->
+	<select id="getPostWriterId" parameterType="int" resultType="String">
+		SELECT id FROM post WHERE post_idx = #{post_idx}
+	</select>
+
+</mapper>

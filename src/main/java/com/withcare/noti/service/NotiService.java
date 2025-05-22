@@ -18,8 +18,8 @@ public class NotiService {
     @Autowired
     NotiDAO dao;
 
-    public List<NotiDTO> getNoti(Map<String, String> params) {
-        List<NotiDTO> noti_list = dao.getNoti(params.get("id"));
+    public List<NotiDTO> getNoti(String id) {
+        List<NotiDTO> noti_list = dao.getNoti(id);
 
         for (NotiDTO noti : noti_list) {
             NotiDetailDTO detail = new NotiDetailDTO();
@@ -61,19 +61,18 @@ public class NotiService {
     }
 
     // 댓글 알림 저장
-    public boolean sendCommentNoti(int com_idx) {
-        Map<String, String> info = dao.getNotiInfoFromComment(com_idx);
+    public void sendCommentNoti(int com_idx, int post_idx, String sender_id, String receiver_id) {
+        NotiDTO notiDTO = new NotiDTO();
+        notiDTO.setNoti_sender_id(sender_id);
+        notiDTO.setRelate_user_id(receiver_id);
+        notiDTO.setNoti_type("comment");
+        notiDTO.setContent_pre(sender_id + " 님이 회원님의 게시글에 댓글을 남겼습니다.");
+        dao.insertNoti(notiDTO);
+    }
 
-        String sender_id = info.get("sender_id");
-        String receiver_id = info.get("receiver_id");
 
-        NotiDTO noti = new NotiDTO();
-        noti.setNoti_sender_id(sender_id);
-        noti.setRelate_user_id(receiver_id);
-        noti.setRelate_item_id(com_idx);
-        noti.setNoti_type("comment");
-
-        int row = dao.insertNoti(noti);
+    public boolean deleteNoti(String id, int notiIdx) {
+        int row = dao.deleteNoti(id, notiIdx);
         return row > 0;
     }
 }

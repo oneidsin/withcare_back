@@ -14,7 +14,9 @@ public interface NotiDAO {
 
     String getMemberName(String notiSenderId);
 
-    int insertNoti(NotiDTO noti);
+    int insertNoti(NotiDTO notiDTO);
 
     Map<String, String> getNotiInfoFromComment(int comIdx);
+
+    int deleteNoti(String id, int notiIdx);
 }

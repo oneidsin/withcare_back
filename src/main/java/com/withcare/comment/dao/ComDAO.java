@@ -28,4 +28,5 @@ public interface ComDAO {
 	// COUNT COMMENT
 	int comCnt(int post_idx);
 
+	String getPostWriterId(int post_idx);
 }

@@ -41,4 +41,9 @@
         WHERE c.com_idx = #{com_idx}
     </select>
 
+    <delete id="deleteNoti">
+        DELETE FROM notification
+        WHERE noti_idx = #{noti_idx} AND relate_user_id = #{id}
+    </delete>
+
 </mapper>
