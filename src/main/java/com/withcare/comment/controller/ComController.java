@@ -29,7 +29,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	
 	@Autowired ComService svc;
 	
-	// WRITE COMMENT 
+	// WRITE COMMENT & MENTION
 	@PostMapping("/post/detail/{post_idx}/write")
 	public Map<String, Object> writeCom (@PathVariable int post_idx, @RequestBody ComDTO dto, @RequestHeader Map<String, String> header) {
 		
@@ -40,14 +40,12 @@ Logger log = LoggerFactory.getLogger(getClass());
 		
 		dto.setId(id);
 		
-		boolean success = false;
 		if (id != null && !id.isEmpty()) {
-			success = svc.writeCom(dto);
+			result = svc.writeCom(dto); // 멘션 처리 서비스에서
 			login = true;
 		}
 		
 		result.put("idx", dto.getCom_idx());
-		result.put("success", success);
 		result.put("loginYN", login);
 		
 		return result;
@@ -66,7 +64,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 		
 		dto.setId(id);
 		
-		if (id != null && !id.isEmpty()) {
+		if (id != null && !id.isEmpty()) { // 로그인 아이디랑 작성자 아이디는 svc에서 확인
 			login = true;
 			success = svc.updateCom(dto,id);
 		}
@@ -87,7 +85,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 		result = new HashMap<String, Object>();
 	    
 	    boolean success = false;
-	    if (id != null && !id.isEmpty()) {
+	    if (id != null && !id.isEmpty()) { // 로그인 아이디랑 작성자 아이디는 svc에서 확인
 	    	success = svc.delCom(dto, id);
 	        login = true;
 	    }
@@ -109,8 +107,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	    return result;
 	}
 	
-	// MENTION
-	// @PostMapping ("/post/detail/{post_idx}/mention")
+
 	
 	
 	
