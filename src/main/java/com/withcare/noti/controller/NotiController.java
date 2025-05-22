@@ -49,32 +49,55 @@ public class NotiController {
 
     // 알림 삭제 (1개)
     @DeleteMapping("/noti/del/{id}/{noti_idx}")
-    public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable int noti_idx) {
+    public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable int noti_idx,
+            @RequestHeader Map<String, String> header) {
         log.info("deleteNoti : {} {}", id, noti_idx);
         result = new HashMap<>();
-        boolean success = svc.deleteNoti(id, noti_idx);
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean success = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            success = svc.deleteNoti(id, noti_idx);
+        }
+
         result.put("success", success);
         return result;
     }
 
     // 알림 전체 삭제
     @DeleteMapping("/noti/delAll/{id}")
-    public Map<String, Object> deleteAllNoti(@PathVariable String id) {
+    public Map<String, Object> deleteAllNoti(@PathVariable String id,
+            @RequestHeader Map<String, String> header) {
         log.info("delete all noti : {}", id);
         result = new HashMap<>();
-        boolean success = svc.deleteAllNoti(id);
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean success = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            success = svc.deleteAllNoti(id);
+        }
+
         result.put("success", success);
         return result;
     }
 
     // 알림 읽음 확인
     @PutMapping("/noti/read/{id}/{noti_idx}")
-    public Map<String, Object> readNoti(@PathVariable String id, @PathVariable int noti_idx) {
+    public Map<String, Object> readNoti(@PathVariable String id, @PathVariable int noti_idx,
+            @RequestHeader Map<String, String> header) {
         log.info("read Noti : {} {}", id, noti_idx);
         result = new HashMap<>();
-        boolean success = svc.readNoti(id, noti_idx);
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean success = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            success = svc.readNoti(id, noti_idx);
+        }
+
         result.put("success", success);
         return result;
     }
-
 }
