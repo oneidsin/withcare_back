@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.comment.dto.ComDTO;
@@ -32,7 +31,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	
 	// WRITE COMMENT 
 	@PostMapping("/post/detail/{post_idx}/write")
-	public Map<String, Object> writeCom (@RequestBody ComDTO dto, @RequestHeader Map<String, String> header) {
+	public Map<String, Object> writeCom (@PathVariable int post_idx, @RequestBody ComDTO dto, @RequestHeader Map<String, String> header) {
 		
 		result = new HashMap<>();
 		
@@ -57,7 +56,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	
 	// UPDATE COMMENT
 	@PutMapping("/post/detail/{post_idx}/edit")
-	public Map<String, Object> editCom (@RequestBody ComDTO dto, @RequestHeader Map<String, String> header){
+	public Map<String, Object> editCom (@PathVariable int post_idx, @RequestBody ComDTO dto, @RequestHeader Map<String, String> header){
 		
 		result = new HashMap<>();
 		
@@ -69,7 +68,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 		
 		if (id != null && !id.isEmpty()) {
 			login = true;
-			success = svc.updateCom(dto);
+			success = svc.updateCom(dto,id);
 		}
 		
 		result.put("success", success);
@@ -80,7 +79,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	
 	// BLIND COMMENT
 	@PutMapping("/post/detail/{post_idx}/delete")
-	public Map<String, Object> delCom (@RequestBody ComDTO dto, @RequestHeader Map<String, String>header){
+	public Map<String, Object> delCom (@PathVariable int post_idx, @RequestBody ComDTO dto, @RequestHeader Map<String, String>header){
 
 	    String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
 	    boolean login = false;
@@ -109,6 +108,9 @@ Logger log = LoggerFactory.getLogger(getClass());
 
 	    return result;
 	}
+	
+	// MENTION
+	// @PostMapping ("/post/detail/{post_idx}/mention")
 	
 	
 	

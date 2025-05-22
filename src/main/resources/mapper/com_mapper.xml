@@ -5,7 +5,7 @@
    <mapper namespace="com.withcare.comment.dao.ComDAO">
    
    	<!-- WRITE COMMENT -->
-	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO" useGeneratedKeys="true" keyProperty="post_idx" keyColumn="post_idx">
+	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO" useGeneratedKeys="true" keyProperty="com_idx" keyColumn="post_idx">
 	    INSERT INTO comment (post_idx, id, com_content, com_blind_yn)
 	    VALUES (#{post_idx}, #{id}, #{com_content}, #{com_blind_yn})
 	</insert>
