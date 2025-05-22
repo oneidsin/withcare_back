@@ -20,8 +20,15 @@ public class BlockStatController {
 	@Autowired
 	BlockStatService svc;
 
-	@GetMapping("/block")
-    public Map<String, Object> getBlockStat() {
-        return svc.getBlockStat();
-    }
+	// 차단 통계
+	@GetMapping("/stat/block_reason")
+	public Map<String, Object> getBlockStatistics() {
+		return svc.getBlockStat();
+	}
+
+    // 유저간 차단 통계
+	
+	
+	
+	
 }
