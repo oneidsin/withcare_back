@@ -11,9 +11,13 @@
 		</insert>
    		
    		<!-- 작성자 ID 가져오기 (post_idx 에 맞는) -->
-   		<select id="postWriter" parameterType="int" resultType="String">
-		    SELECT id FROM post WHERE post_idx = #{post_idx}
+   		<select id="postIdx" parameterType="int" resultType="String">
+		    SELECT * FROM post WHERE post_idx = #{post_idx}
 		</select>
+		
+	    <select id="postWriter" parameterType="int" resultType="String">
+	        SELECT id FROM post WHERE post_idx = #{post_idx}
+	    </select>
 		
 		<!-- level 가져오기 -->
 		<select id="userLevel" parameterType="String" resultType="int">
@@ -33,7 +37,7 @@
    		
    		<!-- 게시글 상세보기 -->
    		<select id="postDetail" parameterType="int" resultType="com.withcare.post.dto.PostDTO">
-   			SELECT * FROM post WHERE post_idx=#{post_idx}
+        	SELECT * FROM post WHERE post_idx=#{post_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
    		</select>
    		
    		<!-- 조회수 증가 (상세보기 시) -->
@@ -54,24 +58,24 @@
 		        p.post_blind_yn,
         		p.board_idx
 		    FROM post p
-		    WHERE p.board_idx = #{param3}
+		    WHERE p.board_idx = #{param3} AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
 		    ORDER BY p.post_idx DESC
 		    LIMIT #{param2} OFFSET #{param1}
 		</select>
 		
 		<!-- 추천 수 -->
-		<select id="likeCnt" resultType="int">
+		<select id="likeCnt" parameterType="int" resultType="int">
 			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=1
 		</select>
 		
 		<!-- 비추천 수 -->
-		<select id="dislikeCnt" resultType="int">
+		<select id="dislikeCnt" parameterType="int" resultType="int">
 			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=-1
 		</select>
 		
 		<!-- 게시글 페이지 -->
-		<select id="postPages" resultType="int">
-		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx}
+		<select id="postPages" parameterType="int" resultType="int">
+		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
 		</select>
    		
    		<!-- 추천 유형 -->
@@ -106,6 +110,11 @@
    		<delete id="fileDelete" parameterType="String">
 		    DELETE FROM file WHERE file_idx = #{file_idx}
 		</delete>
+		
+		<!-- 파일 url 로 삭제 -->
+	    <delete id="fileDeleteUrl" parameterType="String">
+	        DELETE FROM file WHERE file_url = #{file_url}
+	    </delete>
 		
 		<!-- 파일 정보 가져오기 -->
 		<select id="fileInfo" parameterType="String" resultType="map">

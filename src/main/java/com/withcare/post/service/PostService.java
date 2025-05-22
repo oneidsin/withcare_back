@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.withcare.board.dao.BoardDAO;
@@ -28,7 +29,7 @@ public class PostService {
 	
 	HashMap<String, Object> result = null;
 	
-	private int post_count = 5;
+	private int post_count = 5; // 페이지 당 게시글 수
 	
 	@Autowired PostDAO dao;
 	@Autowired BoardDAO boardDao;
@@ -39,25 +40,22 @@ public class PostService {
 	public boolean postWrite(PostDTO dto) {
 	    // 게시판 com_yn 가져오기
 	    boolean boardComYn = boardDao.boardComYn(dto.getBoard_idx());
-
 	    dto.setCom_yn(boardComYn);
-
 	    int row = dao.postWrite(dto);
 	    return row > 0;
 	}
 
+	@Transactional // 파일 하나가 실패하면 모두 롤백되어야 함. (DB 부분)
 	public boolean saveFiles(int post_idx, MultipartFile[] files) {
-		List<String> savedFileNames = new ArrayList<>();
-		boolean success = true;
 		
     	if (files == null || files.length == 0) {
     	    return true; // 업로드할 파일이 없으면 true 반환
     	}
     	
+    	List<String> savedFileNames = new ArrayList<>();
         try {
 	        for (MultipartFile file : files) {
 
-	        	
 	        	if (file.isEmpty()) continue; // file 이 없어도 에러 안나게 해놓은 거
 	        	
 	            if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한
@@ -100,49 +98,36 @@ public class PostService {
 	                param.put("file_url", savedName);  // 혹은 full path로 저장하고 싶으면 변경
 	
 	                dao.fileInsert(param);
-	                savedFileNames.add(savedName); // 성공한 파일만 저장
+	                savedFileNames.add(savedName); // 잠재적 롤백을 위해 목록에 추가
 	                
 	            } 
-	        	
 	        	return true; // 모두 성공했을 경우
 	        	
         }catch (Exception e) {
 	                e.printStackTrace();
 
-            // 저장된 파일 시스템에서 삭제
+	        // 롤백: 일부가 실패할 경우 성공적으로 저장된 파일을 파일 시스템 및 DB에서 삭제
             for (String savedName : savedFileNames) {
                 try {
                     Path path = Paths.get(uploadDir, savedName);
                     Files.deleteIfExists(path);
+                    dao.fileDeleteUrl(savedName); // file_url 기준으로 삭제
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     log.error("파일 시스템 삭제 실패: " + savedName, ex);
                 }
-
-                // DB에서도 삭제
-                dao.fileDelete(savedName); // file_url 기준으로 삭제
             }
             return false;
         }
     
     }
 
-	public boolean postUpdate(PostDTO dto, String userId, MultipartFile[] files, List<String> keepFileIdx) {
-	    String writerId = dao.postWriter(dto.getPost_idx());
-	    if (writerId == null || !writerId.equals(userId)) { // 작성자 id 가 없거나 사용자랑 다르면 update 실행 안돼요. (관리자 수정은 필요 없다고 해서 뺐습니다.)
-	        return false;
-	    }
-
+	public boolean postUpdate(PostDTO dto) {
 	    int row = dao.postUpdate(dto);
-
-	    if (row > 0) {
-	        boolean filesUpdated = updateFiles(dto.getPost_idx(), files, keepFileIdx);
-	        return filesUpdated;
-	    }
-	    return false;
+	    return row>0;
 	}
 
-	private void deleteFileIdx(String savedName) {
+	private void deleteFileIdx(String savedName) { // 시스템에서 파일 삭제하기
 	    try {
 	        Path path = Paths.get(uploadDir, savedName); // 파일 삭제하기
 	        Files.deleteIfExists(path);
@@ -151,42 +136,30 @@ public class PostService {
 	    }
 	}
 
-	public boolean postDelete(PostDTO dto, String userId) {
-		
-	    // 1) 게시글 작성자 조회
-	    String writerId = dao.postWriter(dto.getPost_idx());
-	    if (writerId == null) {
-	        return false;
-	    }
-	    
-	    // 2) 작성자 아니면 관리자 여부 체크
-	    if (!writerId.equals(userId)) {
-	        int lv_idx = dao.userLevel(userId);
-	        if (lv_idx != 7) {
-	            // 작성자도 아니고 관리자도 아니면 삭제 불가
-	            return false;
-	        }
-	    }
-		
-		int row = dao.postDelete(dto);
-		return row>0;
-	}
+    public boolean postDelete(PostDTO dto) {
+        int row = dao.postDelete(dto);
+        return row > 0;
+    }
 
-	public Map<String, Object> postDetail(int post_idx, boolean up) {
-		result = new HashMap<String,Object>();
+	public Map<String, Object> postDetail(int post_idx, boolean Hitup) {
+		Map<String, Object> detailResult = new HashMap<>();
 		
-		if (up) {
+		if (Hitup) {
 			dao.upHit(post_idx); // 상세보기 시 조회수 증가
 		}
 		
-	    PostDTO dto = dao.postDetail(post_idx);
-	    result.put("post", dto);
-	    result.put("likes", dao.likeCnt(post_idx)); // 추천 수
-	    result.put("dislikes", dao.dislikeCnt(post_idx)); // 비추천 수
-	    List<Map<String, String>> photos = dao.fileList(post_idx);
-	    result.put("photos", photos);
+        PostDTO dto = dao.postDetail(post_idx);
+        if (dto == null) {
+            return detailResult;
+        }
+        
+        detailResult.put("post", dto);
+        detailResult.put("likes", dao.likeCnt(post_idx));
+        detailResult.put("dislikes", dao.dislikeCnt(post_idx));
+        List<Map<String, String>> photos = dao.fileList(post_idx);
+        detailResult.put("photos", photos);
 
-	    return result;
+	    return detailResult;
 	}
 	
 	public Map<String, Object> postList(int page, int board_idx) {
@@ -205,6 +178,7 @@ public class PostService {
 	        postMap.put("post", dto);
 	        postMap.put("likes", dao.likeCnt(dto.getPost_idx()));
 	        postMap.put("dislikes", dao.dislikeCnt(dto.getPost_idx()));
+            // 목록 보기 최적화를 위해 선택적으로 첫 번째 사진 또는 사진 수를 포함
 	        List<Map<String, String>> photos = dao.fileList(dto.getPost_idx());
 	        postMap.put("photos", photos);
 	        postMapList.add(postMap);
@@ -244,38 +218,20 @@ public class PostService {
 		return dao.fileList(post_idx);
 	}
 
-	public boolean fileDelete(String file_idx, String userId) {
+	@Transactional
+	public boolean fileDelete(String file_idx) {
 	    // 1) 파일 정보 조회
 	    Map<String, String> fileInfo = dao.fileInfo(file_idx);
 	    if (fileInfo == null) {
 	        return false; // 파일 존재하지 않음
 	    }
-	    int post_idx = Integer.parseInt(fileInfo.get("post_idx"));
 	    
-	    // 2) 게시글 작성자 조회
-	    String writerId = dao.postWriter(post_idx);
-	    if (writerId == null) {
-	        return false;
-	    }
-	    
-	    // 3) 권한 체크 (작성자 또는 관리자만 삭제 가능)
-	    if (!writerId.equals(userId)) {
-	        int lv_idx = dao.userLevel(userId);
-	        if (lv_idx != 7) { // 관리자 권한 레벨 (예시)
-	            return false;
-	        }
-	    }
-	    
-	    // 파일 삭제
 	    int row = dao.fileDelete(file_idx);
-	    if (row > 0) {
-	    	// 실제 저장된 파일 삭제
-	        if (fileInfo != null) {
-	            deleteFileIdx(fileInfo.get("file_url"));
-	        }
+	    if (row>0) {
+	    	deleteFileIdx(fileInfo.get("file_url"));
+	    	return true;
 	    }
-	    return row > 0;
-	    
+	    return false;
 	}
 
 	public boolean updateFiles(int post_idx, MultipartFile[] files, List<String> keepFileIdx) {
@@ -284,7 +240,7 @@ public class PostService {
 		
 		// 삭제 대상 파일 결정 (keepFileIdx 에 없는 파일 삭제)
 		for (Map<String, String> file : currentFiles) {
-			String fileIdx = String.valueOf(file.get("file_idx"));
+			String fileIdx = String.valueOf(file.get("file_idx")); // 비교를 위해 문자열인지 확인
 			if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) {
 				// DB 에서 삭제
 				dao.fileDelete(fileIdx);
@@ -294,9 +250,18 @@ public class PostService {
 		}
 		// 새 파일 저장
 		if (files != null && files.length>0) {
-			return saveFiles(post_idx,files);
+			return saveFiles(post_idx,files); // savefiles 로직 재사용
 		}
-		
-		return true;
+		return true; // 추가할 새 파일은 없지만 이전 파일이 성공적으로 삭제되었을 수 있음
+	}
+
+	public int userLevel(String loginId) {
+		Integer level = dao.userLevel(loginId);
+		return level != null ? level : -1; // 사용자를 찾을 수 없거나 레벨을 찾을 수 없는 경우 -1 또는 예외 발생
+	}
+	
+	// 컨트롤러가 게시글 작성자 ID를 가져오기 위한 헬퍼 메소드
+	public String postWriter(int post_idx) {
+		return dao.postWriter(post_idx);
 	}
 }
