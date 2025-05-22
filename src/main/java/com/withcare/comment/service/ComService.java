@@ -71,6 +71,9 @@ public class ComService {
             menDto.setMen_blind_yn(false); // 블라인드 여부
 
             dao.writeMention(menDto); // DB에 저장
+
+            // 멘션 작성시 알림 저장
+            
         }
 
         result.put("success", true);
