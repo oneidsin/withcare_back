@@ -50,6 +50,27 @@
     VALUES (#{id}, NULL, NULL, NULL, NULL, 0, 0)
 	</insert>
 
+	<select id="getUserPosts" parameterType="String" resultType="com.withcare.post.dto.PostDTO">
+        SELECT * FROM post WHERE id = #{id} ORDER BY IFNULL(post_update_date, post_create_date) DESC
+        LIMIT 5
+    </select>
+
+    <select id="getUserComments" parameterType="String" resultType="com.withcare.comment.dto.ComDTO">
+        SELECT * FROM comment WHERE id = #{id} ORDER BY com_create_date DESC LIMIT 5
+    </select>
+
+    <select id="getUserLikes" parameterType="String" resultType="com.withcare.post.dto.LikeDislikeDTO">
+        SELECT * FROM likeYn WHERE id = #{id} ORDER BY like_date DESC LIMIT 5
+    </select>
+
+    <select id="getUserSearches" parameterType="String" resultType="com.withcare.search.dto.SearchDTO">
+        SELECT * FROM search WHERE sch_id = #{id} ORDER BY sch_date DESC LIMIT 5
+    </select>
+
+	<select id="getUserMentions" parameterType="String" resultType="com.withcare.comment.dto.MenDTO">
+        SELECT * FROM mention WHERE men_id = #{id} 
+        ORDER BY COALESCE(men_update_date, men_create_date) DESC LIMIT 5
+    </select>
 
 
 </mapper>
