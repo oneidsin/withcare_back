@@ -10,16 +10,17 @@
 		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn}, #{post_blind_yn})
 		</insert>
    		
-   		<!-- 작성자 ID 가져오기 (post_idx 에 맞는) -->
+   		<!-- 작성자 정보 가져오기 (post_idx 에 맞는) -->
    		<select id="postIdx" parameterType="int" resultType="String">
 		    SELECT * FROM post WHERE post_idx = #{post_idx}
 		</select>
 		
+   		<!-- 작성자 ID 가져오기 (post_idx 에 맞는) -->
 	    <select id="postWriter" parameterType="int" resultType="String">
 	        SELECT id FROM post WHERE post_idx = #{post_idx}
 	    </select>
 		
-		<!-- level 가져오기 -->
+		<!-- level 가져오기 (관리자 확인)-->
 		<select id="userLevel" parameterType="String" resultType="int">
 		    SELECT lv_idx FROM member WHERE id = #{id}
 		</select>
@@ -30,7 +31,7 @@
    				WHERE post_idx = #{post_idx}
    		</update>
    		
-   		<!-- 게시글 블라인드 처리 -->
+   		<!-- 게시글 블라인드 처리 (관리자 or 작성자) -->
    		<update id="postDelete" parameterType="com.withcare.post.dto.PostDTO">
    			UPDATE post SET post_blind_yn = #{post_blind_yn} WHERE post_idx = #{post_idx}
    		</update>
@@ -45,58 +46,82 @@
    			UPDATE post SET post_view_cnt = post_view_cnt+1 WHERE post_idx = #{post_idx}
    		</update>
    		
-   		<!-- 게시글 목록 가져오기 (게시판 idx에 맞는 게시글만 불러옵니다. 현재 5개씩 설정됨.) -->
+   		<!-- 게시글 목록 가져오기 (게시판 idx에 맞는 게시글만 불러옵니다. 현재 5개씩 설정됨. sort에 타입 설정하면 추천순, 최신순으로 볼 수 있음.) -->
 		<select id="postList" resultType="com.withcare.post.dto.PostDTO">
 		    SELECT 
 		        p.post_idx,
+		        p.board_idx,
+		        p.id,
 		        p.post_title,
 		        p.post_content,
 		        p.post_view_cnt,
 		        p.com_yn,
 		        p.post_create_date,
 		        p.post_update_date,
-		        p.post_blind_yn,
-        		p.board_idx
+		        p.post_blind_yn
 		    FROM post p
-		    WHERE p.board_idx = #{param3} AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
-		    ORDER BY p.post_idx DESC
+		    <choose>
+		    <!-- sort에 recommend 실행해야 left join 발동하면서 추천순 보여줌. -->
+		        <when test="param3 == 'recommend'">
+		            LEFT JOIN (
+		                SELECT post_idx, COUNT(*) AS like_cnt
+		                FROM likeyn l
+		                WHERE like_type = 1
+		                GROUP BY post_idx
+		            ) l ON p.post_idx = l.post_idx
+		        </when>
+		    </choose>
+		    WHERE p.board_idx = #{param2}
+		      AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
+		    <choose>
+		        <when test="param3 == 'recommend'">
+		            ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_create_date DESC
+		        </when>
+		        <!-- 기본값은 최신순 -->
+		        <when test="param3 == 'latest'">
+		            ORDER BY p.post_create_date DESC
+		        </when>
+		        <otherwise>
+		            ORDER BY p.post_create_date DESC
+		        </otherwise>
+		    </choose>
 		    LIMIT #{param2} OFFSET #{param1}
 		</select>
 		
 		<!-- 추천 수 -->
 		<select id="likeCnt" parameterType="int" resultType="int">
-			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=1
+			SELECT COUNT(*) FROM likeyn WHERE post_idx=#{param1} AND like_type=1
 		</select>
 		
 		<!-- 비추천 수 -->
 		<select id="dislikeCnt" parameterType="int" resultType="int">
-			SELECT COUNT(*) FROM likeYn WHERE post_idx=#{param1} AND like_type=-1
+			SELECT COUNT(*) FROM likeyn WHERE post_idx=#{param1} AND like_type=-1
 		</select>
 		
-		<!-- 게시글 페이지 -->
+		<!-- 게시글 페이지 수 -->
 		<select id="postPages" parameterType="int" resultType="int">
 		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
 		</select>
    		
    		<!-- 추천 유형 -->
 		<select id="LikeType" parameterType="map" resultType="int">
-			SELECT like_type FROM likeYn WHERE id=#{param1} AND post_idx=#{param2}
+			SELECT like_type FROM likeyn WHERE id=#{param1} AND post_idx=#{param2}
 		</select>
 		
 		<!-- 추천 삽입 -->
 		<insert id="likeInsert" parameterType="com.withcare.post.dto.LikeDislikeDTO">
-			INSERT INTO likeYn(id, post_idx, like_type)
+			INSERT INTO likeyn(id, post_idx, like_type)
 				VALUES(#{id}, #{post_idx}, #{like_type})
 		</insert>
 				
 		<!-- 추천 삭제 (동일 유저가 동일 idx 에 동일 상태 체크하면 삭제합니다.) -->
 		<delete id="likeDelete">
-			DELETE FROM likeYn WHERE id = #{param1} AND post_idx = #{param2}
+			DELETE FROM likeyn WHERE id = #{param1} AND post_idx = #{param2}
 		</delete>
 		
 		<!-- 추천 상태 따라서 수정 -->
 		<update id="likeUpdate" parameterType="com.withcare.post.dto.LikeDislikeDTO">
-			UPDATE likeYn SET like_type = #{like_type}
+			UPDATE likeyn SET like_type = #{like_type}
 				WHERE id = #{id} AND post_idx = #{post_idx}
 		</update>
    		
@@ -106,12 +131,12 @@
 		    VALUES (#{post_idx}, #{file_url})
 		</insert>
 		
-		<!-- 파일 삭제 -->
+		<!-- 파일 삭제 (file_idx 기준)-->
    		<delete id="fileDelete" parameterType="String">
 		    DELETE FROM file WHERE file_idx = #{file_idx}
 		</delete>
 		
-		<!-- 파일 url 로 삭제 -->
+		<!-- 파일 삭제 (file_url 기준)-->
 	    <delete id="fileDeleteUrl" parameterType="String">
 	        DELETE FROM file WHERE file_url = #{file_url}
 	    </delete>

@@ -21,7 +21,7 @@ public interface PostDAO {
 
 	int upHit(int post_idx);
 
-	List<PostDTO> postList(int offset, int post_count, int board_idx);
+	List<PostDTO> postList(int offset, int post_count, int board_idx, String sort);
 	
 	int postPages(int board_idx);
 

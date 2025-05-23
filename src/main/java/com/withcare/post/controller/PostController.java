@@ -34,30 +34,33 @@ public class PostController {
 	@Autowired PostService svc;
 	
 	// 토큰 수정 필요
-	// 게시글 작성 (PostMapping)
+	// 게시글 작성 (PostMapping) (파일 첨부 별도 처리함)
 	@PostMapping("/post/write")
 	public Map<String, Object> postWrite(
-	        @RequestBody PostDTO dto, // 이거랑 multipartFile 이랑 자꾸 같이 쓰지 말라면서 겁나 갈궈서 그냥 파일 첨부랑 게시글 작성이랑 분리했습니당...ㅠ
+	        @RequestBody PostDTO dto, // 파일 첨부 및 게시글 별도 처리
 	        @RequestHeader Map<String, String> header) {
-
+		
+        // 사용할 변수 초기화
         Map<String, Object> result = new HashMap<>();
         String loginId = null;
         boolean login = false;
         boolean success = false;
         
         try {
+    	    // 토큰 발급
     	    loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
 		} catch (Exception e) {
+			// 안되면 로그인 false
 			result.put("success", false);
 			result.put("loginYN", false);
 			return result;
 		}
         
         
-	    if (loginId != null && !loginId.isEmpty()) {
+	    if (loginId != null && !loginId.isEmpty()) { // loginId 가 비어있으면
 	    	login = true;
-		    dto.setId(loginId); // 사용자 ID 설정
-	        success = svc.postWrite(dto);
+		    dto.setId(loginId); // 게시글에 작성자 ID 설정
+	        success = svc.postWrite(dto); // 게시글 작성 서비스 호출
 	        result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
 	    }
 	    
@@ -92,7 +95,7 @@ public class PostController {
 	    	String postWriter = svc.postWriter(post_idx);
 	    	
 	        if (postWriter != null && loginId.equals(postWriter)) {
-	            success = svc.saveFiles(post_idx, files); // 작성자가 맞으면 파일 저장
+	            success = svc.saveFiles(post_idx, files); // 작성자랑 login 아이디가 맞으면 파일 저장
 	        } else {
 	            // 작성자 불일치
 	            success = false;
@@ -176,7 +179,7 @@ public class PostController {
 	    if (loginId != null) {
 	        login = true;
 	        String postWriter = svc.postWriter(post_idx);
-	        if (postWriter != null && loginId.equals(postWriter)) {
+	        if (postWriter != null && loginId.equals(postWriter)) { // 작성자 ID랑 로그인 ID 가 동일할 때만
 		    	success = svc.updateFiles(post_idx, files, keepFileIdx);
 			}else {
 				success = false;
@@ -220,7 +223,7 @@ public class PostController {
             
 	    	if (postWriter != null && loginId.equals(postWriter)) {
 	            authorized = true;
-			}else if (postWriter != null) { // 게시글은 존재하지만 사용자가 작성자가 아닌 경우, 관리자인지 확인
+			}else if (postWriter != null) { // 게시글은 존재하지만 사용자가 작성자가 아닌 경우, 관리자인지 확인 (관리자 게시판 삭제 권한 때문에)
 				int userLevel = svc.userLevel(loginId);
 				if (userLevel == 7) {
 					authorized = true;
@@ -269,6 +272,7 @@ public class PostController {
 	public Map<String, Object> postList(
 	        @PathVariable int page,
 	        @RequestParam int board_idx,
+	        @RequestParam(defaultValue = "latest") String sort, // 추가 (추천순, 최신순 선택해서 보여주기 위해서)
 	        @RequestHeader Map<String, String> header) {
 
 	    Map<String, Object> result = new HashMap<>();
@@ -278,14 +282,14 @@ public class PostController {
         try {
             loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
         } catch (Exception e) {
-            // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행
+            // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행 (게시글 리스트는 그냥 보입니다.)
         }
         
         if (loginId != null && !loginId.isEmpty()) {
             login = true;
         }
         
-	    Map<String, Object> listResult = svc.postList(page, board_idx);
+	    Map<String, Object> listResult = svc.postList(page, board_idx, sort);
 	    result.putAll(listResult);
 	    
 	    result.put("loginYN", login);
