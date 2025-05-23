@@ -17,8 +17,7 @@ public class MsgService {
 
 	Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	MsgDAO dao;
+	@Autowired MsgDAO dao;
 
 	@Autowired
 	NotiService notiService;
@@ -69,6 +68,11 @@ public class MsgService {
 	// SAVE MSG (보낸 쪽지 기준)
 	public void msgSaveOut(int idx) {
 		dao.msgSaveOut(idx);
+	}
+
+	// 수신자가 읽었을 때 읽음 처리
+	public void readYN(int msg_idx) {
+		dao.readYN(msg_idx);
 	}
 
 }

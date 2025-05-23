@@ -20,7 +20,7 @@
 	
 	<!-- INBOX -->
 	<select id="inbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
-		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE receiver_id = #{receiver_id} AND sender_msg_status = "N" ORDER BY msg_sent_at DESC
+		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE receiver_id = #{receiver_id} AND receiver_msg_status = "N" ORDER BY msg_sent_at DESC
 	</select>
 	
 	<!-- MSG DETAIL -->
@@ -46,6 +46,11 @@
 	<!-- SAVE MSG (OUTBOX 기준) -->
 	<update id="msgSaveOut">
 		UPDATE message SET sender_msg_status="S" WHERE msg_idx = #{msg_idx}
+	</update>
+	
+	<!-- 수신자 읽음 처리 -->
+	<update id="readYN">
+		UPDATE message SET msg_read = true WHERE msg_idx = #{msg_idx}
 	</update>
 
 </mapper>
