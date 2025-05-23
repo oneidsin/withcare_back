@@ -1,8 +1,5 @@
 package com.withcare.profile.dto;
 
-import org.apache.ibatis.annotations.Mapper;
-
-@Mapper
 public class StageDTO {
 
 	private int stage_idx;
