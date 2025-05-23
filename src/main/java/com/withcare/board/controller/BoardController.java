@@ -132,10 +132,11 @@ public class BoardController {
 	public Map<String, Object>boardList(
 			@PathVariable int page,
 			@RequestParam int board_idx,
+			@RequestParam(defaultValue = "latest") String sort,
 			@RequestHeader Map<String, String>header){
 		
 		String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		return svc.boardList(board_idx, page, id);
+		return svc.boardList(board_idx, page, id, sort);
 	}
 	
 }

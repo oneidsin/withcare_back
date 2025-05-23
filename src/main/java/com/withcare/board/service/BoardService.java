@@ -45,7 +45,7 @@ public class BoardService {
         return dao.userLevel(id);
     }
     
-	public Map<String, Object> boardList(int board_idx, int page, String id) {
+	public Map<String, Object> boardList(int board_idx, int page, String id, String sort) {
 
 		int boardRead = boardLevel(board_idx); // 게시판 열람 레벨 가져오기
 		int userLevel = userLevel(id); // 사용자 레벨 가져오기
@@ -60,7 +60,7 @@ public class BoardService {
         }
 
         // PostService에서 실제 게시글 리스트 받아오기
-        return postService.postList(board_idx, page);
+        return postService.postList(page, board_idx, sort);
     }
 	
 }
