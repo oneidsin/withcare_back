@@ -33,9 +33,9 @@ public class BlockStatController {
 		return svc.getBlockReason();
 	}
 
-    // 유저간 차단 통계
-	
-	
-	
-	
+    // 유저간 차단 통계 종힙 / 주간 차단 건수 7일간
+	@GetMapping("/stat/block-usertouser")
+    public BlockCountDTO getBlockUTU() {
+        return svc.getBlockUTU();
+	}
 }

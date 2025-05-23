@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+
+<mapper namespace="com.withcare.statistic.dao.MemberStatDAO">
+
+	<select id="getMember"
+		resultType="com.withcare.statistic.dto.MemberStatDTO">
+		SELECT
+		'AGE' AS type,
+		CASE
+		WHEN FLOOR((YEAR(CURDATE()) - year) / 10) = 1 THEN '10대'
+		WHEN FLOOR((YEAR(CURDATE()) - year) / 10) = 2 THEN '20대'
+		WHEN FLOOR((YEAR(CURDATE()) - year) / 10) = 3 THEN '30대'
+		ELSE '그 외'
+		END AS label,
+		COUNT(*) AS count
+		FROM member
+		GROUP BY label
+		UNION ALL
+		SELECT
+		'GENDER' AS type,
+		CASE
+		WHEN gender = '남자' THEN '남자'
+		WHEN gender = '여자' THEN '여자'
+		ELSE '기타'
+		END AS label,
+		COUNT(*) AS count
+		FROM member
+		GROUP BY label
+	</select>
+	
+	<select id="getMemberCnt" resultType="com.withcare.statistic.dto.MemberStatCntDTO">
+        SELECT
+            (SELECT COUNT(*) FROM member) AS total_member,
+            (SELECT COUNT(*) FROM member WHERE DATE(join_date) = CURDATE()) AS new_member
+    </select>
+</mapper>

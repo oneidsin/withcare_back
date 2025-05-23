@@ -5,8 +5,8 @@
 
 <mapper namespace="com.withcare.member.dao.MemberDAO">
 
-<update id="delete" parameterType="string">
-    UPDATE member SET user_del_yn = 1 WHERE id = #{param1}
-</update>
+	<update id="delete" parameterType="string">
+		UPDATE member SET user_del_yn = 1 WHERE id = #{param1}
+	</update>
 
 </mapper>
