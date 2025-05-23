@@ -33,4 +33,7 @@ public interface MsgDAO {
 	// SAVE MSG (OUT BOX 기준)
 	void msgSaveOut(int idx);
 
+	// 읽음 처리
+	void readYN(int msg_idx);
+
 }

@@ -26,8 +26,7 @@ public class MsgController {
 
 	Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	MsgService svc;
+	@Autowired MsgService svc;
 
 	// SEND MSG
 	@PostMapping("/msg/send")
@@ -88,12 +87,20 @@ public class MsgController {
 	@GetMapping("/msg/detail/{id}/{msg_idx}")
 	public Map<String, Object> msgDetail(@PathVariable String id, @PathVariable int msg_idx,
 			@RequestHeader Map<String, String> header) {
+		
 		Map<String, Object> resp = new HashMap<>();
 		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(id)) {
 			MsgDTO dto = svc.msgDetail(msg_idx);
+			
+		// 읽음 처리 (수신자가 읽었을 때만 처리)
+		if(dto.getReceiver_id().equals(loginId) && !dto.isMsg_read()) {
+			svc.readYN(msg_idx);
+			dto.setMsg_read(true);
+		}
+			
 			resp.put("msg", dto);
 			login = true;
 		}
