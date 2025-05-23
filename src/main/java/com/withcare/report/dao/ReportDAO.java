@@ -20,4 +20,13 @@ public interface ReportDAO {
 
   int checkDuplicateCateForUpdate(Map<String, Object> params);
 
+  int report(Map<String, Object> params);
+
+  // 신고 관련 검증 메서드
+  int checkDuplicateReport(Map<String, Object> params);
+
+  String getPostWriter(Integer postIdx);
+
+  boolean checkCategoryValid(Integer categoryIdx);
+
 }

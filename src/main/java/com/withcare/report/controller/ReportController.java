@@ -103,4 +103,25 @@ public class ReportController {
 		result.put("loginYN", login);
 		return result;
 	}
+
+	/* 유저가 신고하는 기능들 */
+	// 신고하기
+	@PostMapping("/report")
+	public Map<String, Object> report(@RequestBody Map<String, Object> params,
+			@RequestHeader Map<String, String> header) {
+		log.info("신고 접수 : {}", params);
+		log.info("header : {}", header);
+		result = new HashMap<>();
+
+		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+		boolean login = false;
+
+		if (!loginId.equals("") && loginId.equals(params.get("id"))) {
+			result = svc.report(params);
+			login = true;
+		}
+
+		result.put("loginYN", login);
+		return result;
+	}
 }
