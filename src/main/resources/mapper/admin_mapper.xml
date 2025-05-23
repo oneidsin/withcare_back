@@ -121,30 +121,36 @@
 		    ORDER BY l.like_date DESC
    		</select>
    		
+   		<!-- 유저 타임라인 보기 -->
    		<select id="adminMemberTimeline" parameterType="String" resultType="com.withcare.profile.dto.TimelineDTO">
    			SELECT * FROM timeline WHERE time_user_id = #{id} AND time_public_yn = 1 ORDER BY day DESC
    		</select>
    		
+   		<!-- 배지 추가 -->
    		<insert id="adminBdgAdd" parameterType="com.withcare.profile.dto.BadgeDTO">
 		    INSERT INTO badge (bdg_name, bdg_icon, bdg_condition, bdg_active_yn)
 		    	VALUES (#{bdg_name}, #{bdg_icon}, #{bdg_condition}, #{bdg_active_yn})
    		</insert>
    		
+   		<!-- 배지 수정 -->
    		<update id="adminBdgUpdate" parameterType="com.withcare.profile.dto.BadgeDTO">
  			UPDATE badge SET bdg_name = #{bdg_name}, bdg_icon = #{bdg_icon}, bdg_condition = #{bdg_condition}, bdg_active_yn = #{bdg_active_yn}
     			WHERE bdg_idx = #{bdg_idx}
    		</update>
    		
+   		<!-- 배지 활성화 여부 설정 -->
  		<update id="adminBdgDelete" parameterType="com.withcare.profile.dto.BadgeDTO">
  			UPDATE badge SET bdg_active_yn = #{bdg_active_yn}
     			WHERE bdg_idx = #{bdg_idx}
    		</update>
    		
+   		<!-- 레벨 추가 -->
    		<insert id="adminLevelAdd" parameterType="com.withcare.profile.dto.LevelDTO">
 		    INSERT INTO level (lv_no, lv_name, lv_icon, post_cnt, com_cnt, like_cnt, time_cnt, access_cnt)
 		    	VALUES (#{lv_no}, #{lv_name}, #{lv_icon}, #{post_cnt}, #{com_cnt}, #{like_cnt}, #{time_cnt}, #{access_cnt})
    		</insert>
    		
+   		<!-- 레벨 수정 -->
 		<update id="adminLevelUpdate" parameterType="com.withcare.profile.dto.LevelDTO">
  			UPDATE level SET 
 	 			lv_no = #{lv_no}, 
@@ -158,7 +164,7 @@
 	    	WHERE lv_idx = #{lv_idx}
    		</update>
    		
-   		<!-- 해당 레벨을 보유한 사용자가 몇 명인지 확인 -->
+   		<!-- 해당 레벨을 보유한 사용자가 몇 명인지 확인 (1명이라도 있으면 레벨 삭제 불가) -->
 		<select id="adminLevelCnt" resultType="int">
 		    SELECT COUNT(*) FROM member WHERE lv_idx = #{lv_idx}
 		</select>
@@ -167,4 +173,5 @@
 		<delete id="adminLevelDelete">
 		    DELETE FROM level WHERE lv_idx = #{lv_idx}
 		</delete>
+		
    </mapper>

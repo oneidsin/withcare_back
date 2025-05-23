@@ -9,13 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.withcare.post.dto.PostDTO;
-import com.withcare.profile.dto.CancerDTO;
 import com.withcare.profile.dto.ProfileDTO;
-import com.withcare.profile.dto.StageDTO;
 import com.withcare.search.dao.SearchDAO;
-import com.withcare.search.dto.SearchResultDTO;
 import com.withcare.search.dto.SearchDTO;
+import com.withcare.search.dto.SearchResultDTO;
 
 @Service
 public class SearchService {
@@ -53,10 +50,12 @@ public class SearchService {
         return dao.getSearchResult(dto);
     }
 
+    // 최근 검색어
 	public List<SearchDTO> searchRecent(String sch_id) {
 		return dao.searchRecent(sch_id);
 	}
 
+	// 최근 검색어 기반 추천 게시글
 	public List<SearchResultDTO> recommendPost(String sch_id) {
 		List<SearchDTO>recentKeyword = dao.searchRecent(sch_id);
 		if (recentKeyword == null || recentKeyword.isEmpty()) {
@@ -67,14 +66,17 @@ public class SearchService {
 		return dao.recommendPost(latestKeyword);
 	}
 
+	// 로그인 / 검색어 X (default 리스트)
 	public List<SearchResultDTO> recommendDefault() {
 		return dao.recommendDefault();
 	}
 
+	// 인기 검색어
 	public List<Map<String, Object>> searchPopular() {
 		return dao.searchPopular();
 	}
 
+	// 프로필 정보 기반 정보 게시판 게시글 불러오기 *board_idx 5, 6번
 	public List<SearchResultDTO> searchCancer(ProfileDTO profileDTO) {
 		String cancerKeyword = null;
 		String stageKeyword = null;
@@ -91,11 +93,12 @@ public class SearchService {
 		return dao.searchCancer(cancerKeyword,stageKeyword);
 	}
 
+	// 프로필에서 암 종류 정보 가져오기
 	public ProfileDTO profileCancer(String loginId) {
 		return dao.profileCancer(loginId);
 	}
    
-	
+	// 프로필에서 병기 정보 가져오기
 	public boolean searchHistory(String loginId) {
 		Integer cnt = dao.searchHistory(loginId);
 		return cnt != null && cnt > 0;

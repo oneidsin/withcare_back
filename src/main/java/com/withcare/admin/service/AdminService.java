@@ -51,22 +51,25 @@ public class AdminService {
 	}
 
 	public List<Map<String, Object>> adminMemberComments(String targetId) {
-		
+		// 특정 사용자가 작성한 댓글 목록 조회
 		List<ComDTO> comment = dao.adminMemberCom(targetId);
+		// 특정 사용자가 작성한 멘션 목록 조회
 		List<MenDTO> mention = dao.adminMemberMen(targetId);
 		
+		// 댓글 멘션 통합할 리스트 생성 (리턴 결과물)
 		List<Map<String, Object>> unifiedList = new ArrayList<Map<String,Object>>();
 		
+		// 댓글 리스트 MAP 형태로 변환해 통합 리스트에 추가
 		for (ComDTO com : comment) {
 			Map<String, Object> item = new HashMap<>();
-			item.put("type", "comment");
-			item.put("id", com.getCom_idx());
-			item.put("writerId", com.getId());
-			item.put("content", com.getCom_content());
-			item.put("createDate", com.getCom_create_date());
-			item.put("updateDate", com.getCom_update_date());
-			item.put("blindYn", com.isCom_blind_yn());
-			unifiedList.add(item);
+			item.put("type", "comment"); // 타입 구분
+			item.put("id", com.getCom_idx()); // 댓글 고유 ID
+			item.put("writerId", com.getId()); // 작성자 ID
+			item.put("content", com.getCom_content()); // 댓글 내용
+			item.put("createDate", com.getCom_create_date()); // 작성 일자
+			item.put("updateDate", com.getCom_update_date()); // 수정 일자
+			item.put("blindYn", com.isCom_blind_yn()); // 블라인드 여부
+			unifiedList.add(item); // 리스트에 추가
 		}
 		
 		for (MenDTO men : mention) {
@@ -81,19 +84,21 @@ public class AdminService {
 			unifiedList.add(item);
 		}
 		
-		// 최신 기준: create_date와 update_date 중 더 나중 날짜로 정렬
+		// create_date와 update_date 중 더 나중 날짜를 기준으로 최신순 정렬
 		unifiedList.sort((a, b) -> {
 			Timestamp aCreate = (Timestamp) a.get("createDate");
 		    Timestamp aUpdate = (Timestamp) a.get("updateDate");
 		    Timestamp bCreate = (Timestamp) b.get("createDate");
 		    Timestamp bUpdate = (Timestamp) b.get("updateDate");
 		    
+		    // 각각 최신 시간 계산
 		    Timestamp aLatest = (aUpdate != null && aUpdate.after(aCreate)) ? aUpdate : aCreate;
 		    Timestamp bLatest = (bUpdate != null && bUpdate.after(bCreate)) ? bUpdate : bCreate;
 
 		    return bLatest.compareTo(aLatest);  // 최신순 정렬
 		});
 
+		// 정렬된 통합 리스트 반환
 		return unifiedList;
 		
 	}

@@ -1,4 +1,3 @@
-
 package com.withcare.search.dao;
 
 import java.util.List;
