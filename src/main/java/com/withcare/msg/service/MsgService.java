@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.withcare.msg.dao.MsgDAO;
 import com.withcare.msg.dto.MsgDTO;
+import com.withcare.noti.service.NotiService;
 
 @Service
 public class MsgService {
@@ -19,6 +20,9 @@ public class MsgService {
 	@Autowired
 	MsgDAO dao;
 
+	@Autowired
+	NotiService notiService;
+
 	// Send MSG
 	public void sendMsg(MsgDTO dto) {
 		dto.setMsg_sent_at(new Timestamp(System.currentTimeMillis()));
@@ -27,6 +31,9 @@ public class MsgService {
 		dto.setReceiver_msg_status("N");
 
 		dao.sendMsg(dto);
+
+		// 쪽지 알림 저장 - 생성된 msg_idx 사용
+		notiService.sendMessageNoti(dto.getMsg_idx(), dto.getSender_id(), dto.getReceiver_id());
 	}
 
 	// OUTBOX

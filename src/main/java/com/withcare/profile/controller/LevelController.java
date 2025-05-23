@@ -6,7 +6,6 @@ import com.withcare.profile.service.LevelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,8 @@ import java.util.Map;
 public class LevelController {
     Logger log = LoggerFactory.getLogger(getClass());
 
-    @Autowired LevelService svc;
+    @Autowired
+    LevelService svc;
 
     // 사용자 레벨 정보 가져오기
     @GetMapping("/{id}/level/list")
@@ -42,6 +42,5 @@ public class LevelController {
         log.info("레벨 자동 계산 요청: {}", id);
         return svc.calculateAndUpdateLevel(id);
     }
-    
-    
+
 }

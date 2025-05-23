@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.withcare.noti.service.NotiService;
 import com.withcare.util.JwtToken;
@@ -27,6 +28,18 @@ public class NotiController {
     NotiService svc;
 
     Map<String, Object> result = null;
+
+    // SSE 연결을 위한 엔드포인트
+    @GetMapping("/noti/subscribe/{id}")
+    public SseEmitter subscribe(@PathVariable String id, @RequestHeader Map<String, String> header) {
+        log.info("SSE subscribe : {}", id);
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            return svc.subscribe(id);
+        }
+        return null;
+    }
 
     // 사용자의 알림 목록
     @GetMapping("/noti/list/{id}")
@@ -48,8 +61,8 @@ public class NotiController {
     }
 
     // 알림 삭제 (1개)
-    @DeleteMapping("/noti/del/{id}/{noti_idx}")
-    public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable int noti_idx,
+    @DeleteMapping("/noti/del/{id}/{noti-idx}")
+    public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable("noti-idx") int noti_idx,
             @RequestHeader Map<String, String> header) {
         log.info("deleteNoti : {} {}", id, noti_idx);
         result = new HashMap<>();
@@ -84,8 +97,8 @@ public class NotiController {
     }
 
     // 알림 읽음 확인
-    @PutMapping("/noti/read/{id}/{noti_idx}")
-    public Map<String, Object> readNoti(@PathVariable String id, @PathVariable int noti_idx,
+    @PutMapping("/noti/read/{id}/{noti-idx}")
+    public Map<String, Object> readNoti(@PathVariable String id, @PathVariable("noti-idx") int noti_idx,
             @RequestHeader Map<String, String> header) {
         log.info("read Noti : {} {}", id, noti_idx);
         result = new HashMap<>();

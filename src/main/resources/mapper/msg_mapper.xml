@@ -6,7 +6,7 @@
 <mapper namespace="com.withcare.msg.dao.MsgDAO">
 
 	<!-- Send MSG -->
-	<insert id="sendMsg" parameterType="com.withcare.msg.dto.MsgDTO">
+	<insert id="sendMsg" parameterType="com.withcare.msg.dto.MsgDTO" useGeneratedKeys="true" keyProperty="msg_idx">
 		INSERT INTO message (sender_id, receiver_id, msg_content, msg_sent_at,
 		msg_read, sender_msg_status, receiver_msg_status)
 		VALUES (#{sender_id}, #{receiver_id}, #{msg_content}, #{msg_sent_at},
@@ -47,10 +47,5 @@
 	<update id="msgSaveOut">
 		UPDATE message SET sender_msg_status="S" WHERE msg_idx = #{msg_idx}
 	</update>
-
-
-
-
-
 
 </mapper>

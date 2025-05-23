@@ -54,10 +54,26 @@
         WHERE relate_user_id = #{id}
     </delete>
 
+    <!-- 알림 읽음 처리 -->
     <update id="readNoti">
         UPDATE notification
         SET noti_read_yn = true
         WHERE noti_idx = #{noti_idx};
     </update>
+
+    <!-- 사용자의 전체 알림 개수 카운트 -->
+    <select id="getNotiCount" resultType="int">
+        SELECT COUNT(*)
+        FROM notification
+        WHERE relate_user_id = #{user_id}
+    </select>
+
+    <!-- 오래된 알림 삭제 -->
+    <delete id="deleteOldNoti">
+        DELETE FROM notification
+        WHERE relate_user_id = #{user_id}
+        ORDER BY noti_date ASC
+        LIMIT #{count}
+    </delete>
 
 </mapper>

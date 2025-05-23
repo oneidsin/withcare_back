@@ -23,7 +23,7 @@ public class BadgeController {
     // 배지 리스트 가져오기(획득한 것, 획득하지 않은 것)
     @GetMapping("/{id}/badge/list")
     public Map<String, Object> getMemberBadgeList(@PathVariable String id,
-                                                  @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         result = new HashMap<>();
         String loginId = getLoginIdFromToken(header);
 
@@ -43,7 +43,7 @@ public class BadgeController {
     // 유저가 획득한 배지만 조회
     @GetMapping("/{id}/badge/acquired")
     public Map<String, Object> getMemberAcquiredBadge(@PathVariable String id,
-                                                      @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         result = new HashMap<>();
         String loginId = getLoginIdFromToken(header);
 
@@ -61,10 +61,10 @@ public class BadgeController {
     }
 
     // 배지 획득하기
-    @GetMapping("/{id}/badge/acquired/{bdg_idx}")
+    @GetMapping("/{id}/badge/acquired/{bdg-idx}")
     public Map<String, Object> acquiredBadge(@PathVariable String id,
-                                             @PathVariable int bdg_idx,
-                                             @RequestHeader Map<String, String> header) {
+            @PathVariable("bdg-idx") int bdg_idx,
+            @RequestHeader Map<String, String> header) {
         result = new HashMap<>();
         String loginId = getLoginIdFromToken(header);
 
@@ -82,10 +82,10 @@ public class BadgeController {
     }
 
     // 대표 배지 설정
-    @PutMapping("/{id}/badge/sym_yn/{bdg_idx}")
+    @PutMapping("/{id}/badge/sym_yn/{bdg-idx}")
     public Map<String, Object> updateBadgeSym(@PathVariable String id,
-                                              @PathVariable int bdg_idx,
-                                              @RequestHeader Map<String, String> header) {
+            @PathVariable("bdg-idx") int bdg_idx,
+            @RequestHeader Map<String, String> header) {
         result = new HashMap<>();
         String loginId = getLoginIdFromToken(header);
 
@@ -106,7 +106,8 @@ public class BadgeController {
     private String getLoginIdFromToken(Map<String, String> header) {
         try {
             String token = header.get("authorization");
-            if (token == null || token.isEmpty()) return null;
+            if (token == null || token.isEmpty())
+                return null;
 
             Map<String, Object> tokenData = JwtToken.JwtUtils.readToken(token);
             return (String) tokenData.get("id");
