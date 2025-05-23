@@ -24,5 +24,13 @@
 		ORDER BY reason_count DESC
 	</select>
 
+	<!-- 유저간 차단 통계 종힙 / 주간 차단 건수 7일간 -->
+	<select id="getBlockUTU" resultType="com.withcare.statistic.dto.BlockCountDTO">
+		SELECT
+		    COUNT(*) AS total_count,
+		    SUM(CASE WHEN block_start_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
+		FROM member_block;
+	</select>
+	
 </mapper>
    
