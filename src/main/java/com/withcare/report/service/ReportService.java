@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.withcare.report.dao.ReportDAO;
+import com.withcare.report.dto.ReportDTO;
 
 @Service
 public class ReportService {
@@ -71,30 +72,75 @@ public class ReportService {
 		return result;
 	}
 
-	public Map<String, Object> report(Map<String, Object> params) {
+	public Map<String, Object> report(ReportDTO reportDTO) {
 		Map<String, Object> result = new HashMap<>();
 
+		String itemType = reportDTO.getRep_item_type();
+		int itemIdx = reportDTO.getRep_item_idx();
+		String reporterId = reportDTO.getReporter_id();
+
 		try {
-			// 중복 신고 체크
-			int duplicateCount = dao.checkDuplicateReport(params);
-			if (duplicateCount > 0) {
+			// 1. 신고 대상 작성자 조회
+			String reportedId = null;
+			switch (itemType) {
+				case "post":
+					reportedId = dao.postWriter(itemIdx);
+					break;
+				case "comment":
+					reportedId = dao.commentWriter(itemIdx);
+					break;
+				case "mention":
+					reportedId = dao.mentionWriter(itemIdx);
+					break;
+				default:
+					result.put("success", false);
+					result.put("msg", "잘못된 신고 타입입니다.");
+					return result;
+			}
+
+			if (reportedId == null) {
 				result.put("success", false);
-				result.put("msg", "이미 신고한 게시글입니다.");
+				result.put("msg", "신고 대상이 존재하지 않습니다.");
 				return result;
 			}
 
-			// 신고 처리
-			int row = dao.report(params);
+			// 2. 자기 자신 신고 방지
+			if (reporterId.equals(reportedId)) {
+				result.put("success", false);
+				result.put("msg", "자신의 콘텐츠는 신고할 수 없습니다.");
+				return result;
+			}
+
+			// 3. 중복 신고 체크
+			if (dao.isDuplicateReport(reporterId, itemType, itemIdx)) {
+				result.put("success", false);
+				result.put("msg", "이미 신고한 항목입니다.");
+				return result;
+			}
+
+			// 4. 신고 등록
+			reportDTO.setReported_id(reportedId); // 신고 대상
+			int row = dao.report(reportDTO);
+
+			// 5. 신고 히스토리 등록
+			Map<String, Object> history = new HashMap<>();
+			history.put("rep_idx", reportDTO.getRep_idx());
+			dao.insertReportHistory(history);
+
 			result.put("success", row > 0);
-			result.put("msg", row > 0 ? "신고가 접수되었습니다." : "신고접수에 실패했습니다.");
+			result.put("msg", row > 0 ? "신고가 접수되었습니다." : "신고 접수에 실패했습니다.");
 
 		} catch (Exception e) {
-			log.error("신고 처리 중 오류 발생", e);
+			log.error("신고 처리 중 오류", e);
 			result.put("success", false);
 			result.put("msg", "신고 처리 중 오류가 발생했습니다.");
 		}
 
 		return result;
+	}
+
+	public List<Map<String, Object>> reportList() {
+		return dao.reportList();
 	}
 
 }

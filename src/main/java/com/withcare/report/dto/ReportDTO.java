@@ -1,6 +1,6 @@
 package com.withcare.report.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class ReportDTO {
 
@@ -10,7 +10,7 @@ public class ReportDTO {
 	private int rep_cate_idx;
 	private String rep_item_type;
 	private String status;
-	private Date report_at;
+	private Timestamp report_at;
 	private int rep_item_idx;
 
 	public int getRep_idx() {
@@ -61,11 +61,11 @@ public class ReportDTO {
 		this.status = status;
 	}
 
-	public Date getReport_at() {
+	public Timestamp getReport_at() {
 		return report_at;
 	}
 
-	public void setReport_at(Date report_at) {
+	public void setReport_at(Timestamp report_at) {
 		this.report_at = report_at;
 	}
 

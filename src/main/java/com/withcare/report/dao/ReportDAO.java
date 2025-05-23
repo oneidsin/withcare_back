@@ -5,9 +5,11 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Map;
 
+import com.withcare.report.dto.ReportDTO;
+
 @Mapper
 public interface ReportDAO {
-
+  // 신고 카테고리 관련
   List<Map<String, Object>> reportCateList();
 
   int reportCateAdd(Map<String, Object> params);
@@ -20,13 +22,21 @@ public interface ReportDAO {
 
   int checkDuplicateCateForUpdate(Map<String, Object> params);
 
-  int report(Map<String, Object> params);
-
-  // 신고 관련 검증 메서드
-  int checkDuplicateReport(Map<String, Object> params);
-
-  String getPostWriter(Integer postIdx);
+  // 신고 관련
+  int report(ReportDTO reportDTO);
 
   boolean checkCategoryValid(Integer categoryIdx);
 
+  // 작성자 ID 조회
+  String postWriter(Integer itemIdx);
+
+  String commentWriter(Integer itemIdx);
+
+  String mentionWriter(Integer itemIdx);
+
+  boolean isDuplicateReport(String reporterId, String itemType, int itemIdx);
+
+  List<Map<String, Object>> reportList();
+
+  void insertReportHistory(Map<String, Object> history);
 }

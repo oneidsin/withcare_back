@@ -1,13 +1,13 @@
 package com.withcare.report.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class ReportHistoryDTO {
 
 	private int rep_list_idx;
 	private int rep_idx;
 	private String rep_admin_id;
-	private Date process_date;
+	private Timestamp process_date;
 	private boolean rep_yn;
 	private String rep_reason;
 
@@ -35,11 +35,11 @@ public class ReportHistoryDTO {
 		this.rep_admin_id = rep_admin_id;
 	}
 
-	public Date getProcess_date() {
+	public Timestamp getProcess_date() {
 		return process_date;
 	}
 
-	public void setProcess_date(Date process_date) {
+	public void setProcess_date(Timestamp process_date) {
 		this.process_date = process_date;
 	}
 
@@ -58,5 +58,4 @@ public class ReportHistoryDTO {
 	public void setRep_reason(String rep_reason) {
 		this.rep_reason = rep_reason;
 	}
-
 }

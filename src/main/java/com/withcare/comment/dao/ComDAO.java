@@ -23,9 +23,9 @@ public interface ComDAO {
 	// DELETE COMMENT
 	int delCom(ComDTO dto);
 
-	// COMMENT LIST 
+	// COMMENT LIST
 	List<ComDTO> comList(int post_idx);
-	
+
 	// COUNT COMMENT
 	int comCnt(int post_idx);
 
@@ -36,4 +36,10 @@ public interface ComDAO {
 	List<String> selectId();
 
 	String getPostWriterId(int post_idx);
+
+	// 댓글 작성자 ID 조회
+	String commentWriter(Integer comIdx);
+
+	// 멘션 작성자 ID 조회
+	String mentionWriter(Integer menIdx);
 }
