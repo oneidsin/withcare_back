@@ -17,4 +17,8 @@ public interface BlockStatDAO {
 	// 차단 이유별 분포
 	List<Map<String, Object>> getBlockReason();
 
+	
+	// 유저간 차단 통계 종힙 / 주간 차단 건수 7일간
+	BlockCountDTO getBlockUTU();
+
 }

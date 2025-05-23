@@ -31,6 +31,11 @@ public class BlockStatService {
 		return result;
 	}
 
+	// 유저간 차단 통계 종힙 / 주간 차단 건수 7일간
+	public BlockCountDTO getBlockUTU() {
+		return dao.getBlockUTU();
+	}
+
 
 
 
