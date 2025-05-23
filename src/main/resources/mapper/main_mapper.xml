@@ -6,10 +6,14 @@
 <mapper namespace="com.withcare.main.dao.MainDAO">
 
 	<select id="ranking" resultType="map">
-	    SELECT m.id, m.lv_date, l.lv_name, l.lv_icon
-	    FROM member m JOIN level l ON m.lv_idx = l.lv_idx
-	    WHERE m.user_del_yn = 0
-	    ORDER BY m.lv_date DESC LIMIT 5
-	  </select>
-
+	  SELECT m.id, m.lv_date, l.lv_name, l.lv_icon
+	  FROM member m 
+	  JOIN level l ON m.lv_idx = l.lv_idx
+	  WHERE m.user_del_yn = 0
+	  	AND m.block_yn = 0
+	    AND l.lv_idx != 7
+	  ORDER BY l.lv_idx DESC, m.lv_date DESC
+	  LIMIT 5
+	</select>
+	
 </mapper>
