@@ -4,16 +4,12 @@
 
 <mapper namespace="com.withcare.statistic.dao.BlockStatDAO">
 
-	<!-- 전체 차단 건수 -->
-	<select id="getTotalCount" resultType="int">
-		SELECT COUNT(*) FROM block_list
-	</select>
-
-	<!-- 주간 차단 건수 -->
-	<select id="getWeeklyCount" resultType="int">
-		SELECT COUNT(*)
-		FROM block_list
-		WHERE block_start_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+	<!-- 전체 차단건수 와 최근 7일간 차단 건수 -->
+	<select id="getBlock" resultType="com.withcare.statistic.dto.BlockCountDTO">
+	    SELECT
+	        COUNT(*) AS total_count,
+	        SUM(CASE WHEN block_start_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
+	    FROM block_list
 	</select>
 
 	<!-- 차단 사유별 분포 -->
@@ -21,7 +17,8 @@
 		SELECT
 		block_reason,
 		COUNT(*) AS reason_count,
-		ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM block_list), 2) AS percentage
+		ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*)
+		FROM block_list), 2) AS percentage
 		FROM block_list
 		GROUP BY block_reason
 		ORDER BY reason_count DESC
