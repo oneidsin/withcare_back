@@ -62,7 +62,7 @@
 		    FROM post p
 		    <choose>
 		    <!-- sort에 recommend 실행해야 left join 발동하면서 추천순 보여줌. -->
-		        <when test="param3 == 'recommend'">
+		        <when test="param4 == 'recommend'">
 		            LEFT JOIN (
 		                SELECT post_idx, COUNT(*) AS like_cnt
 		                FROM likeyn l
@@ -71,18 +71,18 @@
 		            ) l ON p.post_idx = l.post_idx
 		        </when>
 		    </choose>
-		    WHERE p.board_idx = #{param2}
+		    WHERE p.board_idx = #{param3}
 		      AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
 		    <choose>
-		        <when test="param3 == 'recommend'">
-		            ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_create_date DESC
+		        <when test="param4 == 'recommend'">
+		            ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_idx DESC
 		        </when>
 		        <!-- 기본값은 최신순 -->
-		        <when test="param3 == 'latest'">
-		            ORDER BY p.post_create_date DESC
+		        <when test="param4 == 'latest'">
+		            ORDER BY p.post_idx DESC
 		        </when>
 		        <otherwise>
-		            ORDER BY p.post_create_date DESC
+		            ORDER BY p.post_idx DESC
 		        </otherwise>
 		    </choose>
 		    LIMIT #{param2} OFFSET #{param1}
