@@ -58,7 +58,7 @@ public class ReportController {
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(params.get("id"))) {
-			result.put("result", svc.reportCateAdd(params));
+			result = svc.reportCateAdd(params);
 			login = true;
 		}
 
@@ -77,7 +77,7 @@ public class ReportController {
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(params.get("id"))) {
-			result.put("result", svc.reportCateUpdate(params));
+			result = svc.reportCateUpdate(params);
 			login = true;
 		}
 
@@ -96,7 +96,7 @@ public class ReportController {
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(params.get("id"))) {
-			result.put("result", svc.reportCateActive(params));
+			result = svc.reportCateActive(params);
 			login = true;
 		}
 
