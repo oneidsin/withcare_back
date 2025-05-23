@@ -1,19 +1,20 @@
 package com.withcare.statistic.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.withcare.statistic.dto.ReportTypeStatDTO;
+import com.withcare.statistic.dto.ReportReasonStatDTO;
+import com.withcare.statistic.dto.ReportStatDTO;
+
 @Mapper
 public interface ReportStatDAO {
+	
+	List<ReportStatDTO> getReport();
 
-	List<Map<String, Object>> getTotalAndWeeklyCount();
+	List<ReportTypeStatDTO> getReportType();
 
-	List<Map<String, Object>> getReportReason();
-
-	List<Map<String, Object>> getReportStatus();
-
-	List<Map<String, Object>> getReportProcessReason();
+	List<ReportReasonStatDTO> getReportReason();
 
 }

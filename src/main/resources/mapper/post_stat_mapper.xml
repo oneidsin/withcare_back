@@ -4,14 +4,14 @@
 
 <mapper namespace="com.withcare.statistic.dao.PostStatDAO">
 
-    <select id="getPostWeeklyCount" resultType="int">
+    <select id="getWeeklyPostCount" resultType="int">
         SELECT COUNT(*) AS weekly_post_count
         FROM post
         WHERE post_create_date >= NOW() - INTERVAL 7 DAY
           AND post_blind_yn = FALSE
     </select>
 
-	<select id="getCommentWeeklyCount" resultType="int">
+	<select id="getWeeklyCommentCount" resultType="int">
 		SELECT COUNT(*) AS weekly_comment_count
 		FROM comment
 		WHERE com_create_date >= NOW() - INTERVAL 7 DAY
@@ -35,4 +35,27 @@
 			ORDER BY b.board_idx
     </select>
    
+   
+   <select id="getBestPost" resultType="com.withcare.statistic.dto.PostBestStatDTO">
+	    SELECT 
+	        p.post_idx AS post_idx,
+	        p.post_title AS post_title,
+	        p.id AS id,
+	        p.post_view_cnt AS post_view_cnt,
+	        COUNT(l.like_type) AS like_count,
+	        p.post_create_date AS post_create_date
+	    FROM 
+	        post p
+	    LEFT JOIN 
+	        likeYn l ON p.post_idx = l.post_idx AND l.like_type = 1
+	    WHERE 
+	        p.post_create_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+	        AND p.post_blind_yn = FALSE
+	    GROUP BY 
+	        p.post_idx, p.post_title, p.id, p.post_view_cnt, p.post_create_date
+	    ORDER BY 
+	        like_count DESC,
+	        p.post_view_cnt DESC
+	    LIMIT 10
+	</select>
 </mapper>

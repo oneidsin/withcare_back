@@ -7,7 +7,7 @@ public class PostStatDTO {
 	private boolean com_yn;
 	private int post_count;
 	private int comment_count;
-
+	
 	public int getBoard_idx() {
 		return board_idx;
 	}

@@ -1,7 +1,6 @@
 package com.withcare.statistic.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,9 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.withcare.statistic.dto.ReportTypeStatDTO;
+import com.withcare.statistic.dto.ReportReasonStatDTO;
+import com.withcare.statistic.dto.ReportStatDTO;
 import com.withcare.statistic.service.ReportStatService;
 
 @RestController
@@ -20,34 +22,23 @@ public class ReportStatController {
 	
 	@Autowired ReportStatService svc;
 	
-	/*
-	 * // 신고 등록
-	 * 
-	 * @PostMapping("/submit") public Map<String, Object> submitReport(@RequestBody
-	 * ReportDTO dto) { Map<String, Object> result = new HashMap<>(); try { boolean
-	 * isInserted = svc.submitReport(dto); if (isInserted) { result.put("success",
-	 * true); result.put("message", "신고가 등록되었습니다."); } else { result.put("success",
-	 * false); result.put("message", "이미 신고된 항목입니다."); } } catch (Exception e) {
-	 * result.put("success", false); result.put("message", "신고 처리 중 오류 발생"); }
-	 * return result; }
-	 */
+	// int 로 가져올 수 없기에 list 로 작업했습니다!
+	
+    // 종합 / 주간 신고 건수 7일간
+	@GetMapping("/stat/report")
+	public List<ReportStatDTO> getReport(){
+		return svc.getReport();
+	}
 
-    // 종합, 주간 신고 건수 + 사유
-    @GetMapping("/stat/rep_summary")
-    public Map<String, Object> getReportSummary() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("totalAndWeekly", svc.getTotalAndWeeklyCount());
-        result.put("reason", svc.getReportReason());
-        return result;
-    }
-
-    // 신고 처리 통계 (전체, 일주일)
-    @GetMapping("/stat/rep_summary_history")
-    public Map<String, Object> getHistorySummary() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("status", svc.getReportStatus());
-        result.put("processReason", svc.getReportProcessReason());
-        return result;
+    // 신고 타입별 분포 (글 / 댓글 / 회원)
+	@GetMapping("/stat/report-type")
+    public List<ReportTypeStatDTO> getReportType() {
+        return svc.getReportType();
     }
 	
+	// 신고 사유별 분포 (욕설 / 도배 / 혐오 등)
+		@GetMapping("/stat/report-reason")
+	    public List<ReportReasonStatDTO> getReportReason() {
+	        return svc.getReportReason();
+	    }
 }

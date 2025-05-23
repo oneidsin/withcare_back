@@ -1,7 +1,6 @@
 package com.withcare.statistic.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.withcare.statistic.dao.ReportStatDAO;
+import com.withcare.statistic.dto.ReportTypeStatDTO;
+import com.withcare.statistic.dto.ReportReasonStatDTO;
+import com.withcare.statistic.dto.ReportStatDTO;
 
 @Service
 public class ReportStatService {
@@ -18,25 +20,16 @@ public class ReportStatService {
 	@Autowired
 	ReportStatDAO dao;
 
-	/*
-	 * public boolean submitReport(ReportDTO dto) { // 해당 서비스에서는 사용되지 않는 기능으로 보입니다
-	 * (report용) return false; }
-	 */
-
-	public List<Map<String, Object>> getTotalAndWeeklyCount() {
-		return dao.getTotalAndWeeklyCount();
+	public List<ReportStatDTO> getReport() {
+		return dao.getReport();
 	}
 
-	public List<Map<String, Object>> getReportReason() {
+	public List<ReportTypeStatDTO> getReportType() {
+		return dao.getReportType();
+	}
+
+	public List<ReportReasonStatDTO> getReportReason() {
 		return dao.getReportReason();
-	}
-
-	public List<Map<String, Object>> getReportStatus() {
-		return dao.getReportStatus();
-	}
-
-	public List<Map<String, Object>> getReportProcessReason() {
-		return dao.getReportProcessReason();
 	}
 
 }

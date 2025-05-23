@@ -1,9 +1,9 @@
 package com.withcare.statistic.dto;
 
-public class ReportStatDTO {
+public class BlockCountDTO {
 
-	private int total_count; // 전체 신고 건수
-	private int weekly_count; // 최근 7일 신고 건수
+	private int total_count;
+	private int weekly_count;
 
 	public int getTotal_count() {
 		return total_count;
@@ -20,5 +20,4 @@ public class ReportStatDTO {
 	public void setWeekly_count(int weekly_count) {
 		this.weekly_count = weekly_count;
 	}
-
 }

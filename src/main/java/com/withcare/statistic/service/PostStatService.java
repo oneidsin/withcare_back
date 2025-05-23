@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.withcare.statistic.dao.PostStatDAO;
+import com.withcare.statistic.dto.PostBestStatDTO;
 import com.withcare.statistic.dto.PostStatDTO;
 
 @Service
@@ -18,15 +19,19 @@ public class PostStatService {
 	@Autowired
 	PostStatDAO dao;
 
-	public int getPostWeeklyCount() {
-		return dao.getPostWeeklyCount();
+	public int getWeeklyPostCount() {
+		return dao.getWeeklyPostCount();
 	}
 
-	public int getCommentWeeklyCount() {
-		return dao.getCommentWeeklyCount();
+	public int getWeeklyCommentCount() {
+		return dao.getWeeklyCommentCount();
 	}
 
 	public List<PostStatDTO> getPostAndCom() {
 		return dao.getPostAndCom();
+	}
+
+	public List<PostBestStatDTO> getBestPost() {
+		return dao.getBestPost();
 	}
 }
