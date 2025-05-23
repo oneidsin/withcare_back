@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.withcare.report.dao.ReportDAO">
+
+  <!-- 신고 카테고리 불러오기 -->
+  <select id="reportCateList" parameterType="map">
+    SELECT * FROM report_category
+  </select>
+
+  <!-- 신고 카테고리 중복 체크 -->
+  <select id="checkDuplicateCate" parameterType="map" resultType="int">
+    SELECT COUNT(*) 
+    FROM report_category 
+    WHERE cate_name = #{cate_name}
+  </select>
+
+  <!-- 신고 카테고리 수정 시 중복 체크 (현재 카테고리 제외) -->
+  <select id="checkDuplicateCateForUpdate" parameterType="map" resultType="int">
+    SELECT COUNT(*) 
+    FROM report_category 
+    WHERE cate_name = #{cate_name}
+    AND rep_cate_idx != #{rep_cate_idx}
+  </select>
+
+  <!-- 신고 카테고리 추가 -->
+  <insert id="reportCateAdd" parameterType="map">
+    INSERT INTO report_category (cate_name, cate_active_yn)
+    VALUES (#{cate_name}, true)
+  </insert>
+
+  <!-- 신고 카테고리 수정 -->
+  <update id="reportCateUpdate" parameterType="map">
+    UPDATE report_category
+    SET cate_name = #{cate_name}
+    WHERE rep_cate_idx = #{rep_cate_idx}
+  </update>
+
+  <!-- 신고 카테고리 활성화 여부 -->
+  <update id="reportCateActive" parameterType="map">
+    UPDATE report_category
+    SET cate_active_yn = #{cate_active_yn}
+    WHERE rep_cate_idx = #{rep_cate_idx}
+  </update>
+</mapper>
