@@ -1,9 +1,18 @@
 package com.withcare.statistic.dto;
 
-public class ReportStatDTO {
+public class ReportTypeStatDTO {
 
-	private int total_count; // 전체 신고 건수
-	private int weekly_count; // 최근 7일 신고 건수
+	private String rep_item_type;
+	private int total_count;
+	private int weekly_count;
+
+	public String getRep_item_type() {
+		return rep_item_type;
+	}
+
+	public void setRep_item_type(String rep_item_type) {
+		this.rep_item_type = rep_item_type;
+	}
 
 	public int getTotal_count() {
 		return total_count;

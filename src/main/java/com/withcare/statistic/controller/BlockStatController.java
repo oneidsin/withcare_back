@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.withcare.statistic.dto.BlockCountDTO;
 import com.withcare.statistic.service.BlockStatService;
 
 @RestController
@@ -20,10 +21,16 @@ public class BlockStatController {
 	@Autowired
 	BlockStatService svc;
 
-	// 차단 통계
-	@GetMapping("/stat/block_reason")
-	public Map<String, Object> getBlockStatistics() {
-		return svc.getBlockStat();
+	// 종합 / 주간 차단 건수 7일간
+	@GetMapping("/stat/block")
+    public BlockCountDTO getBlock() {
+        return svc.getBlock();
+  }
+	
+	// 차단 이유별 분포
+	@GetMapping("/stat/block-reason")
+	public Map<String, Object> getBlockReason() {
+		return svc.getBlockReason();
 	}
 
     // 유저간 차단 통계

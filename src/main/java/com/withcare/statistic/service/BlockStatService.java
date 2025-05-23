@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.withcare.statistic.dao.BlockStatDAO;
+import com.withcare.statistic.dto.BlockCountDTO;
 
 @Service
 public class BlockStatService {
@@ -18,11 +19,20 @@ public class BlockStatService {
 	@Autowired
 	BlockStatDAO dao;
 
-	public Map<String, Object> getBlockStat() {
+	// 종합 / 주간 차단 건수 7일간
+	public BlockCountDTO getBlock() {
+		return dao.getBlock();
+	}
+	
+	// 차단 이유별 분포
+	public Map<String, Object> getBlockReason() {
 		Map<String, Object> result = new HashMap<>();
-		result.put("totalBlockCount", dao.getTotalCount());
-		result.put("weeklyBlockCount", dao.getWeeklyCount());
-		result.put("blockReason", dao.getBlockReason()); // 이게 List<Map<String, Object>>
+		result.put("reason", dao.getBlockReason()); // 이게 List<Map<String, Object>>
 		return result;
 	}
+
+
+
+
+	
 }

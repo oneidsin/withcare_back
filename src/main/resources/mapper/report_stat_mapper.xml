@@ -4,36 +4,47 @@
 
 <mapper namespace="com.withcare.statistic.dao.ReportStatDAO">
 
-	<!-- 총 신고 수, 전체 or 7일 -->
-	<select id="getTotalAndWeeklyCount" resultType="map">
+	<!-- 총 신고 수, 전체 7일간 -->
+	<select id="getReport" resultType="com.withcare.statistic.dto.ReportStatDTO">
+	    SELECT
+		    rep_item_type,
+		    COUNT(*) AS total_count,
+		    SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
+		FROM
+		    report
+		GROUP BY
+		    rep_item_type
+	</select>
+
+	<!-- 신고 타입별로 -->
+	<select id="getReportType" resultType="com.withcare.statistic.dto.ReportTypeStatDTO">
 		SELECT
-		rep_item_type,
-		COUNT(*) AS total_count,
-		SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END)
-		AS weekly_count
-		FROM report
-		GROUP BY rep_item_type
-	</select>
-
-	<!-- 신고 사유 수 세기 -->
-	<select id="getReportReason" resultType="map">
-		SELECT rep_cate_idx, COUNT(*) AS count
-		FROM report
-		GROUP BY rep_cate_idx
-	</select>
-
-	<!-- 처리 상태 카운트 -->
-	<select id="getReportStatus" resultType="map">
-		SELECT status, COUNT(*) AS count
-		FROM report
-		GROUP BY status
+		    rep_item_type,
+		    COUNT(*) AS total_count,
+		    SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count 
+		FROM
+		    report
+		GROUP BY
+		    rep_item_type;
 	</select>
 	
-	<!-- 처리 사유 카운트 -->
-	<select id="getReportProcessReason" resultType="map">
-		SELECT rep_reason, COUNT(*) AS count
-		FROM report_history
-		GROUP BY rep_reason
+	<!-- 신고 사유별로 -->
+	<select  id="getReportReason" resultType="com.withcare.statistic.dto.ReportReasonStatDTO">
+		SELECT 
+		    rc.rep_cate_idx,
+		    rc.cate_name,
+		    COUNT(r.rep_idx) AS total_count,
+		    SUM(CASE WHEN r.report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
+		FROM 
+		    report_category rc
+		LEFT JOIN 
+		    report r ON rc.rep_cate_idx = r.rep_cate_idx
+		WHERE 
+		    rc.cate_active_yn = TRUE
+		GROUP BY 
+		    rc.rep_cate_idx, rc.cate_name
+		ORDER BY 
+		    total_count DESC
 	</select>
 	
 	
