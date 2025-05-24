@@ -128,41 +128,74 @@
 
 <select id="reportList" resultType="map">
   SELECT
-    rh.rep_list_idx,
     r.rep_idx,
+    r.report_at,
     r.rep_item_type,
     r.rep_item_idx,
     r.reporter_id,
     r.reported_id,
-    r.report_at,
-    rc.cate_name AS report_category,
-    p.post_idx,
-    p.post_title,
-    c.com_idx,
-    c.com_content,
-    m.men_idx,
-    m.men_content,
-    
-    COALESCE(p.post_idx, c.post_idx, pc.post_idx) AS target_post_idx
-
-    FROM report_history rh
-
-    JOIN report r ON rh.rep_idx = r.rep_idx
-
-    LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
-
-    LEFT JOIN post p ON r.rep_item_type = 'post' AND r.rep_item_idx = p.post_idx
-
-    LEFT JOIN comment c ON r.rep_item_type = 'comment' AND r.rep_item_idx = c.com_idx
-
-    LEFT JOIN mention m ON r.rep_item_type = 'mention' AND r.rep_item_idx = m.men_idx
-
-    LEFT JOIN comment mc ON m.com_idx = mc.com_idx
-    LEFT JOIN post pc ON mc.post_idx = pc.post_idx
-
-    ORDER BY rh.process_date DESC;
-
+    rc.cate_name,
+    CASE
+      WHEN r.rep_item_type = '게시글' THEN p.post_title
+      WHEN r.rep_item_type = '댓글' THEN c.com_content
+      WHEN r.rep_item_type = '멘션' THEN m.men_content
+      ELSE '알 수 없음'
+      END AS `reported_content`,
+    rh.rep_list_idx,
+    rh.process_date,
+    rh.rep_admin_id,
+    rh.rep_yn,
+    rh.rep_reason
+  FROM
+    report r
+      LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
+      LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
+      LEFT JOIN post p ON r.rep_item_idx = p.post_idx AND r.rep_item_type = '게시글'
+      LEFT JOIN comment c ON r.rep_item_idx = c.com_idx AND r.rep_item_type = '댓글'
+      LEFT JOIN mention m ON r.rep_item_idx = m.men_idx AND r.rep_item_type = '멘션'
+  ORDER BY
+    r.report_at DESC, rh.process_date DESC;
 </select>
+
+<select id="reportView" parameterType="int" resultType="map">
+  SELECT
+    r.rep_idx,
+    r.report_at,
+    r.rep_item_type,
+    r.rep_item_idx,
+    r.reporter_id,
+    r.reported_id,
+    rc.cate_name,
+    CASE
+      WHEN r.rep_item_type = '게시글' THEN p.post_title
+      WHEN r.rep_item_type = '댓글' THEN c.com_content
+      WHEN r.rep_item_type = '멘션' THEN m.men_content
+      ELSE '알 수 없음'
+      END AS `reported_content`,
+    rh.rep_list_idx,
+    rh.process_date,
+    rh.rep_admin_id,
+    rh.rep_yn,
+    rh.rep_reason
+  FROM
+    report_history rh
+      JOIN report r ON r.rep_idx = rh.rep_idx
+      LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
+      LEFT JOIN post p ON r.rep_item_idx = p.post_idx AND r.rep_item_type = '게시글'
+      LEFT JOIN comment c ON r.rep_item_idx = c.com_idx AND r.rep_item_type = '댓글'
+      LEFT JOIN mention m ON r.rep_item_idx = m.men_idx AND r.rep_item_type = '멘션'
+  WHERE
+    rh.rep_list_idx = #{rep_list_idx}
+</select>
+
+<update id="reportProcess" parameterType="map">
+  UPDATE report_history
+  SET rep_admin_id = #{rep_admin_id},
+  rep_yn = #{rep_yn},
+  rep_reason = #{rep_reason},
+  process_date = NOW()
+  WHERE rep_list_idx = #{rep_list_idx}
+</update>
 
 
 </mapper>

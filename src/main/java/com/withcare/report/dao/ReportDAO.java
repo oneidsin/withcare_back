@@ -22,12 +22,10 @@ public interface ReportDAO {
 
   int checkDuplicateCateForUpdate(Map<String, Object> params);
 
-  // 신고 관련
   int report(ReportDTO reportDTO);
 
   boolean checkCategoryValid(Integer categoryIdx);
 
-  // 작성자 ID 조회
   String postWriter(Integer itemIdx);
 
   String commentWriter(Integer itemIdx);
@@ -39,4 +37,8 @@ public interface ReportDAO {
   List<Map<String, Object>> reportList();
 
   void insertReportHistory(Map<String, Object> history);
+
+  List<Map<String, Object>> reportView(Map<String, Object> params);
+
+  int reportProcess(Map<String, Object> params);
 }

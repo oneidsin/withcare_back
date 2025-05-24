@@ -6,13 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.withcare.report.dto.ReportDTO;
 import com.withcare.report.service.ReportService;
@@ -28,6 +22,45 @@ public class ReportController {
 	ReportService svc;
 
 	Map<String, Object> result = null;
+
+	// 신고 처리 페이지(관리자)
+	@PostMapping("/admin/report/list/view")
+	public Map<String, Object> reportView(@RequestBody Map<String, Object> params,
+			@RequestHeader Map<String, String> header) {
+		log.info("header : {}", header);
+		result = new HashMap<>();
+
+		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+		boolean login = false;
+
+		if (!loginId.equals("") && loginId.equals(params.get("id"))) {
+			result.put("result", svc.reportView(params));
+			login = true;
+		}
+
+		result.put("loginYN", login);
+		return result;
+	}
+
+	// 신고 처리 진행(관리자)
+	@PostMapping("/admin/report/list/view/process")
+	public Map<String, Object> reportProcess(@RequestBody Map<String, Object> params,
+			@RequestHeader Map<String, String> header) {
+		log.info("신고 처리 대상 : {}", params);
+		log.info("header : {}", header);
+		result = new HashMap<>();
+
+		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+		boolean login = false;
+
+		if (!loginId.equals("") && loginId.equals(params.get("rep_admin_id"))) {
+			result.put("result", svc.reportProcess(params));
+			login = true;
+		}
+
+		result.put("loginYN", login);
+		return result;
+	}
 
 	// 신고 관리 - 신고 히스토리 불러오기
 	@GetMapping("/admin/report/list")

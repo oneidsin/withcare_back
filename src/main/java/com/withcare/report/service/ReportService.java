@@ -83,13 +83,13 @@ public class ReportService {
 			// 1. 신고 대상 작성자 조회
 			String reportedId = null;
 			switch (itemType) {
-				case "post":
+				case "게시글":
 					reportedId = dao.postWriter(itemIdx);
 					break;
-				case "comment":
+				case "댓글":
 					reportedId = dao.commentWriter(itemIdx);
 					break;
-				case "mention":
+				case "멘션":
 					reportedId = dao.mentionWriter(itemIdx);
 					break;
 				default:
@@ -141,6 +141,15 @@ public class ReportService {
 
 	public List<Map<String, Object>> reportList() {
 		return dao.reportList();
+	}
+
+	public List<Map<String, Object>> reportView(Map<String, Object> params) {
+		return dao.reportView(params);
+	}
+
+	public boolean reportProcess(Map<String, Object> params) {
+		int row = dao.reportProcess(params);
+		return row > 0;
 	}
 
 }
