@@ -9,36 +9,48 @@ import com.withcare.report.dto.ReportDTO;
 
 @Mapper
 public interface ReportDAO {
-  // 신고 카테고리 관련
+
+  List<Map<String, Object>> reportHistory(Map<String, Object> params);
+
+  List<Map<String, Object>> reportList();
+
   List<Map<String, Object>> reportCateList();
 
+  int checkDuplicateCate(Map<String, Object> params);
+
   int reportCateAdd(Map<String, Object> params);
+
+  int checkDuplicateCateForUpdate(Map<String, Object> params);
 
   int reportCateUpdate(Map<String, Object> params);
 
   int reportCateActive(Map<String, Object> params);
 
-  int checkDuplicateCate(Map<String, Object> params);
+  String postWriter(int itemIdx);
 
-  int checkDuplicateCateForUpdate(Map<String, Object> params);
+  String commentWriter(int itemIdx);
 
-  int report(ReportDTO reportDTO);
-
-  boolean checkCategoryValid(Integer categoryIdx);
-
-  String postWriter(Integer itemIdx);
-
-  String commentWriter(Integer itemIdx);
-
-  String mentionWriter(Integer itemIdx);
+  String mentionWriter(int itemIdx);
 
   boolean isDuplicateReport(String reporterId, String itemType, int itemIdx);
 
-  List<Map<String, Object>> reportList();
-
-  void insertReportHistory(Map<String, Object> history);
+  int report(ReportDTO reportDTO);
 
   List<Map<String, Object>> reportView(Map<String, Object> params);
 
   int reportProcess(Map<String, Object> params);
+
+  String getReportedId(int repIdx);
+
+  void addToBlockList(Map<String, Object> blockParams);
+
+  void reportStatusUpdate(Map<String, Object> params);
+
+  void blindPost(int itemIdx);
+
+  void blindComment(int itemIdx);
+
+  void blindMention(int itemIdx);
+
+  List<Map<String, Object>> reportHistoryDetail(Map<String, Object> params);
 }

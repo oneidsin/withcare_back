@@ -26,7 +26,7 @@ public class CrawlService {
     // 청년일보 크롤링
     public List<Map<String, Object>> saveCrawlPostYouth(String id) {
         // 크롬 드라이버 경로 설정
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
 
         // 옵션 객체 생성
         ChromeOptions options = new ChromeOptions();
@@ -149,7 +149,7 @@ public class CrawlService {
     // 하이닥 크롤링
     public List<Map<String, Object>> saveCrawlPostHidoc(String id) {
         // 크롬 드라이버 경로 설정
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
 
         // 옵션 객체 생성
         ChromeOptions options = new ChromeOptions();
@@ -272,7 +272,7 @@ public class CrawlService {
     // 국민건강보험공단 크롤링
     public List<Map<String, Object>> saveCrawlPostInsurance(String id) {
         // 크롬 드라이버 경로 설정
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver-win64\\chromedriver.exe");
 
         // 옵션 객체 생성
         ChromeOptions options = new ChromeOptions();

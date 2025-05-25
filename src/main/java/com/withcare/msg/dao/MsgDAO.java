@@ -36,4 +36,6 @@ public interface MsgDAO {
 	// 읽음 처리
 	void readYN(int msg_idx);
 
+	// 차단 확인
+    boolean isBlocked(String receiverId, String senderId);
 }

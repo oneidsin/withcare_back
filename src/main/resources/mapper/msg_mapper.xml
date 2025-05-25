@@ -20,7 +20,13 @@
 	
 	<!-- INBOX -->
 	<select id="inbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
-		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at FROM message WHERE receiver_id = #{receiver_id} AND receiver_msg_status = "N" ORDER BY msg_sent_at DESC
+		SELECT m.msg_idx, m.sender_id, m.receiver_id, m.msg_content, m.msg_sent_at
+		FROM message m
+		LEFT JOIN member_block mb ON m.sender_id = mb.blocked_id AND mb.blocker_id = #{receiver_id}
+		WHERE m.receiver_id = #{receiver_id}
+		  AND m.receiver_msg_status = 'N'
+		  AND mb.blocked_id IS NULL
+		ORDER BY m.msg_sent_at DESC
 	</select>
 	
 	<!-- MSG DETAIL -->
@@ -52,5 +58,12 @@
 	<update id="readYN">
 		UPDATE message SET msg_read = true WHERE msg_idx = #{msg_idx}
 	</update>
+
+	<!-- 차단 확인 -->
+	<select id="isBlocked" parameterType="map" resultType="boolean">
+		SELECT count(*) > 0
+		FROM member_block
+		WHERE blocker_id = #{receiverId} AND blocked_id = #{senderId}
+	</select>
 
 </mapper>
