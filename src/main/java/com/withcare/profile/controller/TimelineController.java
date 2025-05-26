@@ -44,7 +44,7 @@ public class TimelineController {
 	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null; // 토큰에서 사용자 ID 추출
 
 	    if (loginId == null || loginId.isEmpty()) { 
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "로그인이 필요합니다.");
 	        return resp;
 	    }
@@ -53,7 +53,7 @@ public class TimelineController {
 
 	    svc.writeTimeline(dto); // 서비스를 호출해 DB에 저장
 
-	    resp.put("status", "success");
+	    resp.put("loginYN", "success");
 	    resp.put("msg", "타임라인 등록이 완료 되었습니다.");
 
 	    return resp;
@@ -72,20 +72,20 @@ public class TimelineController {
 	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null; // 토큰에서 로그인 ID 추출
 	    
 	    if (loginId == null || loginId.isEmpty()) { // 로그인한 사용자가 작성자가 아닌 경우
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "로그인이 필요합니다.");
 	        return resp;
 	    }
 
 	    if (!loginId.equals(dto.getTime_user_id())) { // 작성자 ID와 로그인 ID 비교하여 수정 권한 없는 경우 실패 메세지 반환
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "수정 권한이 없습니다.");
 	        return resp;
 	    }
 
 	    svc.updateTimeline(dto); 
 
-	    resp.put("status", "success");
+	    resp.put("loginYN", "success");
 	    resp.put("msg", "타임라인이 수정되었습니다.");
 
 	    return resp;
@@ -103,13 +103,13 @@ public class TimelineController {
 	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
 
 	    if (loginId == null || loginId.isEmpty()) {
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "로그인이 필요합니다.");
 	        return resp;
 	    }
 
 	    if (!loginId.equals(dto.getTime_user_id())) { // 작성자 ID와 로그인 ID 비교하여 수정 권한 없는 경우 실패 메세지 반환
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "삭제 권한이 없습니다.");
 	        return resp;
 	    }
@@ -117,10 +117,10 @@ public class TimelineController {
 	    boolean deleted = svc.delTimeline(dto.getTime_idx(), loginId); // 삭제 실행
 
 	    if (deleted) {
-	        resp.put("status", "success");
+	        resp.put("loginYN", "success");
 	        resp.put("msg", "타임라인이 삭제되었습니다.");
 	    } else {
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "삭제에 실패했습니다.");
 	    }
 
@@ -138,13 +138,13 @@ public class TimelineController {
 	    String loginId = (authorization != null) ? (String) JwtUtils.readToken(authorization).get("id") : null;
 
 	    if (loginId == null || loginId.isEmpty()) {
-	        resp.put("status", "fail");
+	        resp.put("loginYN", "fail");
 	        resp.put("msg", "로그인을 진행해주세요.");
 	        return resp;
 	    }
 
 	    Map<String, List<TimelineDTO>> t_list_by_year = svc.timelineList(loginId); // 연도별 타임라인 조회
-	    resp.put("status", "success");
+	    resp.put("loginYN", "success");
 	    resp.put("data", t_list_by_year); // 연도별로 묶은 데이터 반환
 
 	    return resp;
@@ -173,7 +173,7 @@ public class TimelineController {
 	        return map;
 	    }).collect(Collectors.toList());
 
-	    resp.put("status", "success");
+	    resp.put("loginYN", "success");
 	    resp.put("data", result); // 리스트 변환
 
 	    return resp;
