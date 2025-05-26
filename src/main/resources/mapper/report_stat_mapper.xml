@@ -12,8 +12,6 @@
 		    SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
 		FROM
 		    report
-		GROUP BY
-		    rep_item_type
 	</select>
 
 	<!-- 신고 타입별로 -->
