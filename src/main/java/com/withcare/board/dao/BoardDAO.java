@@ -1,5 +1,7 @@
 package com.withcare.board.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.board.dto.BoardDTO;
@@ -18,5 +20,9 @@ public interface BoardDAO {
 	int userLevel(String id);
 
 	boolean boardComYn(int board_idx);
+
+	List<BoardDTO> selectAllBoards();
+
+	BoardDTO boardIdx(int board_idx);
 
 }
