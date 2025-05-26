@@ -32,7 +32,7 @@ public class NotiService {
     /**
      * SSE 구독 메서드
      * 클라이언트가 실시간 알림을 받기 위해 호출하는 엔드포인트
-     * 
+     *
      * @param user_id 구독을 요청한 사용자의 ID
      * @return SseEmitter SSE 연결 객체
      */
@@ -90,7 +90,7 @@ public class NotiService {
     /**
      * 알림 전송 메서드
      * 특정 사용자에게 실시간 알림을 전송
-     * 
+     *
      * @param user_id 알림을 받을 사용자 ID
      * @param noti    전송할 알림 데이터
      */
@@ -201,4 +201,16 @@ public class NotiService {
         return row > 0;
     }
 
+    // 신고 알림 저장 및 전송
+    public void sendReportNoti(int rep_idx, String rep_item_type, String reporter_id, String admin_id) {
+        NotiDTO notiDTO = new NotiDTO();
+        notiDTO.setRelate_item_id(rep_idx);
+        notiDTO.setNoti_sender_id(reporter_id);
+        notiDTO.setRelate_user_id(admin_id);
+        notiDTO.setNoti_type("report");
+        notiDTO.setContent_pre(reporter_id + " 님이 " + rep_item_type + "에 대한 신고를 접수했습니다.");
+        dao.insertNoti(notiDTO);
+        maintainNotificationLimit(admin_id);
+        sendNotification(admin_id, notiDTO);
+    }
 }

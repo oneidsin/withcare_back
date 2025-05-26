@@ -12,7 +12,7 @@ public interface ReportDAO {
 
   List<Map<String, Object>> reportHistory(Map<String, Object> params);
 
-  List<Map<String, Object>> reportList();
+  List<Map<String, Object>> reportList(Map<String, Object> params);
 
   List<Map<String, Object>> reportCateList();
 
@@ -53,4 +53,10 @@ public interface ReportDAO {
   void blindMention(int itemIdx);
 
   List<Map<String, Object>> reportHistoryDetail(Map<String, Object> params);
+
+  int reportListCount(Map<String, Object> params);
+
+  int reportHistoryCount(Map<String, Object> params);
+
+  List<String> getAdminIds();
 }

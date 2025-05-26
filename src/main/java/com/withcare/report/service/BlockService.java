@@ -1,5 +1,6 @@
 package com.withcare.report.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +36,28 @@ public class BlockService {
     }
 
     // 차단한 회원 리스트(유저)
-    public Map<String, Object> blockList(String id) {
-        return dao.blockList(id);
+    public Map<String, Object> blockList(Map<String, Object> params) {
+        String id = (String) params.get("id");
+        int page = (int) params.getOrDefault("page", 1);
+        int pageSize = (int) params.getOrDefault("pageSize", 10);
+        int offset = (page - 1) * pageSize;
+
+        params.put("offset", offset);
+        params.put("limit", pageSize);
+
+        List<Map<String, Object>> list = dao.blockList(params);
+        int totalCount = dao.blockListCount(id);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        result.put("totalPage", (int) Math.ceil((double) totalCount / pageSize));
+
+        return result;
     }
+
 
     // 차단 해제(유저)
     public boolean blockCancel(Map<String, Object> params) {
@@ -46,9 +66,27 @@ public class BlockService {
     }
 
     // 차단 관리(관리자)
-    public List<BlockListDTO> getBlockList(Map<String, Object> params) {
-        return dao.getBlockList(params);
+    public Map<String, Object> getBlockList(Map<String, Object> params) {
+        int page = Integer.parseInt(params.getOrDefault("page", 1).toString());
+        int pageSize = Integer.parseInt(params.getOrDefault("pageSize", 10).toString());
+        int offset = (page - 1) * pageSize;
+
+        params.put("offset", offset);
+        params.put("limit", pageSize);
+
+        List<BlockListDTO> list = dao.getBlockList(params);
+        int totalCount = dao.getBlockListCount(params);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        result.put("totalPage", (int) Math.ceil((double) totalCount / pageSize));
+
+        return result;
     }
+
 
     // 차단 처리(관리자)
     public boolean blockProcess(Map<String, Object> params) {
@@ -59,5 +97,9 @@ public class BlockService {
     public boolean blockAdminCancel(Map<String, Object> params) {
         int row = dao.blockAdminCancel(params);
         return row > 0;
+    }
+
+    public Map<String, Object> blockDetail(Map<String, Object> params) {
+        return dao.blockDetail(params);
     }
 }

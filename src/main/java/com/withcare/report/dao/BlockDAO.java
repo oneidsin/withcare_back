@@ -11,7 +11,9 @@ public interface BlockDAO {
 
 	int block(Map<String, Object> params);
 
-	Map<String, Object> blockList(String id);
+	List<Map<String, Object>> blockList(Map<String, Object> params);
+
+	int blockListCount(String id);
 
 	int checkIfBlocked(String id, String blocked_id);
 
@@ -19,7 +21,11 @@ public interface BlockDAO {
 
 	List<BlockListDTO> getBlockList(Map<String, Object> params);
 
+	int getBlockListCount(Map<String, Object> params);
+
 	int blockProcess(Map<String, Object> params);
 
 	int blockAdminCancel(Map<String, Object> params);
+
+	Map<String, Object> blockDetail(Map<String, Object> params);
 }

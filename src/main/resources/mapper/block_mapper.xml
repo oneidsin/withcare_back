@@ -17,12 +17,21 @@
     </select>
 
     <!-- 차단한 회원 리스트(유저) -->
-    <select id="blockList" resultType="map">
+    <select id="blockList" resultType="map" parameterType="map">
         SELECT *
         FROM member_block
         WHERE blocker_id = #{id}
         ORDER BY block_start_date DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
+
+    <!-- 차단 리스트 카운트 -->
+    <select id="blockListCount" resultType="int" parameterType="string">
+        SELECT COUNT(*)
+        FROM member_block
+        WHERE blocker_id = #{id}
+    </select>
+
 
     <!-- 차단 해제(유저) -->
     <delete id="blockCancel" parameterType="map">
@@ -30,8 +39,8 @@
         WHERE blocker_id = #{id} AND blocked_id = #{blocked_id}
     </delete>
 
-    <!-- 차단 히스토리(관리자) -->
-    <select id="getBlockList" resultType="com.withcare.report.dto.BlockListDTO">
+    <!-- 차단 관리 페이지(관리자) -->
+    <select id="getBlockList" resultType="com.withcare.report.dto.BlockListDTO" parameterType="map">
         SELECT
         b.block_idx,
         b.blocked_id,
@@ -53,7 +62,21 @@
                 ORDER BY b.block_start_date DESC
             </otherwise>
         </choose>
+        LIMIT #{limit} OFFSET #{offset}
     </select>
+
+    <!-- 차단 관리 페이지 카운트 -->
+    <select id="getBlockListCount" resultType="int" parameterType="map">
+        SELECT COUNT(*)
+        FROM block_list b
+        <where>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND b.blocked_id LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </where>
+    </select>
+
+
 
     <!-- 차단 처리(관리자) -->
     <insert id="blockProcess" parameterType="map">
@@ -69,8 +92,8 @@
     </update>
 
     <!-- 차단 히스토리 상세보기 -->
-    <!--<select id="">
+    <select id="blockDetail" parameterType="map">
         SELECT * FROM block_list WHERE blocked_id = #{blocked_id}
-    </select>-->
+    </select>
 
 </mapper>

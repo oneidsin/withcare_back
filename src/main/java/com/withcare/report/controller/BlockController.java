@@ -43,21 +43,33 @@ public class BlockController {
 
     // 차단한 회원 리스트(유저)
     @GetMapping("/msg/block/list/{id}")
-    public Map<String, Object> blockList(@PathVariable String id, @RequestHeader Map<String, String> header) {
-        log.info("{} 이 차단한 회원 리스트 목록 : ", id);
-        result = new HashMap<>();
+    public Map<String, Object> blockList(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestHeader Map<String, String> header
+    ) {
+        log.info("{} 이 차단한 회원 리스트 목록 (page: {})", id, page);
+        Map<String, Object> result = new HashMap<>();
 
         String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
         boolean login = false;
 
         if (!loginId.equals("") && loginId.equals(id)) {
-            result.put("result", svc.blockList(id));
+            Map<String, Object> params = new HashMap<>();
+            params.put("id", id);
+            params.put("page", page);
+            params.put("pageSize", pageSize);
+
+            Map<String, Object> data = svc.blockList(params);
+            result.put("result", data);
             login = true;
         }
 
         result.put("loginYN", login);
         return result;
     }
+
 
     // 차단 해제(유저)
     @DeleteMapping("/msg/block/list/cancel")
@@ -77,10 +89,14 @@ public class BlockController {
         return result;
     }
 
-    // 차단 관리(관리자)
+    // 차단 관리 페이지(관리자)
     @GetMapping("/admin/block/list")
-    public Map<String, Object> getBlockList(@RequestParam Map<String, Object> params,
-                                         @RequestHeader Map<String, String> header) {
+    public Map<String, Object> getBlockList(
+            @RequestParam Map<String, Object> params,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestHeader Map<String, String> header
+    ) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -88,14 +104,18 @@ public class BlockController {
         boolean login = false;
 
         if (!loginId.equals("") && loginId.equals(params.get("id"))) {
-            List<BlockListDTO> list = svc.getBlockList(params);
-            result.put("result", list);
+            params.put("page", page);
+            params.put("pageSize", pageSize);
+
+            Map<String, Object> data = svc.getBlockList(params);
+            result.put("result", data);
             login = true;
         }
 
         result.put("loginYN", login);
         return result;
     }
+
 
     // 차단 실행(관리자)
     @PostMapping("/admin/block/process")
@@ -119,7 +139,7 @@ public class BlockController {
     // 차단 해제(관리자)
     @PutMapping("/admin/block/cancel")
     public Map<String, Object> blockAdminCancel(@RequestBody Map<String, Object> params,
-                                            @RequestHeader Map<String, String> header) {
+                                                @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -128,6 +148,25 @@ public class BlockController {
 
         if (!loginId.equals("") && loginId.equals(params.get("id"))) {
             result.put("result", svc.blockAdminCancel(params));
+            login = true;
+        }
+
+        result.put("loginYN", login);
+        return result;
+    }
+
+    // 차단 상세보기(관리자)
+    @PostMapping("/admin/block/detail")
+    public Map<String, Object> blockDetail(@RequestBody Map<String, Object> params,
+                                           @RequestHeader Map<String, String> header) {
+        log.info("header : {}", header);
+        result = new HashMap<>();
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean login = false;
+
+        if (!loginId.equals("") && loginId.equals(params.get("id"))) {
+            result.put("result", svc.blockDetail(params));
             login = true;
         }
 

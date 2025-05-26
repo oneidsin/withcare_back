@@ -1,5 +1,6 @@
 package com.withcare.report.service;
 
+import com.withcare.noti.service.NotiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class ReportService {
 
     @Autowired
     ReportDAO dao;
+
+    @Autowired
+    NotiService notiService;
 
     // 신고 카테고리 리스트
     public List<Map<String, Object>> reportCateList() {
@@ -139,15 +143,73 @@ public class ReportService {
         return result;
     }
 
+    // 관리자에게 신고 알림 보내는 메서드
+    private void sendReportNotificationToAdmin(ReportDTO reportDTO) {
+        try {
+            // 관리자 ID 목록 조회 (관리자 정보를 저장하는 테이블에서 가져와야 함)
+            List<String> adminIds = dao.getAdminIds(); // 관리자 ID 목록 조회 메서드 필요
+
+            if (adminIds != null && !adminIds.isEmpty()) {
+                for (String adminId : adminIds) {
+                    // 각 관리자에게 신고 알림 전송
+                    notiService.sendReportNoti(
+                            reportDTO.getRep_idx(),
+                            reportDTO.getRep_item_type(),
+                            reportDTO.getReporter_id(),
+                            adminId
+                    );
+                }
+            }
+        } catch (Exception e) {
+            log.error("관리자 알림 전송 중 오류", e);
+        }
+    }
+
+
     // 신고 관리 페이지(미처리 신고 리스트)
-    public List<Map<String, Object>> reportList() {
-        return dao.reportList();
+    public Map<String, Object> reportList(Map<String, Object> params) {
+        int page = (int) params.getOrDefault("page", 1);
+        int pageSize = (int) params.getOrDefault("pageSize", 10);
+        int offset = (page - 1) * pageSize;
+
+        params.put("offset", offset);
+        params.put("limit", pageSize);
+
+        List<Map<String, Object>> list = dao.reportList(params);         // LIMIT/OFFSET 적용된 리스트
+        int totalCount = dao.reportListCount(params);                    // 전체 개수
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        result.put("totalPage", (int) Math.ceil((double) totalCount / pageSize));
+
+        return result;
     }
 
     // 신고 히스토리 불러오기
-    public List<Map<String, Object>> reportHistory(Map<String, Object> params) {
-        return dao.reportHistory(params);
+    public Map<String, Object> reportHistory(Map<String, Object> params) {
+        int page = (int) params.getOrDefault("page", 1);
+        int pageSize = (int) params.getOrDefault("pageSize", 10);
+        int offset = (page - 1) * pageSize;
+
+        params.put("offset", offset);
+        params.put("limit", pageSize);
+
+        List<Map<String, Object>> list = dao.reportHistory(params);
+        int totalCount = dao.reportHistoryCount(params);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("totalCount", totalCount);
+        result.put("page", page);
+        result.put("pageSize", pageSize);
+        result.put("totalPage", (int) Math.ceil((double) totalCount / pageSize));
+
+        return result;
     }
+
 
     // 신고 처리 화면
     public List<Map<String, Object>> reportView(Map<String, Object> params) {
@@ -181,4 +243,6 @@ public class ReportService {
     public List<Map<String, Object>> reportHistoryDetail(Map<String, Object> params) {
         return dao.reportHistoryDetail(params);
     }
+
+
 }

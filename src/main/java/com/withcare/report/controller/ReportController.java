@@ -26,22 +26,29 @@ public class ReportController {
 
     // 신고 관리 페이지(미처리 신고 리스트)
     @GetMapping("/admin/report/list")
-    public Map<String, Object> reportList(@RequestBody Map<String, Object> params, @RequestHeader Map<String, String> header) {
-        log.info("header : {}", header);
+    public Map<String, Object> reportList(
+            @RequestParam String id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestHeader Map<String, String> header
+    ) {
         result = new HashMap<>();
-
         String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
         boolean login = false;
 
-        if (!loginId.equals("") && loginId.equals(params.get("id"))) {
-            result.put("result", svc.reportList());
+        if (!loginId.equals("") && loginId.equals(id)) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("id", id);
+            params.put("page", page);
+            params.put("pageSize", pageSize);
+            result.put("result", svc.reportList(params));
             login = true;
         }
 
         result.put("loginYN", login);
         return result;
-
     }
+
 
     // 신고 처리 페이지(관리자)
     @GetMapping("/admin/report/list/view")
@@ -88,9 +95,11 @@ public class ReportController {
             @RequestParam String id,
             @RequestParam(required = false) String reporterId,
             @RequestParam(required = false) String reportedId,
-            @RequestParam(required = false) String category,     // 욕설 등 신고 카테고리
-            @RequestParam(required = false) String reportType,   // 게시글, 댓글, 멘션
-            @RequestParam(defaultValue = "desc") String sortOrder, // 최신순(desc), 오래된순(asc)
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String reportType,
+            @RequestParam(defaultValue = "desc") String sortOrder,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
             @RequestHeader Map<String, String> header
     ) {
         Map<String, Object> result = new HashMap<>();
@@ -105,16 +114,17 @@ public class ReportController {
             params.put("category", category);
             params.put("reportType", reportType);
             params.put("sortOrder", sortOrder);
+            params.put("page", page);
+            params.put("pageSize", pageSize);
 
-            List<Map<String, Object>> list = svc.reportHistory(params);
-            result.put("result", list);
+            Map<String, Object> data = svc.reportHistory(params);
+            result.put("result", data);
             login = true;
         }
 
         result.put("loginYN", login);
         return result;
     }
-
 
     // 신고 히스토리 상세보기
     @PostMapping("/admin/report/history/detail")
