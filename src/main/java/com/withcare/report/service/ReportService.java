@@ -131,6 +131,11 @@ public class ReportService {
             reportDTO.setReported_id(reportedId); // 신고 대상
             int row = dao.report(reportDTO);
 
+            if (row > 0) {
+                // 신고가 성공적으로 등록되면 관리자에게 알림 전송
+                sendReportNotificationToAdmin(reportDTO);
+            }
+
             result.put("success", row > 0);
             result.put("msg", row > 0 ? "신고가 접수되었습니다." : "신고 접수에 실패했습니다.");
 
