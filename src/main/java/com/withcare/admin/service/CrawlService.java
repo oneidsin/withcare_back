@@ -38,7 +38,7 @@ public class CrawlService {
         List<Map<String, Object>> results = new ArrayList<>();
 
         int page_num = 1; // 크롤링을 시작할 페이지
-        final int MAX_PAGES = 1; // 크롤링이 끝나는 페이지
+        final int MAX_PAGES = 5; // 크롤링이 끝나는 페이지
 
         // 크롤링을 시작할 URL
         String base_url = "https://www.youthdaily.co.kr/news/section.html?sec_no=51&page=";

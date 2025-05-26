@@ -26,7 +26,7 @@
     <!-- 크롤링 활성화 여부 업데이트 -->
     <update id="updateCrawlYn">
         UPDATE crawl_management
-        SET crawl_yn = #{crawl_yn}
+        SET crawl_yn = CASE WHEN crawl_yn THEN FALSE ELSE TRUE END
         WHERE source_idx = #{sourceIdx}
     </update>
 
