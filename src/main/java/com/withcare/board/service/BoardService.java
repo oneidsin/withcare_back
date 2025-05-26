@@ -1,6 +1,7 @@
 package com.withcare.board.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -44,23 +45,13 @@ public class BoardService {
     public int userLevel(String id) {
         return dao.userLevel(id);
     }
-    
-	public Map<String, Object> boardList(int board_idx, int page, String id, String sort) {
 
-		int boardRead = boardLevel(board_idx); // 게시판 열람 레벨 가져오기
-		int userLevel = userLevel(id); // 사용자 레벨 가져오기
-        
-		Map<String, Object> result = new HashMap<String, Object>();
-		
-        if (userLevel < boardRead && userLevel != 7) { // 게시판 열람 레벨 보다 낮고, level_idx 가 7이 아니면
-            result.put("page", page);
-            result.put("totalPages", 0);
-            result.put("totalPosts", 0);
-            return result;
-        }
+	public List<BoardDTO> getAllBoards() {
+		return dao.selectAllBoards();
+	}
 
-        // PostService에서 실제 게시글 리스트 받아오기
-        return postService.postList(page, board_idx, sort);
-    }
+	public BoardDTO boardIdx(int board_idx) {
+		return dao.boardIdx(board_idx);
+	}
 	
 }

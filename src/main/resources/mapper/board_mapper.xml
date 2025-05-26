@@ -31,5 +31,19 @@
 	    <select id="boardComYn" resultType="boolean">
     		SELECT com_yn FROM board WHERE board_idx = #{board_idx}
 		</select>
+		
+		<!-- 게시판 전체 목록 조회 -->
+		<select id="selectAllBoards" resultType="com.withcare.board.dto.BoardDTO">
+		    SELECT board_idx, board_name
+		    FROM board
+		    ORDER BY board_idx ASC
+		</select>
+		
+		<select id="boardIdx" resultType="com.withcare.board.dto.BoardDTO">
+		    SELECT board_idx, board_name, lv_idx, anony_yn, blind_yn
+		    FROM board
+		    WHERE board_idx = #{board_idx}
+		</select>
+		
 
    </mapper>
