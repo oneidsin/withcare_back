@@ -149,4 +149,9 @@ public class AdminService {
 		return row>0;
 	}
 
+
+	public int adminLevelCnt(int lvIdx) {
+		return dao.adminLevelCnt(lvIdx);
+	}
+
 }

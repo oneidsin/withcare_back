@@ -48,5 +48,7 @@ public interface AdminDAO {
 
 	int adminLevelDelete(int lv_idx);
 
+	int adminLevelCnt(int lvIdx);
+
 
 }

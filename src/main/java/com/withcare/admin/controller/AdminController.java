@@ -405,8 +405,9 @@ public class AdminController {
     
     
     // 이미지 삭제 (관리자만 가능)
-    @DeleteMapping("/admin/img/delete")
-    public Map<String, Object> deleteImage(
+    @DeleteMapping("/admin/level/delete")
+    public Map<String, Object> adminLevelDelete(
+            @RequestParam("lv_idx") int lvIdx,
     		@RequestParam("url") String imageUrl,
             @RequestHeader Map<String, String> header) {
     	
@@ -420,18 +421,33 @@ public class AdminController {
         }
 
         try {
-            if (!imageUrl.startsWith(urlPrefix)) {
-                throw new IllegalArgumentException("삭제할 수 없는 경로입니다.");
+            // 사용자 보유 여부 체크
+            int userCount = svc.adminLevelCnt(lvIdx);
+            if (userCount > 0) {
+                result.put("success", false);
+                result.put("msg", "해당 레벨을 보유한 사용자가 있어 삭제할 수 없습니다.");
+                return result;
             }
 
-            String relativePath = imageUrl.replace(urlPrefix + "/", "");
-            Path filePath = Paths.get(baseUploadPath, relativePath);
-            Files.deleteIfExists(filePath);
+            // 이미지 삭제 (url이 유효할 때만)
+            if (imageUrl.startsWith(urlPrefix)) {
+                String relativePath = imageUrl.replace(urlPrefix + "/", "");
+                Path filePath = Paths.get(baseUploadPath, relativePath);
+                Files.deleteIfExists(filePath);
+            }
 
-            result.put("success", true);
+            // DB 삭제
+            boolean deleted = svc.adminLevelDelete(lvIdx);
+            if (deleted) {
+                result.put("success", true);
+            } else {
+                result.put("success", false);
+                result.put("msg", "레벨 삭제에 실패했습니다.");
+            }
+
         } catch (Exception e) {
             result.put("success", false);
-            result.put("msg", e.getMessage());
+            result.put("msg", "서버 오류: " + e.getMessage());
         }
 
         return result;
