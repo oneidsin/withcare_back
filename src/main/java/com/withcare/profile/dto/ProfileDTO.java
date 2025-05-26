@@ -11,6 +11,16 @@ public class ProfileDTO {
 	private int accessCnt;
 	private String cancer_name;
 	private String stage_name;
+	
+	private String profile_imageurl;
+	
+	public String getProfile_imageurl() {
+		return profile_imageurl;
+	}
+
+	public void setProfile_imageurl(String profile_imageurl) {
+		this.profile_imageurl = profile_imageurl;
+	}
 
 	public String getCancer_name() {
 		return cancer_name;

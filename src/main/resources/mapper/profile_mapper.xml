@@ -37,7 +37,7 @@
 		SET
 		cancer_idx = #{cancer_idx},
 		stage_idx = #{stage_idx},
-		profile_photo = #{profile_photo},
+		profile_photo = #{profile_imageurl},
 		intro = #{intro},
 		profile_yn = #{profile_yn}
 		WHERE

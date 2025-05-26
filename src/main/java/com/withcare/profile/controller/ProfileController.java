@@ -77,79 +77,78 @@ public class ProfileController {
 
 	// 회원 개인 정보 수정 기능 put
 	@PutMapping("/profile/update")
-	public Map<String, Object> updateProfile(@RequestBody ProfileDTO dto,
-			@RequestHeader("Authorization") String token) {
-
-		Map<String, Object> result = new HashMap<>();
-
-		try {
-			// 1. 토큰 파싱 → 사용자 ID 추출
-			Map<String, Object> payload = JwtUtils.readToken(token);
-			String tokenId = (String) payload.get("id");
-
-			// 2. 사용자 ID로 프로필 정보 갱신
-			dto.setId(tokenId);
-			int updated = svc.updateProfile(dto);
-
-			result.put("status", updated > 0 ? "success" : "fail");
-
-		} catch (Exception e) {
-			result.put("status", "error");
-			result.put("message", e.getMessage());
-		}
-
-		return result;
-	}
-
-	// 타인이 프로필 확인하는 기능 get
-	@GetMapping("/profile/view/{id}")
-	public Map<String, Object> viewOtherProfile(
-	        @PathVariable("id") String id,
-	        @RequestHeader(value = "authorization", required = false) String token) {
+	public Map<String, Object> updateProfile(
+	        @RequestBody ProfileDTO dto,
+	        @RequestHeader("Authorization") String token) {
 
 	    Map<String, Object> result = new HashMap<>();
 
 	    try {
-	        // 1. 토큰 없으면 로그인 필요
-	        if (token == null || token.trim().isEmpty()) {
-	            result.put("status", "fail");
-	            result.put("message", "로그인이 필요합니다.");
-	            return result;
-	        }
-
-	        // 2. 토큰 유효성 검사 및 ID 추출
+	        // 1. 토큰 파싱 → 사용자 ID 추출
 	        Map<String, Object> payload = JwtUtils.readToken(token);
-	        if (payload == null || !payload.containsKey("id") || payload.get("id") == null) {
-	            result.put("status", "fail");
-	            result.put("message", "유효하지 않은 토큰입니다.");
-	            return result;
-	        }
+	        String tokenId = (String) payload.get("id");
+	        dto.setId(tokenId);
 
-	        // 3. 프로필 기본 정보 조회
-	        ProfileDTO profile = svc.getProfileById(id);
-
-	        // 4. 활동 정보 조회
-	        List<PostDTO> posts = svc.getUserPosts(id);
-	        List<ComDTO> comments = svc.getUserComments(id);
-	        List<LikeDislikeDTO> likes = svc.getUserLikes(id);
-	        List<SearchDTO> searches = svc.getUserSearches(id);
-	        List<MenDTO> mentions = svc.getUserMentions(id);
-
-	        // 5. 응답 조립
-	        result.put("status", "success");
-	        result.put("profile", profile);
-	        result.put("posts", posts);
-	        result.put("comments", comments);
-	        result.put("likes", likes);
-	        result.put("searches", searches);
-	        result.put("mentions", mentions);
+	        // 2. DB 업데이트
+	        int updated = svc.updateProfile(dto);
+	        result.put("status", updated > 0 ? "success" : "fail");
 
 	    } catch (Exception e) {
 	        result.put("status", "error");
-	        result.put("message", "서버 오류: " + e.getMessage());
+	        result.put("message", e.getMessage());
 	    }
 
 	    return result;
+	}
+
+	// 타인이 프로필 확인하는 기능 get
+	@GetMapping("/profile/view/{id}")
+	public Map<String, Object> viewOtherProfile(@PathVariable("id") String id,
+			@RequestHeader(value = "authorization", required = false) String token) {
+
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			// 1. 토큰 없으면 로그인 필요
+			if (token == null || token.trim().isEmpty()) {
+				result.put("status", "fail");
+				result.put("message", "로그인이 필요합니다.");
+				return result;
+			}
+
+			// 2. 토큰 유효성 검사 및 ID 추출
+			Map<String, Object> payload = JwtUtils.readToken(token);
+			if (payload == null || !payload.containsKey("id") || payload.get("id") == null) {
+				result.put("status", "fail");
+				result.put("message", "유효하지 않은 토큰입니다.");
+				return result;
+			}
+
+			// 3. 프로필 기본 정보 조회
+			ProfileDTO profile = svc.getProfileById(id);
+
+			// 4. 활동 정보 조회
+			List<PostDTO> posts = svc.getUserPosts(id);
+			List<ComDTO> comments = svc.getUserComments(id);
+			List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+			List<SearchDTO> searches = svc.getUserSearches(id);
+			List<MenDTO> mentions = svc.getUserMentions(id);
+
+			// 5. 응답 조립
+			result.put("status", "success");
+			result.put("profile", profile);
+			result.put("posts", posts);
+			result.put("comments", comments);
+			result.put("likes", likes);
+			result.put("searches", searches);
+			result.put("mentions", mentions);
+
+		} catch (Exception e) {
+			result.put("status", "error");
+			result.put("message", "서버 오류: " + e.getMessage());
+		}
+
+		return result;
 	}
 
 	@GetMapping("/profile/activity/{id}")
