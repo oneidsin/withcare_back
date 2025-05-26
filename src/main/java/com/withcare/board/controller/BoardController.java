@@ -1,6 +1,7 @@
 package com.withcare.board.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -128,15 +129,14 @@ public class BoardController {
 		return result;
 	}
 	
-	@GetMapping("/board/list/{page}")
-	public Map<String, Object>boardList(
-			@PathVariable int page,
-			@RequestParam int board_idx,
-			@RequestParam(defaultValue = "latest") String sort,
-			@RequestHeader Map<String, String>header){
-		
-		String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		return svc.boardList(board_idx, page, id, sort);
+	@GetMapping("/board/list")
+	public List<BoardDTO> getAllBoards() {
+	    return svc.getAllBoards();
 	}
 	
+	@GetMapping("/board/{board_idx}")
+	public BoardDTO boardIdx(@PathVariable int board_idx) {
+	    return svc.boardIdx(board_idx);
+	}
+
 }
