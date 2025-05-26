@@ -83,7 +83,7 @@ public class SearchController {
     }
     
     // 추천 게시글 (가장 최근 검색어 1개 기반의 게시글 가져오기)
-    @GetMapping("/recommend")
+    @GetMapping("/recommend/{sch_id}")
     public Map<String, Object>recommendPost(
     		@PathVariable String sch_id,
     		@RequestHeader Map<String, String>header){
