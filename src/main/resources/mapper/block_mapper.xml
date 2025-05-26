@@ -70,7 +70,7 @@
 
     <!-- 차단 히스토리 상세보기 -->
     <!--<select id="">
-        SELECT * FROM block_list
+        SELECT * FROM block_list WHERE blocked_id = #{blocked_id}
     </select>-->
 
 </mapper>

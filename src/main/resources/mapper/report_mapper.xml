@@ -125,7 +125,7 @@
             AND r.reported_id = #{reportedId}
         </if>
         <if test="category != null and category != ''">
-            AND r.report_category = #{category}
+            AND r.rep_cate_idx = #{category}
         </if>
         <if test="reportType != null and reportType != ''">
             AND r.rep_item_type = #{reportType}
@@ -142,7 +142,6 @@
         </otherwise>
     </choose>
 </select>
-
 
 <!-- 신고 히스토리 상세보기 -->
 <select id="reportHistoryDetail" parameterType="map" resultType="map">
@@ -290,14 +289,6 @@
   WHERE men_idx = #{itemIdx}
 </select>
 
-
-
-
-
-
-
-
-
 <!-- 신고된 사용자 ID 조회 -->
 <select id="getReportedId" parameterType="int" resultType="String">
   SELECT reported_id
@@ -314,6 +305,4 @@
     block_end_date
   ) VALUES (#{blocked_id}, #{block_admin_id}, #{block_reason}, #{block_end_date})
 </insert>
-
-
 </mapper>

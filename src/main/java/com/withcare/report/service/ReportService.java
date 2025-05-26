@@ -160,7 +160,7 @@ public class ReportService {
 
         // 신고 항목 블라인드 처리
         String itemType = (String) params.get("rep_item_type");
-        int itemIdx = Integer.parseInt(params.get("rep_item_idx").toString()); // <-- 수정 포인트
+        int itemIdx = Integer.parseInt(params.get("rep_item_idx").toString());
 
         if ("게시글".equals(itemType)) {
             dao.blindPost(itemIdx);
@@ -177,7 +177,7 @@ public class ReportService {
         return row > 0;
     }
 
-
+    // 신고 히스토리 상세보기
     public List<Map<String, Object>> reportHistoryDetail(Map<String, Object> params) {
         return dao.reportHistoryDetail(params);
     }
