@@ -16,4 +16,6 @@ public interface LoginDAO {
 	int updatePw(Map<String, String> params);
 
 	int visitCnt(String id);
+
+	int getLvIdx(String id);
 }

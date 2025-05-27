@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -112,10 +113,22 @@ public class LoginController {
 	}
 
 	
+	@GetMapping("/member/info")
+	public Map<String, Object> getMemberInfo(
+			@RequestHeader Map<String, String> header) {
+	    Map<String, Object> result = new HashMap<>();
+	    try {
+	        String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	        int lvIdx = svc.getLvIdx(id); // LoginService에서 회원 레벨 가져오는 메서드 필요
+	        result.put("id", id);
+	        result.put("lv_idx", lvIdx);
+	        result.put("success", true);
+	    } catch (Exception e) {
+	        result.put("success", false);
+	        result.put("msg", "유효하지 않은 토큰");
+	    }
+	    return result;
+	}
 	
-	
-	
-	
-
 
 }

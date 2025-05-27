@@ -44,5 +44,9 @@ public class LoginService {
 	    return updated > 0;
 	}
 
+	public int getLvIdx(String id) {
+	    return dao.getLvIdx(id); // DAO에서 쿼리 날리기
+	}
+
 
 }

@@ -25,5 +25,8 @@
 	 UPDATE profile SET access_cnt = IFNULL(access_cnt, 0) + 1 WHERE id = #{id}
 </update>
 
+<select id="getLvIdx" parameterType="String" resultType="int">
+    SELECT lv_idx FROM member WHERE id = #{id}
+</select>
  
 </mapper>

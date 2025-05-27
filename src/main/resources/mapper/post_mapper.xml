@@ -27,13 +27,13 @@
    		
    		<!-- 게시글 수정 (post_idx 로 게시글 가져와서 제목, 내용 수정) -->
    		<update id="postUpdate" parameterType="com.withcare.post.dto.PostDTO">
-   			UPDATE post SET post_title = #{post_title}, post_content = #{post_content}
+   			UPDATE post SET post_title = #{post_title}, post_content = #{post_content}, board_idx = #{board_idx}, com_yn = #{com_yn}
    				WHERE post_idx = #{post_idx}
    		</update>
    		
    		<!-- 게시글 블라인드 처리 (관리자 or 작성자) -->
    		<update id="postDelete" parameterType="com.withcare.post.dto.PostDTO">
-   			UPDATE post SET post_blind_yn = #{post_blind_yn} WHERE post_idx = #{post_idx}
+   			UPDATE post SET post_blind_yn = true WHERE post_idx = #{post_idx}
    		</update>
    		
    		<!-- 게시글 상세보기 -->

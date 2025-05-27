@@ -1,5 +1,8 @@
 package com.withcare.post.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +10,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +41,9 @@ public class PostController {
 	HashMap<String, Object> result = null;
 	
 	@Autowired PostService svc;
+	
+	@Value("${file.upload-dir}")
+	private String uploadDir;
 	
 	// 토큰 수정 필요
 	// 게시글 작성 (PostMapping) (파일 첨부 별도 처리함)
@@ -243,8 +255,8 @@ public class PostController {
 		return result;
 	}
 	
-	// 게시글 상세보기 (GetMapping) 현재는 따로 조회 없음.
-	   @GetMapping("/post/detail/{post_idx}")
+	// 게시글 상세보기 (GetMapping) 조회수 증가
+	   @GetMapping("/post/detail/hitup/{post_idx}")
 	   public Map<String, Object>postDetail(
 	         @PathVariable int post_idx,
 	         @RequestHeader Map<String, String>header){
@@ -265,6 +277,22 @@ public class PostController {
 				login = true;
 			}
 	        return svc.postDetail(post_idx, true); // true는 조회수 증가
+	   }
+	   
+	   // 조회수 증가 없이 상세 정보만 조회
+	   @GetMapping("/post/detail/{post_idx}")
+	   public Map<String, Object> postDetailNoHit(
+	           @PathVariable int post_idx,
+	           @RequestHeader Map<String, String> header) {
+	       
+	       String loginId = null;
+	       try {
+	           loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	       } catch (Exception e) {
+	           // 무시
+	       }
+
+	       return svc.postDetail(post_idx, false); // 조회수 증가 X
 	   }
 	
 	// 게시글 리스트 (GetMapping)
@@ -334,6 +362,31 @@ public class PostController {
 	@GetMapping("/file/list/{post_idx}")
 	public List<Map<String, String>> fileList(@PathVariable int post_idx) {
 	    return svc.fileList(post_idx); // 정상적으로 동작하는 기존 서비스 메서드
+	}
+	
+	@GetMapping("/file/{file_url}")
+	public ResponseEntity<Resource> getImage(@PathVariable String file_url) {
+	    try {
+	        Path path = Paths.get(uploadDir, file_url);
+	        Resource resource = new UrlResource(path.toUri());
+
+	        if (!resource.exists() || !resource.isReadable()) {
+	            return ResponseEntity.notFound().build();
+	        }
+
+	        String contentType = Files.probeContentType(path);
+	        if (contentType == null) {
+	            contentType = "application/octet-stream";
+	        }
+
+	        return ResponseEntity.ok()
+	                .header(HttpHeaders.CONTENT_TYPE, contentType)
+	                .body(resource);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
 	}
 	
 }
