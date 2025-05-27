@@ -48,46 +48,55 @@
    		
    		<!-- 게시글 목록 가져오기 (게시판 idx에 맞는 게시글만 불러옵니다. 현재 5개씩 설정됨. sort에 타입 설정하면 추천순, 최신순으로 볼 수 있음.) -->
 		<select id="postList" resultType="com.withcare.post.dto.PostDTO">
-		    SELECT 
-		        p.post_idx,
-		        p.board_idx,
-		        p.id,
-		        p.post_title,
-		        p.post_content,
-		        p.post_view_cnt,
-		        p.com_yn,
-		        p.post_create_date,
-		        p.post_update_date,
-		        p.post_blind_yn
-		    FROM post p
+		  SELECT 
+		    p.post_idx, p.board_idx, p.id, p.post_title, p.post_content,
+		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date, p.post_blind_yn
+		  FROM post p
+		  <choose>
+		    <when test="param4 == 'recommend'">
+		      LEFT JOIN (
+		        SELECT post_idx, COUNT(*) AS like_cnt
+		        FROM likeyn
+		        WHERE like_type = 1
+		        GROUP BY post_idx
+		      ) l ON p.post_idx = l.post_idx
+		    </when>
+		  </choose>
+		  WHERE p.board_idx = #{param3}
+		    AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
+		    
+		  <!-- 🔥 검색 조건은 여기서 분기 -->
+		  <if test="searchType != null and keyword != null and keyword != ''">
 		    <choose>
-		    <!-- sort에 recommend 실행해야 left join 발동하면서 추천순 보여줌. -->
-		        <when test="param4 == 'recommend'">
-		            LEFT JOIN (
-		                SELECT post_idx, COUNT(*) AS like_cnt
-		                FROM likeyn l
-		                WHERE like_type = 1
-		                GROUP BY post_idx
-		            ) l ON p.post_idx = l.post_idx
-		        </when>
+		      <when test="searchType == 'title'">
+		        AND p.post_title LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
+		      <when test="searchType == 'content'">
+		        AND p.post_content LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
+		      <when test="searchType == 'title_content'">
+		        AND (p.post_title LIKE CONCAT('%', #{keyword}, '%')
+		          OR p.post_content LIKE CONCAT('%', #{keyword}, '%'))
+		      </when>
+		      <when test="searchType == 'id'">
+		        AND p.id LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
 		    </choose>
-		    WHERE p.board_idx = #{param3}
-		      AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
-		    <choose>
-		        <when test="param4 == 'recommend'">
-		            ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_idx DESC
-		        </when>
-		        <!-- 기본값은 최신순 -->
-		        <when test="param4 == 'latest'">
-		            ORDER BY p.post_idx DESC
-		        </when>
-		        <otherwise>
-		            ORDER BY p.post_idx DESC
-		        </otherwise>
-		    </choose>
-		    LIMIT #{param2} OFFSET #{param1}
-		</select>
+		  </if>
 		
+		  <!-- 🔽 정렬 기준 -->
+		  <choose>
+		    <when test="param4 == 'recommend'">
+		      ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_idx DESC
+		    </when>
+		    <otherwise>
+		      ORDER BY p.post_idx DESC
+		    </otherwise>
+		  </choose>
+		
+		  LIMIT #{param2} OFFSET #{param1}
+		</select>
+
 		<!-- 추천 수 -->
 		<select id="likeCnt" parameterType="int" resultType="int">
 			SELECT COUNT(*) FROM likeyn WHERE post_idx=#{param1} AND like_type=1
@@ -101,6 +110,26 @@
 		<!-- 게시글 페이지 수 -->
 		<select id="postPages" parameterType="int" resultType="int">
 		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
+			<if test="searchType != null and keyword != null and keyword != ''">
+				<choose>
+				  <when test="searchType == 'title'">
+				    AND post_title LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+			      <when test="searchType == 'content'">
+					  AND post_content LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+				  <when test="searchType == 'title_content'">
+					  AND (post_title LIKE CONCAT('%', #{keyword}, '%')
+					    OR post_content LIKE CONCAT('%', #{keyword}, '%'))
+				  </when>
+				  <when test="searchType == 'id'">
+					  AND id LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+					 <otherwise>
+					      ORDER BY post_idx DESC
+					  </otherwise>
+				</choose>		
+			</if>  
 		</select>
    		
    		<!-- 추천 유형 -->

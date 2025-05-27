@@ -162,13 +162,13 @@ public class PostService {
 	    return detailResult;
 	}
 	
-	public Map<String, Object> postList(int page, int board_idx, String sort) {
+	public Map<String, Object> postList(int page, int board_idx, String sort, String searchType, String keyword) {
 	    Map<String, Object> result = new HashMap<String, Object>();
 	    result.put("page", page);
 	    int offset = (page - 1) * post_count; // 페이지 시작 위치 계산
 
-	    List<PostDTO> postList = dao.postList(offset, post_count, board_idx, sort); // 게시글 목록, 한 페이지 당 보여줄 게시글 수, 게시판 번호
-	    int totalPosts = dao.postPages(board_idx);
+	    List<PostDTO> postList = dao.postList(offset, post_count, board_idx, sort, searchType, keyword); // 게시글 목록, 한 페이지 당 보여줄 게시글 수, 게시판 번호
+	    int totalPosts = dao.postPages(board_idx, searchType, keyword);
 	    int totalPages = (int) Math.ceil((double) totalPosts / post_count); // 한 페이지당 보여줄 게시글 개수로 나눈 후 올림 (double 값 정수 변환)
 	    
 	    List<Map<String, Object>> postMapList = new ArrayList<>();

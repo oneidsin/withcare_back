@@ -21,9 +21,9 @@ public interface PostDAO {
 
 	int upHit(int post_idx);
 
-	List<PostDTO> postList(int offset, int post_count, int board_idx, String sort);
+	List<PostDTO> postList(int offset, int post_count, int board_idx, String sort, String searchType, String keyword);
 	
-	int postPages(int board_idx);
+	int postPages(int board_idx, String searchType, String keyword);
 
 	Integer LikeType(String id, int post_idx);
 
