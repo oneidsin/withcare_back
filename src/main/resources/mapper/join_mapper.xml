@@ -18,4 +18,8 @@
   SELECT cancer_idx, cancer_name FROM cancer
 </select>
 
+<select id="stage" resultType="com.withcare.profile.dto.StageDTO">
+  SELECT stage_idx, stage_name FROM stage
+</select>
+
 </mapper>

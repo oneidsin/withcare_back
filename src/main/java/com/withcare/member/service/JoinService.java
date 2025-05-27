@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.withcare.member.dao.JoinDAO;
 import com.withcare.profile.dao.ProfileDAO;
 import com.withcare.profile.dto.CancerDTO;
+import com.withcare.profile.dto.StageDTO;
 
 
 @Service
@@ -45,6 +46,10 @@ public class JoinService {
 
 	public List<CancerDTO> cancer() {
 		return dao.cancer();
+	}
+
+	public List<StageDTO> stage() {
+		return dao.stage();
 	}
 
 

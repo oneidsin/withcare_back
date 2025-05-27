@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.withcare.profile.dto.CancerDTO;
+import com.withcare.profile.dto.StageDTO;
 
 @Mapper
 public interface JoinDAO {
@@ -15,5 +16,7 @@ public interface JoinDAO {
 	int join(Map<String, String> params);
 
 	List<CancerDTO> cancer();
+
+	List<StageDTO> stage();
 
 }

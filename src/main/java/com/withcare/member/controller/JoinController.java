@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.member.service.JoinService;
 import com.withcare.profile.dto.CancerDTO;
+import com.withcare.profile.dto.StageDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @CrossOrigin
@@ -61,10 +62,16 @@ public class JoinController {
 		return result;
 	}
    
-	// CANCER TABLE 호출
+	// CANCER 호출
 	@GetMapping("/cancer")
 	public List<CancerDTO> cancer() {
 		return svc.cancer();
+	}
+	
+	// STAGE 호출
+	@GetMapping("stage")
+	public List<StageDTO> stage() {
+		return svc.stage();
 	}
 	
 	
