@@ -12,6 +12,7 @@ import com.withcare.member.dao.JoinDAO;
 import com.withcare.profile.dao.ProfileDAO;
 import com.withcare.profile.dto.CancerDTO;
 import com.withcare.profile.dto.StageDTO;
+import com.withcare.profile.dto.ProfileDTO;
 
 
 @Service
@@ -37,7 +38,18 @@ public class JoinService {
 		int row = dao.join(params);
 		
 		if (row > 0) {
-			p_dao.insertProfile(params.get("id")); // 프로필 생성
+			// 기본 프로필 생성
+			p_dao.insertProfile(params.get("id"));
+			
+			// cancer와 stage가 있다면 프로필 업데이트
+			if (params.containsKey("cancer") && params.containsKey("stage")) {
+				ProfileDTO profileDTO = new ProfileDTO();
+				profileDTO.setId(params.get("id"));
+				profileDTO.setCancer_idx(Integer.parseInt(params.get("cancer")));
+				profileDTO.setStage_idx(Integer.parseInt(params.get("stage")));
+				profileDTO.setProfile_yn(false);
+				p_dao.updateProfile(profileDTO);
+			}
 			return true;
 		}
 		
