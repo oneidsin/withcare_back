@@ -37,4 +37,9 @@
             crawl_cycle_updated_at = NOW()
         WHERE source_idx = #{sourceIdx};
     </update>
+
+    <!-- 관리자 페이지 - 크롤링 정보 가져오기 -->
+    <select id="getCrawlInfo" resultType="map">
+        SELECT * FROM crawl_management
+    </select>
 </mapper>

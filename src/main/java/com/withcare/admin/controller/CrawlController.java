@@ -43,6 +43,14 @@ public class CrawlController {
         return result;
     }
 
+    // 관리자 페이지 - 크롤링 정보 불러오기
+    @GetMapping("/{id}/crawl/getCrawlInfo")
+    public Map<String, Object> getCrawlInfo(@PathVariable String id) {
+        result = new HashMap<>();
+        result = svc.getCrawlInfo();
+        return result;
+    }
+
     // 관리자가 크롤링 활성화 여부를 수정
     @PutMapping("/{id}/crawl/updateCrawlYn/{sourceIdx}")
     public Map<String, Object> updateCrawlYn(@PathVariable String id, @PathVariable int sourceIdx) {

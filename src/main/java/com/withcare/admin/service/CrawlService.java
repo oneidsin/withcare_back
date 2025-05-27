@@ -396,4 +396,8 @@ public class CrawlService {
         int row = dao.updateCrawlCycle(id, sourceIdx, crawl_cycle);
         return row > 0;
     }
+
+    public Map<String, Object> getCrawlInfo() {
+        return dao.getCrawlInfo();
+    }
 }

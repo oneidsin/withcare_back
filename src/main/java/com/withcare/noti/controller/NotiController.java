@@ -31,9 +31,9 @@ public class NotiController {
 
     // SSE 연결을 위한 엔드포인트
     @GetMapping("/noti/subscribe/{id}")
-    public SseEmitter subscribe(@PathVariable String id, @RequestHeader Map<String, String> header) {
+    public SseEmitter subscribe(@PathVariable String id, @RequestParam("token") String token) {
         log.info("SSE subscribe : {}", id);
-        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        String loginId = (String) JwtToken.JwtUtils.readToken(token).get("id");
 
         if (!loginId.equals("") && loginId.equals(id)) {
             return svc.subscribe(id);
@@ -44,7 +44,7 @@ public class NotiController {
     // 사용자의 알림 목록
     @GetMapping("/noti/list/{id}")
     public Map<String, Object> getNoti(@PathVariable String id, @RequestParam(defaultValue = "0") int offset,
-            @RequestHeader Map<String, String> header) {
+                                       @RequestHeader Map<String, String> header) {
         log.info("getNoti : {} {}", id, offset);
         result = new HashMap<>();
 
@@ -63,7 +63,7 @@ public class NotiController {
     // 알림 삭제 (1개)
     @DeleteMapping("/noti/del/{id}/{noti-idx}")
     public Map<String, Object> deleteNoti(@PathVariable String id, @PathVariable("noti-idx") int noti_idx,
-            @RequestHeader Map<String, String> header) {
+                                          @RequestHeader Map<String, String> header) {
         log.info("deleteNoti : {} {}", id, noti_idx);
         result = new HashMap<>();
 
@@ -81,7 +81,7 @@ public class NotiController {
     // 알림 전체 삭제
     @DeleteMapping("/noti/delAll/{id}")
     public Map<String, Object> deleteAllNoti(@PathVariable String id,
-            @RequestHeader Map<String, String> header) {
+                                             @RequestHeader Map<String, String> header) {
         log.info("delete all noti : {}", id);
         result = new HashMap<>();
 
@@ -99,7 +99,7 @@ public class NotiController {
     // 알림 읽음 확인
     @PutMapping("/noti/read/{id}/{noti-idx}")
     public Map<String, Object> readNoti(@PathVariable String id, @PathVariable("noti-idx") int noti_idx,
-            @RequestHeader Map<String, String> header) {
+                                        @RequestHeader Map<String, String> header) {
         log.info("read Noti : {} {}", id, noti_idx);
         result = new HashMap<>();
 

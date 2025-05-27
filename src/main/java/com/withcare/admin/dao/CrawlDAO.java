@@ -15,4 +15,7 @@ public interface CrawlDAO {
     int updateCrawlYn(String id, int sourceIdx);
 
     int updateCrawlCycle(String id, int sourceIdx, int crawl_cycle);
+
+    Map<String, Object> getCrawlInfo();
+
 }
