@@ -4,11 +4,19 @@ public class BoardDTO {
 
 	private int board_idx;
 	private int lv_idx;
-	private int parent_board_idx;
+	private Integer parent_board_idx;
 	private String board_name;
 	private boolean blind_yn;
 	private boolean anony_yn;
 	private boolean com_yn;
+
+	public Integer getParent_board_idx() {
+		return parent_board_idx;
+	}
+
+	public void setParent_board_idx(Integer parent_board_idx) {
+		this.parent_board_idx = parent_board_idx;
+	}
 
 	public int getBoard_idx() {
 		return board_idx;
@@ -24,14 +32,6 @@ public class BoardDTO {
 
 	public void setLv_idx(int lv_idx) {
 		this.lv_idx = lv_idx;
-	}
-
-	public int getParent_board_idx() {
-		return parent_board_idx;
-	}
-
-	public void setParent_board_idx(int parent_board_idx) {
-		this.parent_board_idx = parent_board_idx;
 	}
 
 	public String getBoard_name() {

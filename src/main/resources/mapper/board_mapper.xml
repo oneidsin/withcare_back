@@ -6,12 +6,13 @@
    
 		<insert id="boardWrite" parameterType="com.withcare.board.dto.BoardDTO"
 		        useGeneratedKeys="true" keyColumn="board_idx" keyProperty="board_idx">
-		    INSERT INTO board (board_name, blind_yn, anony_yn, com_yn, lv_idx) 
-		    	VALUES (#{board_name}, #{blind_yn}, #{anony_yn}, #{com_yn}, #{lv_idx});
+		    INSERT INTO board (board_name, blind_yn, anony_yn, com_yn, lv_idx, parent_board_idx) 
+		    	VALUES (#{board_name}, #{blind_yn}, #{anony_yn}, #{com_yn}, #{lv_idx}, #{parent_board_idx});
 		</insert>
    
    		<update id="boardUpdate" parameterType="com.withcare.board.dto.BoardDTO">
-   			UPDATE board SET board_name=#{board_name}, anony_yn=#{anony_yn}, com_yn=#{com_yn}, lv_idx=#{lv_idx}
+   			UPDATE board SET board_name=#{board_name}, anony_yn=#{anony_yn}, com_yn=#{com_yn}, 
+   			lv_idx=#{lv_idx}, parent_board_idx = #{parent_board_idx}, blind_yn = #{blind_yn}
    				WHERE board_idx = #{board_idx}
    		</update>
    
@@ -34,7 +35,7 @@
 		
 		<!-- 게시판 전체 목록 조회 -->
 		<select id="selectAllBoards" resultType="com.withcare.board.dto.BoardDTO">
-		    SELECT board_idx, board_name
+		    SELECT board_idx, board_name, parent_board_idx, blind_yn
 		    FROM board
 		    ORDER BY board_idx ASC
 		</select>
