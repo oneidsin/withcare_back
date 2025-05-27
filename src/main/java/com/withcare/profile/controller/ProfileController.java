@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
@@ -75,21 +76,26 @@ public class ProfileController {
 		return result;
 	}
 
-	// 회원 개인 정보 수정 기능 put
+	// 프로필 수정
 	@PutMapping("/profile/update")
 	public Map<String, Object> updateProfile(
-	        @RequestBody ProfileDTO dto,
+	        @RequestPart("info") ProfileDTO dto,
+	        @RequestPart(value = "profile_image", required = false) MultipartFile file,
 	        @RequestHeader("Authorization") String token) {
 
 	    Map<String, Object> result = new HashMap<>();
 
 	    try {
-	        // 1. 토큰 파싱 → 사용자 ID 추출
 	        Map<String, Object> payload = JwtUtils.readToken(token);
 	        String tokenId = (String) payload.get("id");
 	        dto.setId(tokenId);
 
-	        // 2. DB 업데이트
+	        // 프로필 이미지가 있다면 처리
+	        if (file != null && !file.isEmpty()) {
+	            String savedPath = svc.saveProfileImage(file); // 예: 서버에 저장하고 경로 리턴
+	            dto.setProfile_photo(savedPath);
+	        }
+
 	        int updated = svc.updateProfile(dto);
 	        result.put("status", updated > 0 ? "success" : "fail");
 
@@ -100,6 +106,7 @@ public class ProfileController {
 
 	    return result;
 	}
+
 
 	// 타인이 프로필 확인하는 기능 get
 	@GetMapping("/profile/view/{id}")

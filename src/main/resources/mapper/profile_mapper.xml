@@ -36,7 +36,7 @@
 		m.email = #{email},
 		p.cancer_idx = #{cancer_idx},
 		p.stage_idx = #{stage_idx},
-		p.profile_photo = #{profile_imageurl},
+		p.profile_photo = #{profile_photo},
 		p.intro = #{intro},
 		p.profile_yn = #{profile_yn}
 		WHERE m.id = #{id}

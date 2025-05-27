@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
@@ -60,6 +61,10 @@ public class ProfileService {
 
 	public List<MenDTO> getUserMentions(String id) {
 		return dao.getUserMentions(id);
+	}
+
+	public String saveProfileImage(MultipartFile file) {
+		return dao.saveProfileImage(file);
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.dto.MenDTO;
@@ -34,4 +35,6 @@ public interface ProfileDAO {
 	List<SearchDTO> getUserSearches(String id);
 
 	List<MenDTO> getUserMentions(String id);
+
+	String saveProfileImage(MultipartFile file);
 }
