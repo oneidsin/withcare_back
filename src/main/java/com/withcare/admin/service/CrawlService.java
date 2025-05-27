@@ -397,7 +397,7 @@ public class CrawlService {
         return row > 0;
     }
 
-    public Map<String, Object> getCrawlInfo() {
+    public List<Map<String, Object>> getCrawlInfo() {
         return dao.getCrawlInfo();
     }
 }

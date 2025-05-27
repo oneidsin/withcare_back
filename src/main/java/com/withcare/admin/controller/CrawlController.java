@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin
@@ -47,7 +48,7 @@ public class CrawlController {
     @GetMapping("/{id}/crawl/getCrawlInfo")
     public Map<String, Object> getCrawlInfo(@PathVariable String id) {
         result = new HashMap<>();
-        result = svc.getCrawlInfo();
+        result.put("result", svc.getCrawlInfo());
         return result;
     }
 
