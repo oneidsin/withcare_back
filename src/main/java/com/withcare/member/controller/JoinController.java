@@ -1,6 +1,7 @@
 package com.withcare.member.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.member.service.JoinService;
+import com.withcare.profile.dto.CancerDTO;
+import com.withcare.profile.dto.StageDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
 @CrossOrigin
@@ -59,6 +62,17 @@ public class JoinController {
 		return result;
 	}
    
+	// CANCER 호출
+	@GetMapping("/cancer")
+	public List<CancerDTO> cancer() {
+		return svc.cancer();
+	}
+	
+	// STAGE 호출
+	@GetMapping("stage")
+	public List<StageDTO> stage() {
+		return svc.stage();
+	}
 	
 	
 	

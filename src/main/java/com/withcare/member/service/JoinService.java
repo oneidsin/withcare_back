@@ -1,5 +1,6 @@
 package com.withcare.member.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.withcare.member.dao.JoinDAO;
 import com.withcare.profile.dao.ProfileDAO;
+import com.withcare.profile.dto.CancerDTO;
+import com.withcare.profile.dto.StageDTO;
 
 
 @Service
@@ -39,6 +42,14 @@ public class JoinService {
 		}
 		
 		return false;
+	}
+
+	public List<CancerDTO> cancer() {
+		return dao.cancer();
+	}
+
+	public List<StageDTO> stage() {
+		return dao.stage();
 	}
 
 

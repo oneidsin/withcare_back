@@ -14,4 +14,12 @@
   VALUES(#{id}, #{pw}, #{name}, #{year}, #{gender}, #{email}, 1, 0, 0, 0)
 </insert>
 
+<select id="cancer" resultType="com.withcare.profile.dto.CancerDTO">
+  SELECT cancer_idx, cancer_name FROM cancer
+</select>
+
+<select id="stage" resultType="com.withcare.profile.dto.StageDTO">
+  SELECT stage_idx, stage_name FROM stage
+</select>
+
 </mapper>
