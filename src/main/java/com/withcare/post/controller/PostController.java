@@ -273,6 +273,8 @@ public class PostController {
 	        @PathVariable int page,
 	        @RequestParam int board_idx,
 	        @RequestParam(defaultValue = "latest") String sort, // 추가 (추천순, 최신순 선택해서 보여주기 위해서)
+	        @RequestParam(required = false) String searchType,
+	        @RequestParam(required = false) String keyword,
 	        @RequestHeader Map<String, String> header) {
 
 	    Map<String, Object> result = new HashMap<>();
@@ -289,7 +291,7 @@ public class PostController {
             login = true;
         }
         
-	    Map<String, Object> listResult = svc.postList(page, board_idx, sort);
+	    Map<String, Object> listResult = svc.postList(page, board_idx, sort, searchType, keyword);
 	    result.putAll(listResult);
 	    
 	    result.put("loginYN", login);
