@@ -69,7 +69,7 @@ public class JoinController {
 	}
 	
 	// STAGE 호출
-	@GetMapping("stage")
+	@GetMapping("/stage")
 	public List<StageDTO> stage() {
 		return svc.stage();
 	}

@@ -11,9 +11,46 @@ public class ProfileDTO {
 	private int accessCnt;
 	private String cancer_name;
 	private String stage_name;
-	
+
 	private String profile_imageurl;
-	
+
+	private String name; // 추가
+	private String year; // 추가 (정수면 int로)
+	private String gender; // 추가
+	private String email; // 추가
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	public String getProfile_imageurl() {
 		return profile_imageurl;
 	}

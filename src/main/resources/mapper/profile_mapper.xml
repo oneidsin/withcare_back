@@ -4,15 +4,10 @@
 
 <mapper namespace="com.withcare.profile.dao.ProfileDAO">
 
-	<!-- <insert id="saveProfile"
-		parameterType="com.withcare.profile.dto.ProfileDTO">
-		INSERT INTO profile (
-		id, cancer_idx, stage_idx, profile_photo, intro, profile_yn, access_cnt
-		) VALUES (
-		#{id}, #{cancerIdx}, #{stageIdx}, #{profilePhoto}, #{intro}, #{profileYn},
-		#{accessCnt}
-		)
-	</insert> -->
+	<!-- <insert id="saveProfile" parameterType="com.withcare.profile.dto.ProfileDTO"> 
+		INSERT INTO profile ( id, cancer_idx, stage_idx, profile_photo, intro, profile_yn, 
+		access_cnt ) VALUES ( #{id}, #{cancerIdx}, #{stageIdx}, #{profilePhoto}, 
+		#{intro}, #{profileYn}, #{accessCnt} ) </insert> -->
 
 	<!-- 프로필 보기 -->
 	<select id="getProfileById" parameterType="String"
@@ -33,44 +28,61 @@
 	<!-- 프로필 수정 -->
 	<update id="updateProfile"
 		parameterType="com.withcare.profile.dto.ProfileDTO">
-		UPDATE profile
-		SET
-		cancer_idx = #{cancer_idx},
-		stage_idx = #{stage_idx},
-		profile_photo = #{profile_imageurl},
-		intro = #{intro},
-		profile_yn = #{profile_yn}
-		WHERE
-		id = #{id}
+		UPDATE member m
+		JOIN profile p ON m.id = p.id
+		SET m.name = #{name},
+		m.year = #{year},
+		m.gender = #{gender},
+		m.email = #{email},
+		p.cancer_idx = #{cancer_idx},
+		p.stage_idx = #{stage_idx},
+		p.profile_photo = #{profile_imageurl},
+		p.intro = #{intro},
+		p.profile_yn = #{profile_yn}
+		WHERE m.id = #{id}
 	</update>
-	
+
 	<!-- 프로필 추가 -->
 	<insert id="insertProfile" parameterType="String">
-    INSERT INTO profile (id, cancer_idx, stage_idx, profile_photo, intro, profile_yn, access_cnt)
-    VALUES (#{id}, NULL, NULL, NULL, NULL, 0, 0)
+		INSERT INTO profile
+		(id, cancer_idx, stage_idx, profile_photo, intro,
+		profile_yn,
+		access_cnt)
+		VALUES (#{id}, NULL, NULL, NULL, NULL, 0, 0)
 	</insert>
 
-	<select id="getUserPosts" parameterType="String" resultType="com.withcare.post.dto.PostDTO">
-        SELECT * FROM post WHERE id = #{id} ORDER BY IFNULL(post_update_date, post_create_date) DESC
-        LIMIT 5
-    </select>
+	<select id="getUserPosts" parameterType="String"
+		resultType="com.withcare.post.dto.PostDTO">
+		SELECT * FROM post WHERE id = #{id} ORDER BY
+		IFNULL(post_update_date,
+		post_create_date) DESC
+		LIMIT 5
+	</select>
 
-    <select id="getUserComments" parameterType="String" resultType="com.withcare.comment.dto.ComDTO">
-        SELECT * FROM comment WHERE id = #{id} ORDER BY com_create_date DESC LIMIT 5
-    </select>
+	<select id="getUserComments" parameterType="String"
+		resultType="com.withcare.comment.dto.ComDTO">
+		SELECT * FROM comment WHERE id = #{id} ORDER BY
+		com_create_date DESC LIMIT 5
+	</select>
 
-    <select id="getUserLikes" parameterType="String" resultType="com.withcare.post.dto.LikeDislikeDTO">
-        SELECT * FROM likeYn WHERE id = #{id} ORDER BY like_date DESC LIMIT 5
-    </select>
+	<select id="getUserLikes" parameterType="String"
+		resultType="com.withcare.post.dto.LikeDislikeDTO">
+		SELECT * FROM likeYn WHERE id = #{id} ORDER BY like_date
+		DESC LIMIT 5
+	</select>
 
-    <select id="getUserSearches" parameterType="String" resultType="com.withcare.search.dto.SearchDTO">
-        SELECT * FROM search WHERE sch_id = #{id} ORDER BY sch_date DESC LIMIT 5
-    </select>
+	<select id="getUserSearches" parameterType="String"
+		resultType="com.withcare.search.dto.SearchDTO">
+		SELECT * FROM search WHERE sch_id = #{id} ORDER BY sch_date
+		DESC LIMIT 5
+	</select>
 
-	<select id="getUserMentions" parameterType="String" resultType="com.withcare.comment.dto.MenDTO">
-        SELECT * FROM mention WHERE men_id = #{id} 
-        ORDER BY COALESCE(men_update_date, men_create_date) DESC LIMIT 5
-    </select>
+	<select id="getUserMentions" parameterType="String"
+		resultType="com.withcare.comment.dto.MenDTO">
+		SELECT * FROM mention WHERE men_id = #{id}
+		ORDER BY
+		COALESCE(men_update_date, men_create_date) DESC LIMIT 5
+	</select>
 
 
 </mapper>
