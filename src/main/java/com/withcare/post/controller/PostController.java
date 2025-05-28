@@ -263,56 +263,83 @@ public class PostController {
 	}
 	
 	// 게시글 상세보기 (GetMapping) 조회수 증가
-	   @GetMapping("/post/detail/hitup/{post_idx}")
-	   public Map<String, Object>postDetail(
-	         @PathVariable int post_idx,
-	         @RequestHeader Map<String, String>header){
+	@GetMapping("/post/detail/hitup/{post_idx}")
+	public Map<String, Object>postDetail(
+	      @PathVariable int post_idx,
+	      @RequestHeader Map<String, String>header){
 		   
-	        Map<String, Object> result = new HashMap<>();
-	        String loginId = null;
-	        boolean login = false;
-	        boolean success = false;
-	        int userLv = 0;
+	    Map<String, Object> result = new HashMap<>();
+	    String loginId = null;
+	    boolean login = false;
+	    boolean success = false;
+	    int userLv = 0;
 	        
-	        try {
-	            loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	            userLv = svc.userLevel(loginId);
-	        } catch (Exception e) {
-	            // 토큰 없거나 잘못됐으면 그냥 로그인 false 처리하고 게시글 상세보기는 진행
-	        	login = false;
-	        }
+	    try {
+	        loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	        userLv = svc.userLevel(loginId);
+	    } catch (Exception e) {
+	        // 토큰 없거나 잘못됐으면 그냥 로그인 false 처리
+	        login = false;
+	    }
 	        
-	        if (loginId != null && !loginId.isEmpty()) {
-				login = true;
-			}
-	        return svc.postDetail(post_idx, true, userLv); // true는 조회수 증가
-	   }
-	   
-	   // 조회수 증가 없이 상세 정보만 조회
-	   @GetMapping("/post/detail/{post_idx}")
-	   public Map<String, Object> postDetailNoHit(
-	           @PathVariable int post_idx,
-	           @RequestHeader Map<String, String> header) {
-	       
-	       String loginId = null;
-	       int userLv = 0;
-	       
-	       try {
-	           loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-	           userLv = svc.userLevel(loginId);
-	       } catch (Exception e) {
-	           // 무시
-	       }
+	    if (loginId != null && !loginId.isEmpty()) {
+	        login = true;
+	    }
 
-	       return svc.postDetail(post_idx, false, userLv); // 조회수 증가 X
-	   }
+	    // 게시판의 레벨 제한 확인
+	    int boardIdx = svc.getBoardIdx(post_idx);
+	    int boardLv = boardService.boardLevel(boardIdx);
+	    
+	    if (userLv < boardLv) {
+	        result.put("success", false);
+	        result.put("message", "권한이 없습니다.");
+	        return result;
+	    }
+
+	    Map<String, Object> detailResult = svc.postDetail(post_idx, true, userLv);
+	    result.putAll(detailResult);
+	    result.put("loginYN", login);
+	    return result;
+	}
+	
+	// 조회수 증가 없이 상세 정보만 조회
+	@GetMapping("/post/detail/{post_idx}")
+	public Map<String, Object> postDetailNoHit(
+	        @PathVariable int post_idx,
+	        @RequestHeader Map<String, String> header) {
+	       
+	    Map<String, Object> result = new HashMap<>();
+	    String loginId = null;
+	    int userLv = 0;
+	       
+	    try {
+	        loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	        userLv = svc.userLevel(loginId);
+	    } catch (Exception e) {
+	        // 무시
+	    }
+
+	    // 게시판의 레벨 제한 확인
+	    int boardIdx = svc.getBoardIdx(post_idx);
+	    int boardLv = boardService.boardLevel(boardIdx);
+	    
+	    if (userLv < boardLv) {
+	        result.put("success", false);
+	        result.put("message", "권한이 없습니다.");
+	        return result;
+	    }
+
+	    Map<String, Object> detailResult = svc.postDetail(post_idx, false, userLv);
+	    result.putAll(detailResult);
+	    return result;
+	}
 	
 	// 게시글 리스트 (GetMapping)
 	@GetMapping("/post/list/{page}")
 	public Map<String, Object> postList(
 	        @PathVariable int page,
 	        @RequestParam int board_idx,
-	        @RequestParam(defaultValue = "latest") String sort, // 추가 (추천순, 최신순 선택해서 보여주기 위해서)
+	        @RequestParam(defaultValue = "latest") String sort,
 	        @RequestParam(required = false) String searchType,
 	        @RequestParam(required = false) String keyword,
 	        @RequestHeader Map<String, String> header) {
@@ -320,24 +347,15 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
-	    int userLv = 0;
 
         try {
             loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-            userLv = svc.userLevel(loginId);
         } catch (Exception e) {
-            // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행 (게시글 리스트는 그냥 보입니다.)
+            // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행
         }
         
         if (loginId != null && !loginId.isEmpty()) {
             login = true;
-        }
-        
-        int boardLv = boardService.boardLevel(board_idx); // 게시판 열람 제한 레벨
-        if (userLv < boardLv) {
-            result.put("success", false);
-            result.put("message", "권한 없음");
-            return result;
         }
         
 	    Map<String, Object> listResult = svc.postList(page, board_idx, sort, searchType, keyword);
