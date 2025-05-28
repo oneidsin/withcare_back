@@ -14,7 +14,16 @@ public class PostDTO {
 	private Date post_create_date;
 	private Date post_update_date;
 	private boolean post_blind_yn;
+	private boolean anony_yn;
 	
+	public boolean isAnony_yn() {
+		return anony_yn;
+	}
+
+	public void setAnony_yn(boolean anony_yn) {
+		this.anony_yn = anony_yn;
+	}
+
 	public int getPost_idx() {
 		return post_idx;
 	}

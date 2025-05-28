@@ -6,8 +6,8 @@
    		
    		<!-- 게시글 작성 -->
 		<insert id="postWrite" parameterType="com.withcare.post.dto.PostDTO" useGeneratedKeys="true" keyProperty="post_idx" keyColumn="post_idx">
-		    INSERT INTO post (board_idx, id, post_title, post_content, com_yn, post_blind_yn)
-		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn}, #{post_blind_yn})
+		    INSERT INTO post (board_idx, id, post_title, post_content, com_yn, post_blind_yn, anony_yn)
+		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn}, #{post_blind_yn}, #{anony_yn})
 		</insert>
    		
    		<!-- 작성자 정보 가져오기 (post_idx 에 맞는) -->
@@ -24,6 +24,10 @@
 		<select id="userLevel" parameterType="String" resultType="int">
 		    SELECT lv_idx FROM member WHERE id = #{id}
 		</select>
+		
+		<select id="boardLevel" parameterType="int" resultType="int">
+		    SELECT board_idx FROM post WHERE post_idx = #{post_idx}
+		</select>
    		
    		<!-- 게시글 수정 (post_idx 로 게시글 가져와서 제목, 내용 수정) -->
    		<update id="postUpdate" parameterType="com.withcare.post.dto.PostDTO">
@@ -37,9 +41,15 @@
    		</update>
    		
    		<!-- 게시글 상세보기 -->
-   		<select id="postDetail" parameterType="int" resultType="com.withcare.post.dto.PostDTO">
-        	SELECT * FROM post WHERE post_idx=#{post_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
-   		</select>
+		<select id="postDetail" parameterType="int" resultMap="PostResultMap">
+		  SELECT 
+		    p.post_idx, p.board_idx, p.post_title, p.post_content,
+		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
+		    p.post_blind_yn, p.anony_yn,
+		    CASE WHEN p.anony_yn = TRUE THEN 'anonymous' ELSE p.id END AS writer
+		  FROM post p
+		  WHERE post_idx=#{post_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
+		</select>
    		
    		<!-- 조회수 증가 (상세보기 시) -->
    		<update id="upHit">
@@ -47,10 +57,12 @@
    		</update>
    		
    		<!-- 게시글 목록 가져오기 (게시판 idx에 맞는 게시글만 불러옵니다. 현재 5개씩 설정됨. sort에 타입 설정하면 추천순, 최신순으로 볼 수 있음.) -->
-		<select id="postList" resultType="com.withcare.post.dto.PostDTO">
+		<select id="postList" resultMap="PostResultMap">
 		  SELECT 
-		    p.post_idx, p.board_idx, p.id, p.post_title, p.post_content,
-		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date, p.post_blind_yn
+		    p.post_idx, p.board_idx, p.post_title, p.post_content,
+		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
+		    p.post_blind_yn, p.anony_yn,
+		    CASE WHEN p.anony_yn = TRUE THEN '익명' ELSE p.id END AS writer
 		  FROM post p
 		  <choose>
 		    <when test="param4 == 'recommend'">
@@ -181,5 +193,21 @@
 		    FROM file
 		    WHERE post_idx = #{post_idx}
 		</select>
+		
+		<resultMap id="PostResultMap" type="com.withcare.post.dto.PostDTO">
+		    <id property="post_idx" column="post_idx"/>
+		    <result property="board_idx" column="board_idx"/>
+		    <result property="post_title" column="post_title"/>
+		    <result property="post_content" column="post_content"/>
+		    <result property="post_view_cnt" column="post_view_cnt"/>
+		    <result property="com_yn" column="com_yn"/>
+		    <result property="post_create_date" column="post_create_date"/>
+		    <result property="post_update_date" column="post_update_date"/>
+		    <result property="post_blind_yn" column="post_blind_yn"/>
+		    <result property="anony_yn" column="anony_yn"/>
+		    <!-- 핵심 라인 -->
+		    <result property="id" column="writer"/>
+		</resultMap>
+		
 		
    </mapper>

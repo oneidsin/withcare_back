@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.withcare.board.dto.BoardDTO;
+import com.withcare.board.service.BoardService;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
 import com.withcare.post.service.PostService;
@@ -41,6 +43,7 @@ public class PostController {
 	HashMap<String, Object> result = null;
 	
 	@Autowired PostService svc;
+	@Autowired BoardService boardService;
 	
 	@Value("${file.upload-dir}")
 	private String uploadDir;
@@ -72,6 +75,10 @@ public class PostController {
 	    if (loginId != null && !loginId.isEmpty()) { // loginId 가 비어있으면
 	    	login = true;
 		    dto.setId(loginId); // 게시글에 작성자 ID 설정
+		    
+	        BoardDTO board = boardService.boardIdx(dto.getBoard_idx());
+	        dto.setAnony_yn(board.isAnony_yn());
+	        
 	        success = svc.postWrite(dto); // 게시글 작성 서비스 호출
 	        result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
 	    }
@@ -265,9 +272,11 @@ public class PostController {
 	        String loginId = null;
 	        boolean login = false;
 	        boolean success = false;
+	        int userLv = 0;
 	        
 	        try {
 	            loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	            userLv = svc.userLevel(loginId);
 	        } catch (Exception e) {
 	            // 토큰 없거나 잘못됐으면 그냥 로그인 false 처리하고 게시글 상세보기는 진행
 	        	login = false;
@@ -276,7 +285,7 @@ public class PostController {
 	        if (loginId != null && !loginId.isEmpty()) {
 				login = true;
 			}
-	        return svc.postDetail(post_idx, true); // true는 조회수 증가
+	        return svc.postDetail(post_idx, true, userLv); // true는 조회수 증가
 	   }
 	   
 	   // 조회수 증가 없이 상세 정보만 조회
@@ -286,13 +295,16 @@ public class PostController {
 	           @RequestHeader Map<String, String> header) {
 	       
 	       String loginId = null;
+	       int userLv = 0;
+	       
 	       try {
 	           loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	           userLv = svc.userLevel(loginId);
 	       } catch (Exception e) {
 	           // 무시
 	       }
 
-	       return svc.postDetail(post_idx, false); // 조회수 증가 X
+	       return svc.postDetail(post_idx, false, userLv); // 조회수 증가 X
 	   }
 	
 	// 게시글 리스트 (GetMapping)
@@ -308,9 +320,11 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
+	    int userLv = 0;
 
         try {
             loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            userLv = svc.userLevel(loginId);
         } catch (Exception e) {
             // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행 (게시글 리스트는 그냥 보입니다.)
         }
@@ -319,11 +333,19 @@ public class PostController {
             login = true;
         }
         
+        int boardLv = boardService.boardLevel(board_idx); // 게시판 열람 제한 레벨
+        if (userLv < boardLv) {
+            result.put("success", false);
+            result.put("message", "권한 없음");
+            return result;
+        }
+        
 	    Map<String, Object> listResult = svc.postList(page, board_idx, sort, searchType, keyword);
 	    result.putAll(listResult);
-	    
+	    result.put("success", true);
 	    result.put("loginYN", login);
 	    result.put("loginId", loginId);
+	    
 	    return result;
 	}
 	

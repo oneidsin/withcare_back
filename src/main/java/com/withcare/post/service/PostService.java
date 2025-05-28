@@ -141,7 +141,7 @@ public class PostService {
         return row > 0;
     }
 
-	public Map<String, Object> postDetail(int post_idx, boolean Hitup) {
+	public Map<String, Object> postDetail(int post_idx, boolean Hitup, int userLv) {
 		Map<String, Object> detailResult = new HashMap<>();
 		
 		if (Hitup) {
@@ -153,11 +153,19 @@ public class PostService {
             return detailResult;
         }
         
+        int boardLv = boardDao.boardLevel(dto.getBoard_idx());
+        if (userLv < boardLv) {
+            detailResult.put("success", false);
+            detailResult.put("message", "권한 없음");
+            return detailResult;
+        }
+        
         detailResult.put("post", dto);
         detailResult.put("likes", dao.likeCnt(post_idx));
         detailResult.put("dislikes", dao.dislikeCnt(post_idx));
         List<Map<String, String>> photos = dao.fileList(post_idx);
         detailResult.put("photos", photos);
+        detailResult.put("success", true);
 
 	    return detailResult;
 	}
@@ -264,4 +272,5 @@ public class PostService {
 	public String postWriter(int post_idx) {
 		return dao.postWriter(post_idx);
 	}
+
 }
