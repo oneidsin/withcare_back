@@ -21,7 +21,7 @@
    				WHERE board_idx = #{board_idx}
    		</update>
    		
-	   	<select id="boardLevel" parameterType="int" resultType="java.lang.Integer">
+	   	<select id="boardLevel" parameterType="int" resultType="int">
 	        SELECT lv_idx FROM board WHERE board_idx = #{board_idx}
 	    </select>
 	

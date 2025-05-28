@@ -24,7 +24,7 @@
 		<select id="userLevel" parameterType="String" resultType="int">
 		    SELECT IFNULL(lv_idx,0) FROM member WHERE id = #{id}
 		</select>
-		
+		            
 		<select id="boardLevel" parameterType="int" resultType="int">
 		    SELECT board_idx FROM post WHERE post_idx = #{post_idx}
 		</select>
