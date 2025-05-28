@@ -41,6 +41,13 @@
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
+    <!-- 신고 리스트 전체 개수 -->
+    <select id="reportListCount" resultType="int">
+        SELECT COUNT(*)
+        FROM report
+        WHERE status = '미처리'
+    </select>
+
 
 <!-- 신고 처리 페이지 -->
 <select id="reportView" parameterType="map" resultType="map">

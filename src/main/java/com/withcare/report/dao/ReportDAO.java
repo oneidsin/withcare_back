@@ -40,10 +40,6 @@ public interface ReportDAO {
 
   int reportProcess(Map<String, Object> params);
 
-  String getReportedId(int repIdx);
-
-  void addToBlockList(Map<String, Object> blockParams);
-
   void reportStatusUpdate(Map<String, Object> params);
 
   void blindPost(int itemIdx);
