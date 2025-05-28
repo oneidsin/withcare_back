@@ -147,7 +147,7 @@ public class ReportController {
 
     // 신고 카테고리 불러오기
     @GetMapping("/admin/report-manage/report-cate-list")
-    public Map<String, Object> reportCateList(@RequestBody Map<String, Object> params,
+    public Map<String, Object> reportCateList(@RequestParam("id") String id,
                                               @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
@@ -155,7 +155,7 @@ public class ReportController {
         String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
         boolean login = false;
 
-        if (!loginId.equals("") && loginId.equals(params.get("id"))) {
+        if (!loginId.equals("") && loginId.equals(id)) {
             result.put("result", svc.reportCateList());
             login = true;
         }
