@@ -14,10 +14,14 @@ public interface MsgDAO {
 	void sendMsg(MsgDTO dto);
 
 	// OUTBOX
-	List<MsgDTO> outbox(String id);
+	List<MsgDTO> outbox(Map<String, Object> param);
+	int pages(Map<String, Object> param);
 
 	// INBOX
 	List<MsgDTO> inbox(Map<String, Object> param);
+	
+	// 전체 메세지 수 조회 
+	int getInboxCnt(String id);
 
 	// MSG DETAIL
 	MsgDTO msgDetail(int idx);
@@ -39,5 +43,11 @@ public interface MsgDAO {
 
 	// 차단 확인
 	boolean isBlocked(String receiverId, String senderId);
+
+	
+
+	
+
+	
 
 }

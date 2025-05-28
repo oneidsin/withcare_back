@@ -38,10 +38,25 @@ public class MsgService {
             notiService.sendMessageNoti(dto.getMsg_idx(), dto.getSender_id(), dto.getReceiver_id());
         }
     }
+    
+    private int msgCnt = 15; // OUT BOX 한 페이지의 쪽지 개수
 
     // OUTBOX
-    public List<MsgDTO> outbox(String id) {
-        return dao.outbox(id);
+    public Map<String, Object> outbox(String id, int page) {
+    	Map<String, Object> result = new HashMap<>();
+    	Map<String, Object> param = new HashMap<>();
+    	
+    	int offset = (page - 1) * msgCnt;
+    	
+    	param.put("sender_id", id);
+        param.put("offset", offset);
+        param.put("msgCnt", msgCnt);
+
+        result.put("page", page);
+        result.put("list", dao.outbox(param));
+        result.put("pages", dao.pages(param));
+        
+    	return result;
     }
 
     // INBOX
@@ -54,6 +69,12 @@ public class MsgService {
     	param.put("offset", offset);
         return dao.inbox(param);
     }
+    
+    // 전체 메세지 수 조회 
+ 	public int getInboxCnt(String id) {
+ 		return dao.getInboxCnt(id);
+ 		
+ 	}
 
     // MSG DETAIL
     public MsgDTO msgDetail(int idx) {
@@ -84,5 +105,7 @@ public class MsgService {
     public void readYN(int msg_idx) {
         dao.readYN(msg_idx);
     }
+
+    
 
 }

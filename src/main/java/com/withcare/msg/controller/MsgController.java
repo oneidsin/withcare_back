@@ -51,14 +51,15 @@ public class MsgController {
 	}
 
 	// OUTBOX
-	@GetMapping("/msg/outbox/{id}")
-	public Map<String, Object> outbox(@PathVariable String id, @RequestHeader Map<String, String> header) {
+	@GetMapping("/msg/outbox/{id}/{page}")
+	public Map<String, Object> outbox(@PathVariable String id, @PathVariable int page, @RequestHeader Map<String, String> header) {
+		
 		Map<String, Object> resp = new HashMap<>();
 		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(id)) {
-			List<MsgDTO> list = svc.outbox(id);
+			Map<String, Object> list = svc.outbox(id, page);
 			resp.put("outbox", list);
 			login = true;
 		}
@@ -70,22 +71,29 @@ public class MsgController {
 	// INBOX
 	@GetMapping("/msg/inbox/{id}")
 	public Map<String, Object> inbox(@PathVariable String id, @RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size, @RequestHeader Map<String, String> header) {
-		
-		log.info("받은 쪽지 요청 - id: {}, page: {}, size: {}", id, page, size);
-		
-		Map<String, Object> resp = new HashMap<>();
-		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
-		boolean login = false;
+	        @RequestParam(defaultValue = "10") int size, @RequestHeader Map<String, String> header) {
+	    
+	    log.info("받은 쪽지 요청 - id: {}, page: {}, size: {}", id, page, size);
+	    
+	    Map<String, Object> resp = new HashMap<>();
+	    String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+	    boolean login = false;
 
-		if (!loginId.equals("") && loginId.equals(id)) {
-			List<MsgDTO> list = svc.inbox(id, page, size);
-			resp.put("inbox", list);
-			login = true;
-		}
+	    if (!loginId.equals("") && loginId.equals(id)) {
+	        // 전체 메시지 수 조회
+	        int totalCount = svc.getInboxCnt(id);
+	        // 전체 페이지 수 계산
+	        int totalPages = (int) Math.ceil((double) totalCount / size);
+	        
+	        List<MsgDTO> list = svc.inbox(id, page, size);
+	        resp.put("inbox", list);
+	        resp.put("pages", totalPages);  // 전체 페이지 수
+	        resp.put("currentPage", page + 1);  // 프론트엔드는 1부터 시작하므로 +1
+	        login = true;
+	    }
 
-		resp.put("loginYN", login);
-		return resp;
+	    resp.put("loginYN", login);
+	    return resp;
 	}
 
 	// MSG DETAIL

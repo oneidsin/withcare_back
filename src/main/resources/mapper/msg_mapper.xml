@@ -14,8 +14,19 @@
 	</insert>
 	
 	<!-- OUTBOX -->
-	<select id="outbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
-		SELECT msg_idx,sender_id,receiver_id,msg_content,msg_sent_at,msg_read, sender_msg_status, receiver_msg_status FROM message WHERE sender_id = #{sender_id} AND sender_msg_status = "N" ORDER BY msg_sent_at DESC
+	<select id="outbox" parameterType="com.withcare.msg.dto.MsgDTO" resultType="com.withcare.msg.dto.MsgDTO">
+		SELECT msg_idx, sender_id, receiver_id, msg_content, msg_sent_at, msg_read, sender_msg_status, receiver_msg_status
+		FROM message 
+		WHERE sender_id = #{sender_id} AND sender_msg_status = 'N' 
+		ORDER BY msg_sent_at DESC
+		LIMIT #{msgCnt} OFFSET #{offset}
+	</select>
+	
+	<!-- OUTBOX 전체 페이지 수 조회 -->
+	<select id="pages" parameterType="map" resultType="int">
+		SELECT CEIL(COUNT(*) / #{msgCnt})
+		FROM message
+		WHERE sender_id = #{sender_id} AND sender_msg_status = 'N'
 	</select>
 	
 	<!-- INBOX -->
@@ -28,6 +39,16 @@
 		  AND mb.blocked_id IS NULL
 		ORDER BY m.msg_sent_at DESC
 		LIMIT #{size} OFFSET #{offset}
+	</select>
+	
+	<!-- INBOX MSG CNT -->
+	<select id="getInboxCnt" parameterType="String" resultType="int">
+	    SELECT COUNT(*)
+	    FROM message m
+	    LEFT JOIN member_block mb ON m.sender_id = mb.blocked_id AND mb.blocker_id = #{receiverId}
+	    WHERE m.receiver_id = #{receiverId}
+	      AND m.receiver_msg_status = 'N'
+	      AND mb.blocked_id IS NULL
 	</select>
 	
 	<!-- MSG DETAIL -->
