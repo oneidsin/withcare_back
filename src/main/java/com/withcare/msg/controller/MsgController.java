@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.withcare.msg.dto.MsgDTO;
@@ -68,13 +69,17 @@ public class MsgController {
 
 	// INBOX
 	@GetMapping("/msg/inbox/{id}")
-	public Map<String, Object> inbox(@PathVariable String id, @RequestHeader Map<String, String> header) {
+	public Map<String, Object> inbox(@PathVariable String id, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, @RequestHeader Map<String, String> header) {
+		
+		log.info("받은 쪽지 요청 - id: {}, page: {}, size: {}", id, page, size);
+		
 		Map<String, Object> resp = new HashMap<>();
 		String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
 		boolean login = false;
 
 		if (!loginId.equals("") && loginId.equals(id)) {
-			List<MsgDTO> list = svc.inbox(id);
+			List<MsgDTO> list = svc.inbox(id, page, size);
 			resp.put("inbox", list);
 			login = true;
 		}

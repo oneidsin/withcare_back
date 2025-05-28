@@ -19,7 +19,7 @@
 	</select>
 	
 	<!-- INBOX -->
-	<select id="inbox" parameterType="String" resultType="com.withcare.msg.dto.MsgDTO">
+	<select id="inbox" parameterType="map" resultType="com.withcare.msg.dto.MsgDTO">
 		SELECT m.msg_idx, m.sender_id, m.receiver_id, m.msg_content, m.msg_sent_at, m.msg_read, m.sender_msg_status, m.receiver_msg_status
 		FROM message m
 		LEFT JOIN member_block mb ON m.sender_id = mb.blocked_id AND mb.blocker_id = #{receiver_id}
@@ -27,6 +27,7 @@
 		  AND m.receiver_msg_status = 'N'
 		  AND mb.blocked_id IS NULL
 		ORDER BY m.msg_sent_at DESC
+		LIMIT #{size} OFFSET #{offset}
 	</select>
 	
 	<!-- MSG DETAIL -->

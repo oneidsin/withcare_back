@@ -1,6 +1,7 @@
 package com.withcare.msg.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -16,7 +17,7 @@ public interface MsgDAO {
 	List<MsgDTO> outbox(String id);
 
 	// INBOX
-	List<MsgDTO> inbox(String id);
+	List<MsgDTO> inbox(Map<String, Object> param);
 
 	// MSG DETAIL
 	MsgDTO msgDetail(int idx);
@@ -37,5 +38,6 @@ public interface MsgDAO {
 	void readYN(int msg_idx);
 
 	// 차단 확인
-    boolean isBlocked(String receiverId, String senderId);
+	boolean isBlocked(String receiverId, String senderId);
+
 }

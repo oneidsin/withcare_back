@@ -1,7 +1,9 @@
 package com.withcare.msg.service;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +19,9 @@ public class MsgService {
 
     Logger log = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    MsgDAO dao;
+    @Autowired MsgDAO dao;
 
-    @Autowired
-    NotiService notiService;
+    @Autowired NotiService notiService;
 
     // Send MSG
     public void sendMsg(MsgDTO dto) {
@@ -45,8 +45,14 @@ public class MsgService {
     }
 
     // INBOX
-    public List<MsgDTO> inbox(String id) {
-        return dao.inbox(id);
+    public List<MsgDTO> inbox(String id, int page, int size) {
+    	int offset = page * size;
+    	Map<String, Object> param = new HashMap<>();
+    	
+    	param.put("receiver_id", id);
+    	param.put("size", size);
+    	param.put("offset", offset);
+        return dao.inbox(param);
     }
 
     // MSG DETAIL
