@@ -14,8 +14,8 @@ import io.jsonwebtoken.security.Keys;
 public class JwtToken {
 
     public static class JwtUtils {
-        private static SecretKey pri_key = null;
-
+        private static SecretKey pri_key=null;
+        
         public static SecretKey getPri_key() {
             return pri_key;
         }

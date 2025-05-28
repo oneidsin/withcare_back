@@ -3,8 +3,8 @@ package com.withcare.profile.dto;
 public class ProfileDTO {
 
 	private String id;
-	private int cancer_idx;
-	private int stage_idx;
+	private Integer cancer_idx;
+	private Integer stage_idx;
 	private String profile_photo;
 	private String intro;
 	private boolean profile_yn;

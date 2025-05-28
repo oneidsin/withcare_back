@@ -7,6 +7,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,37 +77,41 @@ public class ProfileController {
 
 		return result;
 	}
-
+	
 	// 프로필 수정
 	@PutMapping("/profile/update")
-	public Map<String, Object> updateProfile(
+	public ResponseEntity<?> updateProfile(
 	        @RequestPart("info") ProfileDTO dto,
 	        @RequestPart(value = "profile_image", required = false) MultipartFile file,
 	        @RequestHeader("Authorization") String token) {
 
-	    Map<String, Object> result = new HashMap<>();
-
 	    try {
-	        Map<String, Object> payload = JwtUtils.readToken(token);
-	        String tokenId = (String) payload.get("id");
+	        // JWT에서 ID 추출
+	        String tokenId = (String) JwtUtils.readToken(token).get("id");
+	        if (tokenId == null || tokenId.isBlank()) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                                 .body(Map.of("status", "fail", "message", "잘못된 토큰입니다."));
+	        }
+
 	        dto.setId(tokenId);
 
-	        // 프로필 이미지가 있다면 처리
+	        // 프로필 이미지 저장 처리
 	        if (file != null && !file.isEmpty()) {
-	            String savedPath = svc.saveProfileImage(file); // 예: 서버에 저장하고 경로 리턴
+	            String savedPath = svc.saveProfileImage(file);
 	            dto.setProfile_photo(savedPath);
 	        }
 
-	        int updated = svc.updateProfile(dto);
-	        result.put("status", updated > 0 ? "success" : "fail");
+	        // DB 업데이트
+	        boolean success = svc.updateProfile(dto) > 0;
+	        return ResponseEntity.ok(Map.of("status", success ? "success" : "fail"));
 
 	    } catch (Exception e) {
-	        result.put("status", "error");
-	        result.put("message", e.getMessage());
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body(Map.of("status", "error", "message", e.getMessage()));
 	    }
-
-	    return result;
 	}
+
 
 
 	// 타인이 프로필 확인하는 기능 get
