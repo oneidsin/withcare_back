@@ -205,4 +205,12 @@
 		  </where>
 		</select>
 		
+		<select id="levelList" resultType="com.withcare.profile.dto.LevelDTO">
+			SELECT * FROM level ORDER BY lv_idx ASC
+		</select>
+		
+		<select id="getLevelById" parameterType="int" resultType="com.withcare.profile.dto.LevelDTO">
+			SELECT * FROM level WHERE lv_idx = #{lvIdx}
+		</select>
+		
    </mapper>

@@ -12,8 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -381,11 +383,18 @@ public class AdminController {
         return result;
     }
 
+    // 레벨 리스트
+    @GetMapping("/admin/level")
+    public ResponseEntity<List<LevelDTO>> levelList() {
+        List<LevelDTO> levels = svc.levelList();
+        return ResponseEntity.ok(levels);
+    }
+    
     // 레벨 통합 등록/수정
     @PostMapping("/admin/level/save")
     public Map<String, Object> saveLevel(
             @RequestParam(value = "lv_idx", required = false) Integer lvIdx,
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam("lv_no") int lvNo,
             @RequestParam("lv_name") String lvName,
             @RequestParam("post_cnt") int postCnt,
@@ -403,25 +412,41 @@ public class AdminController {
             return result;
         }
         try {
-            String url = saveFile(file, "level");
             LevelDTO dto = new LevelDTO();
             dto.setLv_no(lvNo);
             dto.setLv_name(lvName);
-            dto.setLv_icon(url);
             dto.setPost_cnt(postCnt);
             dto.setCom_cnt(comCnt);
             dto.setLike_cnt(likeCnt);
             dto.setTime_cnt(timeCnt);
             dto.setAccess_cnt(accessCnt);
+
+            // 파일이 있을 경우에만 저장
+            if (file != null && !file.isEmpty()) {
+                String url = saveFile(file, "level");
+                dto.setLv_icon(url);
+            }
+
             boolean success;
             if (lvIdx != null) {
                 dto.setLv_idx(lvIdx);
+                // 파일이 없는 경우 기존 아이콘 유지
+                if (file == null || file.isEmpty()) {
+                    LevelDTO existingLevel = svc.getLevelById(lvIdx);
+                    if (existingLevel != null) {
+                        dto.setLv_icon(existingLevel.getLv_icon());
+                    }
+                }
                 success = svc.adminLevelUpdate(dto);
             } else {
+                if (file == null || file.isEmpty()) {
+                    result.put("success", false);
+                    result.put("msg", "새 레벨 추가 시에는 아이콘이 필수입니다.");
+                    return result;
+                }
                 success = svc.adminLevelAdd(dto);
             }
             result.put("success", success);
-            result.put("url", url);
         } catch (Exception e) {
             result.put("success", false);
             result.put("msg", e.getMessage());

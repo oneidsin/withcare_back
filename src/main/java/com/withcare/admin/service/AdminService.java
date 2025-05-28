@@ -159,4 +159,13 @@ public class AdminService {
 		return dao.adminMemberCnt(result);
 	}
 
+
+	public List<LevelDTO> levelList() {
+		return dao.levelList();
+	}
+
+	public LevelDTO getLevelById(int lvIdx) {
+		return dao.getLevelById(lvIdx);
+	}
+
 }
