@@ -273,4 +273,8 @@ public class PostService {
 		return dao.postWriter(post_idx);
 	}
 
+	public int getBoardIdx(int postIdx) {
+		return dao.getBoardIdx(postIdx);
+	}
+
 }

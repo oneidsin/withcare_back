@@ -52,4 +52,6 @@ public interface PostDAO {
 	PostDTO postIdx(int post_idx); // post_idx로 전체 게시글 상세 정보 가져오기 
 
 	int fileDeleteUrl(String savedName); // file_url로 파일 레코드 삭제
+
+	int getBoardIdx(int postIdx);
 }

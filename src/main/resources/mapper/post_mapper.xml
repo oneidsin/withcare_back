@@ -194,6 +194,10 @@
 		    WHERE post_idx = #{post_idx}
 		</select>
 		
+		<select id="getBoardIdx" parameterType="int" resultType="int">
+			SELECT board_idx FROM post WHERE post_idx = #{postIdx}
+		</select>
+		
 		<resultMap id="PostResultMap" type="com.withcare.post.dto.PostDTO">
 		    <id property="post_idx" column="post_idx"/>
 		    <result property="board_idx" column="board_idx"/>
