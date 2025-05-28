@@ -154,4 +154,9 @@ public class AdminService {
 		return dao.adminLevelCnt(lvIdx);
 	}
 
+
+	public int adminMemberCnt(Map<String, Object> result) {
+		return dao.adminMemberCnt(result);
+	}
+
 }

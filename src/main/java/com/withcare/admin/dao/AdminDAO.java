@@ -50,5 +50,7 @@ public interface AdminDAO {
 
 	int adminLevelCnt(int lvIdx);
 
+	int adminMemberCnt(Map<String, Object> result);
+
 
 }

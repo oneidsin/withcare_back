@@ -124,6 +124,12 @@ public class AdminController {
 		String sortField = (params != null) ? (String) params.get("sortField") : null;
 		String sortOrder= (params != null) ? (String) params.get("sortOrder") : null;
 		String blockFilter = (params != null) ? (String) params.get("blockFilter") : null;
+		String adminFilter = (params != null) ? (String) params.get("adminFilter") : null;
+		String delFilter = (params != null) ? (String) params.get("delFilter") : null;
+
+		Boolean adminYN = null;
+		Boolean delYN = null;
+		Boolean blockYN = null;
 		
 		// page, size 초기화
 	    int page = 1;
@@ -138,8 +144,17 @@ public class AdminController {
             size = Integer.parseInt(params.get("size").toString());
         }
         
+        if ("Y".equalsIgnoreCase(blockFilter)) blockYN = true;
+        else if ("N".equalsIgnoreCase(blockFilter)) blockYN = false;
+        
         // start 초기화
 		int start = (page - 1) * size;
+		
+		if ("Y".equalsIgnoreCase(adminFilter)) adminYN = true;
+		else if ("N".equalsIgnoreCase(adminFilter)) adminYN = false;
+
+		if ("Y".equalsIgnoreCase(delFilter)) delYN = true;
+		else if ("N".equalsIgnoreCase(delFilter)) delYN = false;
 		
 		result.put("searchId", searchId);
 		result.put("start", start);
@@ -147,12 +162,23 @@ public class AdminController {
 		result.put("sortField", sortField);
 		result.put("sortOrder", sortOrder);
 		result.put("blockFilter", blockFilter);
+		result.put("adminFilter", adminFilter);
+		result.put("delFilter", delFilter);
+		result.put("adminYN", adminYN);
+		result.put("delYN", delYN);
+		result.put("blockYN", blockYN); 
 		
 		List<AdminMemberDTO> memberList = svc.adminMemberList(result);
 		
 		result.put("success", true);
 		result.put("data", memberList);
 		result.put("loginId", loginId);
+		
+		int totalPosts = svc.adminMemberCnt(result); // 게시글 개수 조회용 쿼리 새로 추가
+		int totalPages = (int) Math.ceil((double) totalPosts / size);
+
+		result.put("totalPosts", totalPosts);
+		result.put("totalPages", totalPages);
 		
 	    return result;
 	}

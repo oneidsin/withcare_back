@@ -39,25 +39,37 @@
 		      GROUP BY blocked_id
 		    )
 		  ) bl ON m.id = bl.blocked_id
-		  <where> 
-		<!-- 검색어 있을 경우 -->
+		<where>
 		    <if test="searchId != null and searchId != ''">
-		      AND m.id LIKE CONCAT('%', #{searchId}, '%')
+		        AND m.id LIKE CONCAT('%', #{searchId}, '%')
 		    </if>
-	    <!-- 차단 된 사용자 검색 -->
-		    <if test="blockFilter == 'blocked'">
-		      AND m.block_yn = TRUE
+		
+		    <if test="adminYN != null">
+		        AND m.admin_yn = #{adminYN}
 		    </if>
-	    <!-- 차단 안 된 사용자 검색 -->
-		    <if test="blockFilter == 'unblocked'">
-		      AND m.block_yn = FALSE
+		
+			<if test="blockYN != null">
+			    AND m.block_yn = #{blockYN}
+			</if>
+		
+		    <if test="delYN != null">
+		        AND m.user_del_yn = #{delYN}
 		    </if>
-		  </where>
+		</where>
 		  <choose>
 	  	<!-- 검색 필드 ex) access_date, join_date -->
-		    <when test="sortField != null and sortOrder != null">
-		      ORDER BY ${sortField} ${sortOrder}
-		    </when>
+	  	  <when test="sortField == 'join_date' and sortOrder == 'ASC'">
+		    ORDER BY m.join_date ASC
+		  </when>
+		  <when test="sortField == 'join_date' and sortOrder == 'DESC'">
+		    ORDER BY m.join_date DESC
+		  </when>
+			<when test="sortField == 'access_date' and sortOrder == 'DESC'">
+			  ORDER BY m.access_date DESC
+			</when>
+			<when test="sortField == 'access_date' and sortOrder == 'ASC'">
+			  ORDER BY m.access_date ASC
+			</when>
 		    <otherwise>
 	    <!-- 내림차순 정렬 ex) acess_date 최신순) -->
 		      ORDER BY m.join_date DESC
@@ -173,5 +185,24 @@
 		<delete id="adminLevelDelete">
 		    DELETE FROM level WHERE lv_idx = #{lv_idx}
 		</delete>
+		
+		<select id="adminMemberCnt" resultType="int">
+		  SELECT COUNT(*) 
+		  FROM member m
+		  <where>
+		    <if test="searchId != null and searchId != ''">
+		      AND m.id LIKE CONCAT('%', #{searchId}, '%')
+		    </if>
+		    <if test="adminYN != null">
+		      AND m.admin_yn = #{adminYN}
+		    </if>
+		    <if test="blockYN != null">
+		      AND m.block_yn = #{blockYN}
+		    </if>
+		    <if test="delYN != null">
+		      AND m.user_del_yn = #{delYN}
+		    </if>
+		  </where>
+		</select>
 		
    </mapper>
