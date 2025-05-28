@@ -28,4 +28,6 @@ public interface BlockDAO {
 	int blockAdminCancel(Map<String, Object> params);
 
 	Map<String, Object> blockDetail(Map<String, Object> params);
+
+	int blockMsgDel(String blockedId);
 }

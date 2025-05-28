@@ -9,6 +9,11 @@
         VALUES (#{id}, #{blocked_id})
     </insert>
 
+    <!-- 차단한 사람이 보낸 쪽지 자동 삭제 -->
+    <delete id="blockMsgDel" parameterType="String">
+        DELETE FROM message WHERE sender_id = #{param1}
+    </delete>
+
     <!-- 차단 기록이 있는지 중복 체크 -->
     <select id="checkIfBlocked" resultType="int">
         SELECT count(*)

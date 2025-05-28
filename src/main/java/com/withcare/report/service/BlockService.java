@@ -32,6 +32,11 @@ public class BlockService {
 
         // 2. 중복이 아니라면 차단 리스트에 등록
         int row = dao.block(params);
+        // 3. 차단한 유저가 보낸 쪽지 자동 삭제 로직
+        if (row > 0) {
+            int success = dao.blockMsgDel(params.get("blocked_id").toString());
+            log.info("차단한 유저가 보낸 쪽지 자동 삭제: {}", success);
+        }
         return row > 0;
     }
 
