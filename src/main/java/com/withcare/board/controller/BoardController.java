@@ -112,9 +112,9 @@ public class BoardController {
 	    boolean login = false;
 		
 	    // 로그인한 사용자 아이디로 레벨 정보 조회 (서비스 메서드 필요)
-	    int lvIdx = svc.userLevel(loginId);
+	    Integer lvIdx = svc.userLevel(loginId);
 	    
-	    if(lvIdx != 7) {
+	    if(lvIdx == null || lvIdx != 7) {
 	        result.put("success", false);
 	        return result;
 	    }

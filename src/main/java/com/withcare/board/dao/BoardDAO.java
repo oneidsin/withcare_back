@@ -15,7 +15,7 @@ public interface BoardDAO {
 
 	int boardDelete(BoardDTO boardDTO);
 
-	int boardLevel(int board_idx);
+	Integer boardLevel(int board_idx);
 
 	int userLevel(String id);
 

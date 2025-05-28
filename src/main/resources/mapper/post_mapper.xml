@@ -22,7 +22,7 @@
 		
 		<!-- level 가져오기 (관리자 확인)-->
 		<select id="userLevel" parameterType="String" resultType="int">
-		    SELECT lv_idx FROM member WHERE id = #{id}
+		    SELECT IFNULL(lv_idx,0) FROM member WHERE id = #{id}
 		</select>
 		
 		<select id="boardLevel" parameterType="int" resultType="int">

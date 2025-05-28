@@ -38,8 +38,14 @@ public class BoardService {
 		return row>0;
 	}
 
-	public int boardLevel(int board_idx) {
-		return dao.boardLevel(board_idx);
+	public Integer boardLevel(int board_idx) {
+	    Integer level = dao.boardLevel(board_idx);
+	    if (level == null) {
+	        // null 처리, 예외 던지거나 기본값 반환
+	        // 예: 기본값 0 또는 예외 처리
+	        return 0; // 또는 throw new RuntimeException("게시판 레벨이 없습니다.");
+	    }
+	    return level;
 	}
 
     public int userLevel(String id) {
