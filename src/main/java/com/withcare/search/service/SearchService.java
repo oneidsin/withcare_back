@@ -22,25 +22,15 @@ public class SearchService {
     
     // 검색어 저장
     public int insertSearch(SearchDTO dto) {
-    	// 72 시간 이내에 같은 키워드 있는지 확인
-    	int exists = dao.recentKeyword(dto.getSch_id(), dto.getSch_keyword());
-    	
-    	if (exists==0) {
-       	 // 1. 게시글 하나 조회해서 board_idx 가져오기
-            Integer boardIdx = dao.findBoardIdxForSearch(dto);
-            
-            // board 테이블에 실제 존재하는 board_idx인지 확인
-            if (boardIdx != null && boardIdx != 0) {
-                dto.setBoard_idx(boardIdx);
-            } else {
-                dto.setBoard_idx(0); // 또는 예외 처리
-            }
-            // 2. search 테이블에 저장
+        // 72 시간 이내에 같은 키워드 있는지 확인
+        int exists = dao.recentKeyword(dto.getSch_id(), dto.getSch_keyword());
+        
+        if (exists == 0) {
+            // 클라이언트에서 전달받은 board_idx를 그대로 사용
             return dao.insertSearch(dto);
-            
-		}else {
-			// 중복 있을 때는 저장하지 않고 0 반환
-			return 0;
+        } else {
+            // 중복 있을 때는 저장하지 않고 0 반환
+            return 0;
 		}
 
     }
