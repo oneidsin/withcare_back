@@ -108,45 +108,46 @@
 
     <!-- 신고 히스토리 불러오기 -->
     <select id="reportHistory" parameterType="map" resultType="map">
-        SELECT
+    SELECT
         r.rep_idx,
         r.reporter_id,
         r.reported_id,
         r.rep_cate_idx,
+        rc.cate_name,
         r.rep_item_type,
         r.status,
         r.report_at,
         rh.process_date,
         rh.rep_reason,
         rh.rep_admin_id
-        FROM report r
-        LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
-        <where>
-            <if test="reporterId != null and reporterId != ''">
-                AND r.reporter_id = #{reporterId}
-            </if>
-            <if test="reportedId != null and reportedId != ''">
-                AND r.reported_id = #{reportedId}
-            </if>
-            <if test="category != null and category != ''">
-                AND r.rep_cate_idx = #{category}
-            </if>
-            <if test="reportType != null and reportType != ''">
-                AND r.rep_item_type = #{reportType}
-            </if>
-            AND r.status = '처리 완료'
-        </where>
-        ORDER BY
-        <choose>
-            <when test="sortOrder == 'asc'">
-                r.report_at ASC
-            </when>
-            <otherwise>
-                r.report_at DESC
-            </otherwise>
-        </choose>
-        LIMIT #{limit} OFFSET #{offset}
-    </select>
+    FROM report r
+    LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
+    LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
+    <where>
+        <if test="reporterId != null and reporterId != ''">
+            AND r.reporter_id = #{reporterId}
+        </if>
+        <if test="reportedId != null and reportedId != ''">
+            AND r.reported_id = #{reportedId}
+        </if>
+        <if test="category != null and category != ''">
+            AND r.rep_cate_idx = #{category} </if>
+        <if test="reportType != null and reportType != ''">
+            AND r.rep_item_type = #{reportType}
+        </if>
+        AND r.status = '처리 완료'
+    </where>
+    ORDER BY
+    <choose>
+        <when test="sortOrder == 'asc'">
+            r.report_at ASC
+        </when>
+        <otherwise>
+            r.report_at DESC
+        </otherwise>
+    </choose>
+    LIMIT #{limit} OFFSET #{offset}
+</select>
 
 
 <!-- 신고 히스토리 상세보기 -->
