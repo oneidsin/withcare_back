@@ -503,4 +503,27 @@ public class AdminController {
 
         return result;
     }
+
+    // 관리자 권한 체크
+    @GetMapping("/admin/check")
+    public Map<String, Object> checkAdminPrivilege(@RequestHeader Map<String, String> header) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            if (loginId != null && !loginId.isEmpty()) {
+                int userLevel = svc.userLevel(loginId);
+                result.put("success", true);
+                result.put("isAdmin", userLevel == 7);
+            } else {
+                result.put("success", false);
+                result.put("message", "Invalid token");
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Error checking admin privilege");
+        }
+        
+        return result;
+    }
 }
