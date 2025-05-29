@@ -9,7 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.withcare.comment.dto.ComDTO;
@@ -21,14 +27,14 @@ import com.withcare.profile.service.ProfileService;
 import com.withcare.search.dto.SearchDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
+@CrossOrigin
 @RestController
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {
-	RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS
-})
 public class ProfileController {
 
 	@Autowired
 	ProfileService svc;
+
+	Map<String, Object> result = null;
 
 	Logger log = LoggerFactory.getLogger(getClass());
 
@@ -44,104 +50,118 @@ public class ProfileController {
 	 * false); result.put("message", "서버 오류"); } return result; }
 	 */
 
-	// 프로필 열람
+	// 프로필 열람 get
 	@GetMapping("/profile/{id}")
-	public ResponseEntity<?> getProfile(@PathVariable("id") String id) {
-		try {
-			ProfileDTO profile = svc.getProfile(id);
-			if (profile != null) {
-				Map<String, Object> response = new HashMap<>();
-				response.put("status", "success");
-				response.put("data", profile);
-				return ResponseEntity.ok(response);
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND)
-						.body(Map.of("status", "error", "message", "프로필을 찾을 수 없습니다."));
-			}
-		} catch (Exception e) {
-			log.error("프로필 조회 중 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("status", "error", "message", "서버 오류가 발생했습니다."));
-		}
-	}
+	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader Map<String, String> header) {
 
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			String token = header.get("authorization");
+			Map<String, Object> payload = JwtUtils.readToken(token);
+			String loginId = (String) payload.get("id");
+
+			if (loginId != null && loginId.equals(id)) {
+				ProfileDTO dto = svc.getProfile(id);
+				result.put("status", "success");
+				result.put("data", dto);
+			} else {
+				result.put("status", "fail");
+				result.put("message", "인증된 사용자만 접근할 수 있습니다.");
+			}
+
+		} catch (Exception e) {
+			result.put("status", "error");
+			result.put("message", "서버 오류: " + e.getMessage());
+		}
+
+		return result;
+	}
+	
 	// 프로필 수정
 	@PutMapping("/profile/update")
-	public ResponseEntity<?> updateProfile(@RequestBody ProfileDTO dto) {
-		try {
-			int result = svc.updateProfile(dto);
-			if (result > 0) {
-				return ResponseEntity.ok(Map.of("status", "success", "message", "프로필이 성공적으로 수정되었습니다."));
-			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-						.body(Map.of("status", "error", "message", "프로필 수정에 실패했습니다."));
-			}
-		} catch (Exception e) {
-			log.error("프로필 수정 중 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("status", "error", "message", "서버 오류가 발생했습니다."));
-		}
+	public ResponseEntity<?> updateProfile(
+	        @RequestPart("info") ProfileDTO dto,
+	        @RequestPart(value = "profile_image", required = false) MultipartFile file,
+	        @RequestHeader("Authorization") String token) {
+
+	    try {
+	        // JWT에서 ID 추출
+	        String tokenId = (String) JwtUtils.readToken(token).get("id");
+	        if (tokenId == null || tokenId.isBlank()) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                                 .body(Map.of("status", "fail", "message", "잘못된 토큰입니다."));
+	        }
+
+	        dto.setId(tokenId);
+
+	        // 프로필 이미지 저장 처리
+	        if (file != null && !file.isEmpty()) {
+	            String savedPath = svc.saveProfileImage(file);
+	            dto.setProfile_photo(savedPath);
+	        }
+
+	        // DB 업데이트
+	        boolean success = svc.updateProfile(dto) > 0;
+	        return ResponseEntity.ok(Map.of("status", success ? "success" : "fail"));
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body(Map.of("status", "error", "message", e.getMessage()));
+	    }
 	}
 
-	// 프로필 이미지 업로드
-	@PostMapping("/profile/upload")
-	public ResponseEntity<?> uploadProfileImage(@RequestParam("file") MultipartFile file) {
-		try {
-			String imageUrl = svc.saveProfileImage(file);
-			return ResponseEntity.ok(Map.of("status", "success", "url", imageUrl));
-		} catch (Exception e) {
-			log.error("프로필 이미지 업로드 중 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("status", "error", "message", "이미지 업로드에 실패했습니다."));
-		}
-	}
 
-	// 타인 프로필 조회
+
+	// 타인이 프로필 확인하는 기능 get
 	@GetMapping("/profile/view/{id}")
-	public ResponseEntity<?> viewOtherProfile(
-			@PathVariable("id") String id,
-			@RequestHeader(value = "Authorization", required = false) String token) {
+	public Map<String, Object> viewOtherProfile(@PathVariable("id") String id,
+			@RequestHeader(value = "authorization", required = false) String token) {
+
+		Map<String, Object> result = new HashMap<>();
 
 		try {
-			if (token == null || token.isBlank()) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-						.body(Map.of("status", "fail", "message", "로그인이 필요합니다."));
+			// 1. 토큰 없으면 로그인 필요
+			if (token == null || token.trim().isEmpty()) {
+				result.put("status", "fail");
+				result.put("message", "로그인이 필요합니다.");
+				return result;
 			}
 
+			// 2. 토큰 유효성 검사 및 ID 추출
 			Map<String, Object> payload = JwtUtils.readToken(token);
-			if (payload == null || !payload.containsKey("id")) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-						.body(Map.of("status", "fail", "message", "유효하지 않은 토큰입니다."));
+			if (payload == null || !payload.containsKey("id") || payload.get("id") == null) {
+				result.put("status", "fail");
+				result.put("message", "유효하지 않은 토큰입니다.");
+				return result;
 			}
 
-			Map<String, Object> result = new HashMap<>();
+			// 3. 프로필 기본 정보 조회
 			ProfileDTO profile = svc.getProfileById(id);
 
-			if (profile == null) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND)
-						.body(Map.of("status", "fail", "message", "프로필을 찾을 수 없습니다."));
-			}
+			// 4. 활동 정보 조회
+			List<PostDTO> posts = svc.getUserPosts(id);
+			List<ComDTO> comments = svc.getUserComments(id);
+			List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+			List<SearchDTO> searches = svc.getUserSearches(id);
+			List<MenDTO> mentions = svc.getUserMentions(id);
 
-			// 프로필이 비공개인 경우
-			if (!profile.isProfile_yn() && !id.equals(payload.get("id"))) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-						.body(Map.of("status", "fail", "message", "비공개 프로필입니다."));
-			}
-
+			// 5. 응답 조립
 			result.put("status", "success");
 			result.put("profile", profile);
-			result.put("posts", svc.getUserPosts(id));
-			result.put("comments", svc.getUserComments(id));
-			result.put("likes", svc.getUserLikes(id));
-			result.put("searches", svc.getUserSearches(id));
-
-			return ResponseEntity.ok(result);
+			result.put("posts", posts);
+			result.put("comments", comments);
+			result.put("likes", likes);
+			result.put("searches", searches);
+			result.put("mentions", mentions);
 
 		} catch (Exception e) {
-			log.error("타인 프로필 조회 중 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("status", "error", "message", "서버 오류가 발생했습니다."));
+			result.put("status", "error");
+			result.put("message", "서버 오류: " + e.getMessage());
 		}
+
+		return result;
 	}
 
 	@GetMapping("/profile/activity/{id}")

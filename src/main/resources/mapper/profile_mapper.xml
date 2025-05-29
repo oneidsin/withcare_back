@@ -12,25 +12,17 @@
 	<!-- 프로필 보기 -->
 	<select id="getProfileById" parameterType="String"
 		resultType="com.withcare.profile.dto.ProfileDTO">
-		SELECT 
-			m.id,
-			m.name,
-			m.year,
-			m.gender,
-			m.email,
-			p.cancer_idx,
-			p.stage_idx,
-			p.profile_photo,
-			p.intro,
-			p.profile_yn,
-			p.access_cnt,
-			c.cancer_name,
-			s.stage_name
-		FROM member m
-		LEFT JOIN profile p ON m.id = p.id
-		LEFT JOIN cancer c ON p.cancer_idx = c.cancer_idx
-		LEFT JOIN stage s ON p.stage_idx = s.stage_idx
-		WHERE m.id = #{id}
+		SELECT
+		id,
+		cancer_idx,
+		stage_idx,
+		profile_photo,
+		intro,
+		profile_yn,
+		access_cnt
+		FROM profile
+		WHERE id = #{id} ORDER BY access_cnt
+		DESC LIMIT 1
 	</select>
 
 	<!-- 프로필 수정 -->

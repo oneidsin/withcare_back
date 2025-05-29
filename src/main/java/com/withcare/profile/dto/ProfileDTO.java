@@ -3,9 +3,9 @@ package com.withcare.profile.dto;
 public class ProfileDTO {
 
 	private String id;
-	private String profile_photo;
 	private Integer cancer_idx;
 	private Integer stage_idx;
+	private String profile_photo;
 	private String intro;
 	private boolean profile_yn;
 	private int accessCnt;
@@ -14,10 +14,10 @@ public class ProfileDTO {
 
 	private String profile_imageurl;
 
-	private String name;
-	private String year;
-	private String gender;
-	private String email;
+	private String name; // 추가
+	private String year; // 추가 (정수면 int로)
+	private String gender; // 추가
+	private String email; // 추가
 
 	public String getName() {
 		return name;
@@ -75,19 +75,19 @@ public class ProfileDTO {
 		this.stage_name = stage_name;
 	}
 
-	public Integer getCancer_idx() {
+	public int getCancer_idx() {
 		return cancer_idx;
 	}
 
-	public void setCancer_idx(Integer cancer_idx) {
+	public void setCancer_idx(int cancer_idx) {
 		this.cancer_idx = cancer_idx;
 	}
 
-	public Integer getStage_idx() {
+	public int getStage_idx() {
 		return stage_idx;
 	}
 
-	public void setStage_idx(Integer stage_idx) {
+	public void setStage_idx(int stage_idx) {
 		this.stage_idx = stage_idx;
 	}
 

@@ -33,28 +33,16 @@ public class LoginController {
 	// 로그인
 	
 	@PostMapping(value="/login")
-	public Map<String, Object> login(@RequestBody Map<String, String> info) {
-		Map<String, Object> result = new HashMap<>();
+	public Map<String, Object> login(@RequestBody Map<String, String> info){
 		
-		try {
-			boolean success = svc.login(info);
-			
-			if (success) {
-				String id = info.get("id");
-				String token = JwtUtils.setToken("id", id);
-				result.put("success", true);
-				result.put("token", token);
-				result.put("id", id);
-			} else {
-				result.put("success", false);
-				result.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
-			}
-		} catch (Exception e) {
-			log.error("로그인 처리 중 오류 발생", e);
-			result.put("success", false);
-			result.put("message", "서버 오류가 발생했습니다.");
+		result = new HashMap<String, Object>();
+		boolean success = svc.login(info);
+		
+		if (success) {
+			String token = JwtUtils.setToken("id", info.get("id"));
+			result.put("token", token);
+			result.put("success", success);
 		}
-		
 		return result;
 	}
 	
@@ -65,7 +53,7 @@ public class LoginController {
 	    Map<String, Object> result = new HashMap<>();
 	    
 	    result.put("success", true);
-	    result.put("message", "로그아웃 되었습니다.");
+	    result.put("msg", "로그아웃 되었습니다.");
 	    
 	    return result;
 	}
@@ -137,7 +125,7 @@ public class LoginController {
 	        result.put("success", true);
 	    } catch (Exception e) {
 	        result.put("success", false);
-	        result.put("message", "유효하지 않은 토큰");
+	        result.put("msg", "유효하지 않은 토큰");
 	    }
 	    return result;
 	}
