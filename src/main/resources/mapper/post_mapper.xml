@@ -160,7 +160,7 @@
 			DELETE FROM likeyn WHERE id = #{param1} AND post_idx = #{param2}
 		</delete>
 		
-		<!-- 추천 상태 따라서 수정 -->
+		<!-- 추천 상태 업데이트 -->
 		<update id="likeUpdate" parameterType="com.withcare.post.dto.LikeDislikeDTO">
 			UPDATE likeyn SET like_type = #{like_type}
 				WHERE id = #{id} AND post_idx = #{post_idx}
