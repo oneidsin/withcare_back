@@ -45,82 +45,69 @@ public class PostService {
 	    return row > 0;
 	}
 
-	@Transactional // 파일 하나가 실패하면 모두 롤백되어야 함. (DB 부분)
+	@Transactional
 	public boolean saveFiles(int post_idx, MultipartFile[] files) {
+		if (files == null || files.length == 0) {
+			return true;
+		}
 		
-    	if (files == null || files.length == 0) {
-    	    return true; // 업로드할 파일이 없으면 true 반환
-    	}
-    	
-    	List<String> savedFileNames = new ArrayList<>();
-        try {
-	        for (MultipartFile file : files) {
+		List<String> savedFileNames = new ArrayList<>();
+		try {
+			for (MultipartFile file : files) {
+				if (file.isEmpty()) continue;
+				
+				if (file.getSize() > 10 * 1024 * 1024) {
+					throw new IllegalArgumentException("파일 사이즈 초과");
+				}
+				
+				if (!file.getContentType().startsWith("image/")) {
+					throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
+				}
 
-	        	if (file.isEmpty()) continue; // file 이 없어도 에러 안나게 해놓은 거
-	        	
-	            if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한
-	                throw new IllegalArgumentException("파일 사이즈 초과");
-	            }
-	            
-	            // MIME 타입 검사
-	            if (!file.getContentType().startsWith("image/")) {
-	                throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
-	            }
-	
-	            // 확장자 검사 (jpg, jpeg, png만 허용)
-	            String origin_name = file.getOriginalFilename();
-	            if (origin_name == null || origin_name.lastIndexOf(".") == -1) {
-	                throw new IllegalArgumentException("파일 이름이 잘못되었습니다.");
-	            }
-	
-	            String ext = origin_name.substring(origin_name.lastIndexOf(".") + 1).toLowerCase(); // 작성자가 대문자로 넣으면 그거 변환
-	            if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
-	                throw new IllegalArgumentException("jpg, jpeg, png 확장자만 업로드 가능합니다.");
-	            }
-	
-	            String extension = origin_name.substring(origin_name.lastIndexOf(".")); // 확장자 "." 에서 자르기
-	            
-	            // UUID로 파일명 생성
-	            String savedName = UUID.randomUUID().toString() + extension;
-	            
-	                // 파일 저장 경로 생성
-	                Path path = Paths.get(uploadDir, savedName);
-	
-	                // 폴더가 없으면 생성
-	                Files.createDirectories(path.getParent());
-	
-	                // 실제 파일 저장
-	                file.transferTo(path.toFile());
-	
-	                // DB에 파일 URL 저장
-	                Map<String, Object> param = new HashMap<>();
-	                param.put("post_idx", post_idx);
-	                param.put("file_url", savedName);  // 혹은 full path로 저장하고 싶으면 변경
-	
-	                dao.fileInsert(param);
-	                savedFileNames.add(savedName); // 잠재적 롤백을 위해 목록에 추가
-	                
-	            } 
-	        	return true; // 모두 성공했을 경우
-	        	
-        }catch (Exception e) {
-	                e.printStackTrace();
+				String original = file.getOriginalFilename();
+				if (original == null || original.lastIndexOf(".") == -1) {
+					throw new IllegalArgumentException("파일 이름이 잘못되었습니다.");
+				}
 
-	        // 롤백: 일부가 실패할 경우 성공적으로 저장된 파일을 파일 시스템 및 DB에서 삭제
-            for (String savedName : savedFileNames) {
-                try {
-                    Path path = Paths.get(uploadDir, savedName);
-                    Files.deleteIfExists(path);
-                    dao.fileDeleteUrl(savedName); // file_url 기준으로 삭제
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    log.error("파일 시스템 삭제 실패: " + savedName, ex);
-                }
-            }
-            return false;
-        }
-    
-    }
+				String ext = original.substring(original.lastIndexOf(".") + 1).toLowerCase();
+				if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
+					throw new IllegalArgumentException("jpg, jpeg, png 확장자만 업로드 가능합니다.");
+				}
+
+				// UUID로 파일명 생성
+				String savedName = UUID.randomUUID().toString() + "." + ext;
+				
+				// post 폴더에 저장
+				Path saveDir = Paths.get(uploadDir, "post");
+				Files.createDirectories(saveDir);
+				Path savePath = saveDir.resolve(savedName);
+				Files.write(savePath, file.getBytes());
+
+				// DB에 파일 URL 저장
+				Map<String, Object> param = new HashMap<>();
+				param.put("post_idx", post_idx);
+				param.put("file_url", "post/" + savedName);  // post/ 경로 추가
+
+				dao.fileInsert(param);
+				savedFileNames.add(savedName);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			// 롤백: 일부가 실패할 경우 성공적으로 저장된 파일을 파일 시스템 및 DB에서 삭제
+			for (String savedName : savedFileNames) {
+				try {
+					Path path = Paths.get(uploadDir, "post", savedName);
+					Files.deleteIfExists(path);
+					dao.fileDeleteUrl("post/" + savedName);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					log.error("파일 시스템 삭제 실패: " + savedName, ex);
+				}
+			}
+			return false;
+		}
+	}
 
 	public boolean postUpdate(PostDTO dto) {
 	    int row = dao.postUpdate(dto);

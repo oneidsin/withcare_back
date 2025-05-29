@@ -41,7 +41,7 @@
 		</select>
 		
 		<select id="boardIdx" resultType="com.withcare.board.dto.BoardDTO">
-		    SELECT board_idx, board_name, lv_idx, anony_yn, blind_yn, parent_board_idx
+		    SELECT board_idx, board_name, lv_idx, anony_yn, blind_yn, parent_board_idx, com_yn
 		    FROM board
 		    WHERE board_idx = #{board_idx}
 		</select>

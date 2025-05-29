@@ -336,7 +336,7 @@ public class AdminController {
             return result;
         }
         try {
-            String url = saveFile(file, "badge");
+            String url = saveFile(file, "badge");  // badge 폴더에 저장
             BadgeDTO dto = new BadgeDTO();
             dto.setBdg_name(bdgName);
             dto.setBdg_icon(url);
@@ -423,7 +423,7 @@ public class AdminController {
 
             // 파일이 있을 경우에만 저장
             if (file != null && !file.isEmpty()) {
-                String url = saveFile(file, "level");
+                String url = saveFile(file, "level");  // level 폴더에 저장
                 dto.setLv_icon(url);
             }
 

@@ -1,10 +1,15 @@
 package com.withcare.profile.service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +25,9 @@ import com.withcare.search.dto.SearchDTO;
 public class ProfileService {
 
 	@Autowired ProfileDAO dao;
+	
+	@Value("${file.upload-dir}")
+	private String uploadDir;
 	
 	Logger log = LoggerFactory.getLogger(getClass());
 
@@ -64,7 +72,26 @@ public class ProfileService {
 	}
 
 	public String saveProfileImage(MultipartFile file) {
-		return dao.saveProfileImage(file);
+		try {
+			String original = file.getOriginalFilename();
+			if (original == null || !original.matches(".*\\.(png|jpg|jpeg|webp)$")) {
+				throw new IllegalArgumentException("지원하지 않는 이미지 형식입니다.");
+			}
+			
+			String ext = original.substring(original.lastIndexOf("."));
+			String fileName = UUID.randomUUID() + ext;
+			
+			// profile 폴더에 저장
+			Path saveDir = Paths.get(uploadDir, "profile");
+			Files.createDirectories(saveDir);
+			Path savePath = saveDir.resolve(fileName);
+			Files.write(savePath, file.getBytes());
+			
+			return "profile/" + fileName;
+		} catch (Exception e) {
+			log.error("프로필 이미지 저장 실패", e);
+			throw new RuntimeException("프로필 이미지 저장에 실패했습니다.", e);
+		}
 	}
 	
 }

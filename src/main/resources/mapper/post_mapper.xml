@@ -46,7 +46,7 @@
 		    p.post_idx, p.board_idx, p.post_title, p.post_content,
 		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
 		    p.post_blind_yn, p.anony_yn,
-		    CASE WHEN p.anony_yn = TRUE THEN 'anonymous' ELSE p.id END AS writer
+		    CASE WHEN p.anony_yn = TRUE THEN '익명' ELSE p.id END AS writer
 		  FROM post p
 		  WHERE post_idx=#{post_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
 		</select>
