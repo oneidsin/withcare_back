@@ -25,7 +25,7 @@ public interface PostDAO {
 	
 	int postPages(int board_idx, String searchType, String keyword);
 
-	Integer LikeType(String id, int post_idx);
+	List<Integer> LikeType(String id, int post_idx);
 
 	int likeDelete(String id, int post_idx);
 
