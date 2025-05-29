@@ -106,8 +106,8 @@
     UPDATE mention SET men_blind_yn = 1 WHERE men_idx = #{itemIdx}
 </update>
 
-    <!-- 신고 히스토리 불러오기 -->
-    <select id="reportHistory" parameterType="map" resultType="map">
+<!-- 신고 히스토리 불러오기 -->
+<select id="reportHistory" parameterType="map" resultType="map">
     SELECT
         r.rep_idx,
         r.reporter_id,
@@ -119,7 +119,8 @@
         r.report_at,
         rh.process_date,
         rh.rep_reason,
-        rh.rep_admin_id
+        rh.rep_admin_id,
+        rh.rep_list_idx
     FROM report r
     LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
     LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
@@ -131,11 +132,13 @@
             AND r.reported_id = #{reportedId}
         </if>
         <if test="category != null and category != ''">
-            AND r.rep_cate_idx = #{category} </if>
+            AND r.rep_cate_idx = #{category} 
+        </if>
         <if test="reportType != null and reportType != ''">
             AND r.rep_item_type = #{reportType}
         </if>
         AND r.status = '처리 완료'
+        AND rh.rep_idx IS NOT NULL
     </where>
     ORDER BY
     <choose>
