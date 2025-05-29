@@ -66,7 +66,13 @@ public class SearchController {
             
             // 2. 검색어 저장
             try {
-                svc.insertSearch(dto);
+                // 검색어가 비어있거나 null인 경우 저장하지 않음
+                if (dto.getSch_keyword() != null && !dto.getSch_keyword().trim().isEmpty()) {
+                    svc.insertSearch(dto);
+                } else {
+                    log.warn("빈 검색어 감지: 검색어 저장 건너뜀");
+                    result.put("searchSaved", false);
+                }
             } catch (Exception e) {
                 log.error("검색어 저장 중 오류 발생", e);
                 result.put("searchSaved", false);
