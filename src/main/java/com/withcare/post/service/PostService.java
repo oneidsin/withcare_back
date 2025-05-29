@@ -264,4 +264,8 @@ public class PostService {
 		return dao.getBoardIdx(postIdx);
 	}
 
+	public Integer getLikeStatus(String id, int post_idx) {
+		return dao.LikeType(id, post_idx);
+	}
+
 }

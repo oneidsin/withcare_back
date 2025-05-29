@@ -306,10 +306,10 @@ public class AdminController {
     // 공통 파일 저장 함수
     private String saveFile(MultipartFile file, String type) throws Exception {
         String original = file.getOriginalFilename();
-        if (original == null || !original.matches(".*\\.(png|jpg|jpeg|webp)$")) {
+        if (original == null || !original.toLowerCase().matches(".*\\.(png|jpg|jpeg|webp)$")) {
             throw new IllegalArgumentException("지원하지 않는 이미지 형식입니다.");
         }
-        String ext = original.substring(original.lastIndexOf("."));
+        String ext = original.substring(original.lastIndexOf(".")).toLowerCase();
         String fileName = UUID.randomUUID() + ext;
         Path saveDir = Paths.get(baseUploadPath, type);
         Files.createDirectories(saveDir);
