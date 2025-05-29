@@ -186,27 +186,36 @@ public class PostService {
 	    return result;
 	}
 
+	@Transactional
 	public boolean handleLike(LikeDislikeDTO dto) {
-		String id = dto.getId(); // 같은 ID 인지 확인하려고 id 값 dto 에서 가져옴.
-	    int post_idx = dto.getPost_idx();
-	    int newType = dto.getLike_type(); // 추천 상태 확인
+		try {
+			String id = dto.getId();
+			int post_idx = dto.getPost_idx();
+			int newType = dto.getLike_type();
 
-	    Integer currentType = dao.LikeType(id, post_idx); // Integer 가 아니라 int 면 null 값 지정 못함. (아무것도 안 눌렀을 때 상태)
-	    
-	    if (currentType == null) { // 처음에 null 이면 0 으로 변환시켜서 int 타입으로 설정
-	        currentType = 0;
-	    }
-	    
-	    if (currentType == newType) {
-	        // 같은 상태 → 취소
-	        return dao.likeDelete(id, post_idx) > 0;
-	    } else if (currentType == 0) {
-	        // 처음 → 삽입
-	        return dao.likeInsert(dto) > 0;
-	    } else {
-	        // 다른 상태 → 업데이트
-	        return dao.likeUpdate(dto) > 0;
-	    } 
+			// 1. 리스트로 받는다
+			List<Integer> likeTypes = dao.LikeType(id, post_idx);
+			
+			// 2. 방어적 currentType 처리
+			int currentType = 0;
+			if (likeTypes != null && !likeTypes.isEmpty()) {
+				currentType = likeTypes.get(0); // 첫 번째 값만 사용
+			}
+			
+			if (currentType == newType) {
+				// 같은 상태 → 취소
+				return dao.likeDelete(id, post_idx) > 0;
+			} else if (currentType == 0) {
+				// 처음 → 삽입
+				return dao.likeInsert(dto) > 0;
+			} else {
+				// 다른 상태 → 업데이트
+				return dao.likeUpdate(dto) > 0;
+			}
+		} catch (Exception e) {
+			log.error("추천/비추천 처리 중 오류 발생", e);
+			return false;
+		}
 	}
 
 	public List<Map<String, String>> fileList(int post_idx) {
@@ -264,7 +273,7 @@ public class PostService {
 		return dao.getBoardIdx(postIdx);
 	}
 
-	public Integer getLikeStatus(String id, int post_idx) {
+	public List<Integer> getLikeStatus(String id, int post_idx) {
 		return dao.LikeType(id, post_idx);
 	}
 
