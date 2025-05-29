@@ -41,20 +41,34 @@ public class SearchController {
         result = new HashMap<>();
         
         try {
-            String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            // 권한 체크
+            String token = header.get("authorization");
+            if (token == null || token.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "로그인이 필요합니다.");
+                result.put("redirect", "/login");  // 프론트엔드에서 리다이렉트할 URL
+                return result;
+            }
+
+            String loginId = (String) JwtUtils.readToken(token).get("id");
             dto.setSch_id(loginId);
             
             // 1. 검색 결과 조회
             List<SearchResultDTO> searchResults = svc.getSearchResult(dto);
+            int totalCount = svc.getSearchResultCount(dto);  // 전체 검색 결과 수
+            int totalPages = (int) Math.ceil((double) totalCount / dto.getPageSize());  // 전체 페이지 수
+
             result.put("success", true);
             result.put("data", searchResults);
+            result.put("totalPages", totalPages);
+            result.put("currentPage", dto.getPage());
+            result.put("totalCount", totalCount);
             
-            // 2. 검색어 저장 (search 테이블) - 검색 결과와 독립적으로 처리
+            // 2. 검색어 저장
             try {
                 svc.insertSearch(dto);
             } catch (Exception e) {
                 log.error("검색어 저장 중 오류 발생", e);
-                // 검색어 저장 실패해도 검색 결과는 반환
                 result.put("searchSaved", false);
             }
             

@@ -94,4 +94,9 @@ public class SearchService {
 		return cnt != null && cnt > 0;
 	}
 
+	public int getSearchResultCount(SearchDTO dto) {
+        return dao.getSearchResultCount(dto);
+    }
+	
+
 }

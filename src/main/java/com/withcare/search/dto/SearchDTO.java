@@ -11,8 +11,35 @@ public class SearchDTO {
 	private String sch_keyword;
 	private Timestamp sch_date;
 	private String sch_type;
-	private List<String>keywords; // 게시글 추천용 키워드 리스트
-	
+	private List<String> keywords; // 게시글 추천용 키워드 리스트
+
+	private int page = 1; // 현재 페이지 (기본값 1)
+	private int pageSize = 10; // 페이지당 게시글 수 (기본값 10)
+	private int offset; // 시작 위치
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
 
 	public List<String> getKeywords() {
 		return keywords;

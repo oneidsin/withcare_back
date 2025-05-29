@@ -34,4 +34,6 @@ public interface SearchDAO {
 		Integer searchHistory(String loginId);
 
 		ProfileDTO profileCancer(String loginId);
+
+		int getSearchResultCount(SearchDTO dto);
 }
