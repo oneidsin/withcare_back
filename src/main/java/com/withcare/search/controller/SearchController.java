@@ -36,22 +36,28 @@ public class SearchController {
     
     @PostMapping
     public Map<String, Object> search(
-    		@RequestBody SearchDTO dto,
-    		@RequestHeader Map<String, String>header) {
+            @RequestBody SearchDTO dto,
+            @RequestHeader Map<String, String>header) {
         result = new HashMap<>();
         
         try {
-    	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-    	    
-    	    dto.setSch_id(loginId);
-    	    
-            // 1. 검색어 저장 (search 테이블)
-            svc.insertSearch(dto);
-
-            // 2. 검색 결과 반환
+            String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            dto.setSch_id(loginId);
+            
+            // 1. 검색 결과 조회
             List<SearchResultDTO> searchResults = svc.getSearchResult(dto);
             result.put("success", true);
             result.put("data", searchResults);
+            
+            // 2. 검색어 저장 (search 테이블) - 검색 결과와 독립적으로 처리
+            try {
+                svc.insertSearch(dto);
+            } catch (Exception e) {
+                log.error("검색어 저장 중 오류 발생", e);
+                // 검색어 저장 실패해도 검색 결과는 반환
+                result.put("searchSaved", false);
+            }
+            
         } catch (Exception e) {
             log.error("검색 처리 중 오류 발생", e);
             result.put("success", false);

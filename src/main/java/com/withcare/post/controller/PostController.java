@@ -429,4 +429,24 @@ public class PostController {
 	    }
 	}
 	
+	@GetMapping("/post/like/status/{post_idx}")
+	public Map<String, Object> getLikeStatus(
+	        @PathVariable int post_idx,
+	        @RequestHeader Map<String, String> header) {
+	    Map<String, Object> result = new HashMap<>();
+	    
+	    try {
+	        String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	        Integer likeStatus = svc.getLikeStatus(loginId, post_idx);
+	        
+	        result.put("success", true);
+	        result.put("likeStatus", likeStatus != null ? likeStatus : 0);
+	    } catch (Exception e) {
+	        result.put("success", false);
+	        result.put("message", "추천 상태 확인 실패");
+	    }
+	    
+	    return result;
+	}
+	
 }
