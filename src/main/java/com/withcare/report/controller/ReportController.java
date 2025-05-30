@@ -51,7 +51,7 @@ public class ReportController {
 
 
     // 신고 처리 페이지(관리자)
-    @GetMapping("/admin/report/list/view")
+    @PostMapping("/admin/report/list/view")
     public Map<String, Object> reportView(@RequestBody Map<String, Object> params,
                                           @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
