@@ -35,7 +35,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 		
 		result = new HashMap<>();
 		
-		String id = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		String id = (String) JwtUtils.readToken(header.get("authorization")).get("id"); // 작성자 정보 삽
 		boolean login = false;
 		
 		dto.setId(id);
@@ -53,7 +53,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	
 	
 	// UPDATE COMMENT
-	@PutMapping("/post/detail/{post_idx}/edit")
+	@PutMapping("/post/detail/{post_idx}/update")
 	public Map<String, Object> editCom (@PathVariable int post_idx, @RequestBody ComDTO dto, @RequestHeader Map<String, String> header){
 		
 		result = new HashMap<>();

@@ -5,7 +5,8 @@
    <mapper namespace="com.withcare.comment.dao.ComDAO">
    
    	<!-- WRITE COMMENT -->
-	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO" useGeneratedKeys="true" keyProperty="com_idx" keyColumn="post_idx">
+	<insert id="writeCom" parameterType="com.withcare.comment.dto.ComDTO"
+        useGeneratedKeys="true" keyProperty="com_idx" keyColumn="com_idx">
 	    INSERT INTO comment (post_idx, id, com_content, com_blind_yn)
 	    VALUES (#{post_idx}, #{id}, #{com_content}, #{com_blind_yn})
 	</insert>
@@ -30,9 +31,9 @@
 	    SELECT lv_idx FROM member WHERE id = #{id}
 	</select>
 	
-	<!-- COMMENT LIST -->
+	<!-- COMMENT LIST 이거 수정해야됨 -->
     <select id="comList" parameterType="int" resultType="com.withcare.comment.dto.ComDTO">
-        SELECT * FROM comment WHERE post_idx = #{post_idx} ORDER BY com_idx ASC
+        SELECT * FROM comment WHERE post_idx = #{post_idx} AND com_blind_yn = false ORDER BY com_idx ASC
     </select>
 
     <!-- COUNT COMMENT -->

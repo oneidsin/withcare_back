@@ -97,11 +97,8 @@ public class ComService {
 
         String writerId = dao.writerId(dto.getCom_idx());
 
-        if (!writerId.equals(id)) {
-            int lv_idx = dao.userLevel(id);
-            if (lv_idx != 7) {
-                return false;
-            }
+        if (writerId == null || (!writerId.equals(id) && dao.userLevel(id) != 7)) { // null 값 들어오거나 토큰 아이디 = 작성자 아이디 같지 않거나 관리자 레벨 아니면 false
+            return false;
         }
 
         int row = dao.updateCom(dto);
@@ -116,11 +113,8 @@ public class ComService {
             return false;
         }
 
-        if (!writerId.equals(id)) {
-            int lv_idx = dao.userLevel(id);
-            if (lv_idx != 7) {
-                return false;
-            }
+        if (writerId == null || (!writerId.equals(id) && dao.userLevel(id) != 7)) {
+            return false;
         }
 
         int row = dao.delCom(dto);
@@ -128,7 +122,7 @@ public class ComService {
     }
 
     // COMMENT LIST
-    public Map<String, Object> comList(int post_idx) {
+   public Map<String, Object> comList(int post_idx) {
 
         result = new HashMap<>();
 
