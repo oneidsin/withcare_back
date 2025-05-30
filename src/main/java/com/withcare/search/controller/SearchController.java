@@ -34,6 +34,7 @@ public class SearchController {
     @Autowired
     private SearchService svc;
     
+    
     @PostMapping
     public Map<String, Object> search(
             @RequestBody SearchDTO dto,
@@ -41,19 +42,20 @@ public class SearchController {
         result = new HashMap<>();
         
         try {
-            // 권한 체크
+            // 권한 체크 (선택적) - 로그인 여부 확인
             String token = header.get("authorization");
-            if (token == null || token.isEmpty()) {
-                result.put("success", false);
-                result.put("message", "로그인이 필요합니다.");
-                result.put("redirect", "/login");  // 프론트엔드에서 리다이렉트할 URL
-                return result;
-            }
-
-            String loginId = (String) JwtUtils.readToken(token).get("id");
-            dto.setSch_id(loginId);
+            String loginId = null;
             
-            // 1. 검색 결과 조회
+            if (token != null && !token.isEmpty()) {
+                try {
+                    loginId = (String) JwtUtils.readToken(token).get("id");
+                    dto.setSch_id(loginId); // 로그인한 경우만 검색어 저장용 ID 설정
+                } catch (Exception e) {
+                    log.warn("토큰 검증 실패, 비로그인 상태로 처리합니다.");
+                }
+            }
+            
+            // 1. 검색 결과 조회 (로그인 여부와 관계없이 수행)
             List<SearchResultDTO> searchResults = svc.getSearchResult(dto);
             int totalCount = svc.getSearchResultCount(dto);  // 전체 검색 결과 수
             int totalPages = (int) Math.ceil((double) totalCount / dto.getPageSize());  // 전체 페이지 수
@@ -64,18 +66,24 @@ public class SearchController {
             result.put("currentPage", dto.getPage());
             result.put("totalCount", totalCount);
             
-            // 2. 검색어 저장
-            try {
-                // 검색어가 비어있거나 null인 경우 저장하지 않음
-                if (dto.getSch_keyword() != null && !dto.getSch_keyword().trim().isEmpty()) {
-                    svc.insertSearch(dto);
-                } else {
-                    log.warn("빈 검색어 감지: 검색어 저장 건너뜀");
+            // 2. 검색어 저장 (로그인한 경우에만)
+            if (loginId != null) {
+                try {
+                    // 검색어가 비어있거나 null인 경우 저장하지 않음
+                    if (dto.getSch_keyword() != null && !dto.getSch_keyword().trim().isEmpty()) {
+                        svc.insertSearch(dto);
+                        result.put("searchSaved", true);
+                    } else {
+                        log.warn("빈 검색어 감지: 검색어 저장 건너뜀");
+                        result.put("searchSaved", false);
+                    }
+                } catch (Exception e) {
+                    log.error("검색어 저장 중 오류 발생", e);
                     result.put("searchSaved", false);
                 }
-            } catch (Exception e) {
-                log.error("검색어 저장 중 오류 발생", e);
+            } else {
                 result.put("searchSaved", false);
+                result.put("message", "비로그인 상태로 검색 결과만 제공됩니다.");
             }
             
         } catch (Exception e) {
