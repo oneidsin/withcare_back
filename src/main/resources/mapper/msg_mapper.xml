@@ -14,7 +14,7 @@
 	</insert>
 	
 	<!-- OUTBOX -->
-	<select id="outbox" parameterType="com.withcare.msg.dto.MsgDTO" resultType="com.withcare.msg.dto.MsgDTO">
+	<select id="outbox" parameterType="map" resultType="com.withcare.msg.dto.MsgDTO">
 		SELECT msg_idx, sender_id, receiver_id, msg_content, msg_sent_at, msg_read, sender_msg_status, receiver_msg_status
 		FROM message 
 		WHERE sender_id = #{sender_id} AND sender_msg_status = 'N' 
@@ -35,19 +35,19 @@
 		FROM message m
 		LEFT JOIN member_block mb ON m.sender_id = mb.blocked_id AND mb.blocker_id = #{receiver_id}
 		WHERE m.receiver_id = #{receiver_id}
-		  AND m.receiver_msg_status = 'N'
+		  AND m.receiver_msg_status = #{status}
 		  AND mb.blocked_id IS NULL
 		ORDER BY m.msg_sent_at DESC
 		LIMIT #{size} OFFSET #{offset}
 	</select>
 	
 	<!-- INBOX MSG CNT -->
-	<select id="getInboxCnt" parameterType="String" resultType="int">
+	<select id="getInboxCnt" parameterType="map" resultType="int">
 	    SELECT COUNT(*)
 	    FROM message m
 	    LEFT JOIN member_block mb ON m.sender_id = mb.blocked_id AND mb.blocker_id = #{receiverId}
 	    WHERE m.receiver_id = #{receiverId}
-	      AND m.receiver_msg_status = 'N'
+	      AND m.receiver_msg_status = #{status}
 	      AND mb.blocked_id IS NULL
 	</select>
 	
