@@ -1,6 +1,6 @@
 package com.withcare.member.dto;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class MemberDTO {
 	
@@ -11,14 +11,13 @@ public class MemberDTO {
 	private String year;
 	private String gender;
 	private String email;
-	private Date join_date;
-	private Date access_date;
+	private Timestamp join_date;
+	private Timestamp access_date;
 	private boolean admin_yn;
 	private boolean block_yn;
 	private boolean user_del_yn;
-	private Date user_del_date;
-	private Date lv_date;
-	
+	private Timestamp user_del_date;
+	private Timestamp lv_date;
 	public String getId() {
 		return id;
 	}
@@ -61,16 +60,16 @@ public class MemberDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public Date getJoin_date() {
+	public Timestamp getJoin_date() {
 		return join_date;
 	}
-	public void setJoin_date(Date join_date) {
+	public void setJoin_date(Timestamp join_date) {
 		this.join_date = join_date;
 	}
-	public Date getAccess_date() {
+	public Timestamp getAccess_date() {
 		return access_date;
 	}
-	public void setAccess_date(Date access_date) {
+	public void setAccess_date(Timestamp access_date) {
 		this.access_date = access_date;
 	}
 	public boolean isAdmin_yn() {
@@ -91,19 +90,18 @@ public class MemberDTO {
 	public void setUser_del_yn(boolean user_del_yn) {
 		this.user_del_yn = user_del_yn;
 	}
-	public Date getUser_del_date() {
+	public Timestamp getUser_del_date() {
 		return user_del_date;
 	}
-	public void setUser_del_date(Date user_del_date) {
+	public void setUser_del_date(Timestamp user_del_date) {
 		this.user_del_date = user_del_date;
 	}
-	public Date getLv_date() {
+	public Timestamp getLv_date() {
 		return lv_date;
 	}
-	public void setLv_date(Date lv_date) {
+	public void setLv_date(Timestamp lv_date) {
 		this.lv_date = lv_date;
 	}
-	
-	
 
+	
 }
