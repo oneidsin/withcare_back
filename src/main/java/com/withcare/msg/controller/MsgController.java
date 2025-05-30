@@ -96,6 +96,34 @@ public class MsgController {
 	    return resp;
 	}
 
+    // SAVED INBOX (보관된 쪽지함)
+    @GetMapping("/msg/inbox/saved/{id}")
+    public Map<String, Object> savedInbox(@PathVariable String id, @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size, @RequestHeader Map<String, String> header) {
+        
+        log.info("보관된 쪽지 요청 - id: {}, page: {}, size: {}", id, page, size);
+        
+        Map<String, Object> resp = new HashMap<>();
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean login = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            // 전체 보관된 메시지 수 조회
+            int totalCount = svc.getSavedInboxCnt(id);
+            // 전체 페이지 수 계산
+            int totalPages = (int) Math.ceil((double) totalCount / size);
+            
+            List<MsgDTO> list = svc.savedInbox(id, page, size);
+            resp.put("inbox", list);
+            resp.put("pages", totalPages);  // 전체 페이지 수
+            resp.put("currentPage", page + 1);  // 프론트엔드는 1부터 시작하므로 +1
+            login = true;
+        }
+
+        resp.put("loginYN", login);
+        return resp;
+    }
+
 	// MSG DETAIL
 	@GetMapping("/msg/detail/{id}/{msg_idx}")
 	public Map<String, Object> msgDetail(@PathVariable String id, @PathVariable int msg_idx,

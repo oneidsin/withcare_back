@@ -21,7 +21,7 @@ public interface MsgDAO {
 	List<MsgDTO> inbox(Map<String, Object> param);
 	
 	// 전체 메세지 수 조회 
-	int getInboxCnt(String id);
+	int getInboxCnt(Map<String, Object> param);
 
 	// MSG DETAIL
 	MsgDTO msgDetail(int idx);

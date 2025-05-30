@@ -67,14 +67,37 @@ public class MsgService {
     	param.put("receiver_id", id);
     	param.put("size", size);
     	param.put("offset", offset);
+        param.put("status", "N");  // 받은 쪽지함은 status가 'N'인 것만
         return dao.inbox(param);
     }
     
     // 전체 메세지 수 조회 
  	public int getInboxCnt(String id) {
- 		return dao.getInboxCnt(id);
- 		
+        Map<String, Object> param = new HashMap<>();
+        param.put("receiverId", id);
+        param.put("status", "N");  // 받은 쪽지함은 status가 'N'인 것만
+ 		return dao.getInboxCnt(param);
  	}
+
+    // 보관된 쪽지함
+    public List<MsgDTO> savedInbox(String id, int page, int size) {
+        int offset = page * size;
+        Map<String, Object> param = new HashMap<>();
+        
+        param.put("receiver_id", id);
+        param.put("size", size);
+        param.put("offset", offset);
+        param.put("status", "S");  // 보관된 쪽지함은 status가 'S'인 것만
+        return dao.inbox(param);
+    }
+
+    // 보관된 쪽지 수 조회
+    public int getSavedInboxCnt(String id) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("receiverId", id);
+        param.put("status", "S");  // 보관된 쪽지함은 status가 'S'인 것만
+        return dao.getInboxCnt(param);
+    }
 
     // MSG DETAIL
     public MsgDTO msgDetail(int idx) {
