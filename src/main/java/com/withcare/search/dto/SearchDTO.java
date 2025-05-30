@@ -16,6 +16,25 @@ public class SearchDTO {
 	private int page = 1; // 현재 페이지 (기본값 1)
 	private int pageSize = 10; // 페이지당 게시글 수 (기본값 10)
 	private int offset; // 시작 위치
+	
+	private int count;          // 검색 횟수
+    private Timestamp recent_date;   // 최근 검색 시간
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public Timestamp getRecent_date() {
+		return recent_date;
+	}
+
+	public void setRecent_date(Timestamp recent_date) {
+		this.recent_date = recent_date;
+	}
 
 	public int getPage() {
 		return page;

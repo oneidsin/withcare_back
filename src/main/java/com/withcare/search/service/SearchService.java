@@ -22,16 +22,21 @@ public class SearchService {
     
     // 검색어 저장
     public int insertSearch(SearchDTO dto) {
-        // 72 시간 이내에 같은 키워드 있는지 확인
-        int exists = dao.recentKeyword(dto.getSch_id(), dto.getSch_keyword());
-        
-        if (exists == 0) {
-            // 클라이언트에서 전달받은 board_idx를 그대로 사용
-            return dao.insertSearch(dto);
-        } else {
-            // 중복 있을 때는 저장하지 않고 0 반환
+    	try {
+            // 검색어가 null이거나 비어있으면 저장하지 않음
+            if (dto.getSch_keyword() == null || dto.getSch_keyword().trim().isEmpty()) {
+                log.warn("빈 검색어 저장 시도가 무시됨");
+                return 0;
+            }
+            
+            log.info("검색어 저장 시도: {}", dto.getSch_keyword());
+            int result = dao.insertSearch(dto);
+            log.info("검색어 저장 결과: {}", result);
+            return result;
+        } catch (Exception e) {
+            log.error("검색어 저장 중 오류 발생: {}", e.getMessage(), e);
             return 0;
-		}
+        }
 
     }
 
