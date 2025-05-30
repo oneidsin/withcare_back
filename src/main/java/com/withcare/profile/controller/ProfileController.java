@@ -50,6 +50,8 @@ public class ProfileController {
 	 * false); result.put("message", "서버 오류"); } return result; }
 	 */
 
+	
+	
 	// 프로필 열람 get
 	@GetMapping("/profile/{id}")
 	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader Map<String, String> header) {
