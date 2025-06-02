@@ -36,6 +36,9 @@ public interface AdminDAO {
 
 	List<TimelineDTO> adminMemberTimeline(String targetId);
 
+	
+	
+	
 	int adminBdgAdd(BadgeDTO bdg);
 
 	int adminBdgUpdate(BadgeDTO bdg);
@@ -55,5 +58,7 @@ public interface AdminDAO {
 	List<LevelDTO> levelList();
 
 	LevelDTO getLevelById(int lvIdx);
+
+	List<BadgeDTO> adminBdgList();
 
 }
