@@ -1,6 +1,7 @@
 package com.withcare.statistic.service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,10 +26,8 @@ public class BlockStatService {
 	}
 	
 	// 차단 이유별 분포
-	public Map<String, Object> getBlockReason() {
-		Map<String, Object> result = new HashMap<>();
-		result.put("reason", dao.getBlockReason()); // 이게 List<Map<String, Object>>
-		return result;
+	public List<Map<String, Object>> getBlockReason() {
+        return dao.getBlockReason();
 	}
 
 	// 유저간 차단 통계 종힙 / 주간 차단 건수 7일간
