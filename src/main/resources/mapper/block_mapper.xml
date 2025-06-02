@@ -89,6 +89,13 @@
         VALUES (#{blocked_id}, #{id}, #{block_reason}, NOW(), #{block_end_date})
     </insert>
 
+    <!-- 차단 기록이 있는지 중복 체크 -->
+    <select id="blockDuplicateCheck" resultType="int">
+        SELECT count(*)
+        FROM member
+        WHERE id = #{blocked_id} AND block_yn = TRUE
+    </select>
+
     <!--  member 테이블에 block_yn 을 true 로 업데이트  -->
     <update id="blockYnUpdate" parameterType="map">
         UPDATE member
@@ -101,19 +108,26 @@
         UPDATE member m
         SET m.block_yn = 0
         WHERE m.block_yn = 1
-        AND EXISTS (
-        SELECT 1
-        FROM block_list b
-        WHERE b.blocked_id = m.id
-        AND b.block_end_date < NOW())
+          AND EXISTS (
+            SELECT 1
+            FROM block_list b
+            WHERE b.blocked_id = m.id
+              AND b.block_end_date &lt; NOW()
+        )
     </update>
 
-
     <!-- 차단 해제(관리자) -->
-    <update id="blockAdminCancel">
+    <update id="blockAdminCancel" parameterType="map">
         UPDATE member
         SET block_yn = FALSE
         WHERE id = #{blocked_id}
+    </update>
+
+    <!-- 차단을 해제한 날로 차단 종료일을 자동 변경 -->
+    <update id="blockAdminEndDateUpdate" parameterType="map">
+        UPDATE block_list
+        SET block_end_date = NOW()
+        WHERE blocked_id = #{blocked_id}
     </update>
 
     <!-- 차단 히스토리 상세보기 -->

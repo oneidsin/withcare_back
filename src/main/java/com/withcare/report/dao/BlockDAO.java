@@ -35,4 +35,7 @@ public interface BlockDAO {
 
 	int autoUnblockMembers();
 
+	int blockDuplicateCheck(Map<String, Object> params);
+
+	void blockAdminEndDateUpdate(Map<String, Object> params);
 }

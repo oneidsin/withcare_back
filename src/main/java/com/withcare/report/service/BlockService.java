@@ -96,8 +96,10 @@ public class BlockService {
 
     // 차단 처리(관리자)
     public boolean blockProcess(Map<String, Object> params) {
-        int row = dao.blockProcess(params);
-        if (row > 0) {
+        // 이미 차단 중인지 중복 체크
+        int row = dao.blockDuplicateCheck(params);
+        if (row == 0) {
+            dao.blockProcess(params);
             // member 테이블에 block_yn 을 true 로 변경
             dao.blockYnUpdate(params);
         }
@@ -113,6 +115,10 @@ public class BlockService {
 
     public boolean blockAdminCancel(Map<String, Object> params) {
         int row = dao.blockAdminCancel(params);
+        if (row > 0) {
+            // 차단 종료일을 차단을 해제한 날로 변경
+            dao.blockAdminEndDateUpdate(params);
+        }
         return row > 0;
     }
 
