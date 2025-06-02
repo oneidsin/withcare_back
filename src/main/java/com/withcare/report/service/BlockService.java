@@ -8,6 +8,7 @@ import com.withcare.report.dto.BlockListDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.withcare.report.dao.BlockDAO;
@@ -95,16 +96,29 @@ public class BlockService {
 
     // 차단 처리(관리자)
     public boolean blockProcess(Map<String, Object> params) {
-        int row = dao.blockProcess(params);
-        if(row > 0) {
+        // 이미 차단 중인지 중복 체크
+        int row = dao.blockDuplicateCheck(params);
+        if (row == 0) {
+            dao.blockProcess(params);
             // member 테이블에 block_yn 을 true 로 변경
             dao.blockYnUpdate(params);
         }
         return row > 0;
     }
 
+    // 매일 자정마다 실행(자동 차단 해제)
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void autoUnblockMembersByDate() {
+        int result = dao.autoUnblockMembers();
+        log.info("자동 차단 해제 회원 수: {}", result);
+    }
+
     public boolean blockAdminCancel(Map<String, Object> params) {
         int row = dao.blockAdminCancel(params);
+        if (row > 0) {
+            // 차단 종료일을 차단을 해제한 날로 변경
+            dao.blockAdminEndDateUpdate(params);
+        }
         return row > 0;
     }
 

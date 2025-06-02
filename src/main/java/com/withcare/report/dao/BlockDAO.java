@@ -32,4 +32,10 @@ public interface BlockDAO {
 	int blockMsgDel(String blockedId);
 
 	void blockYnUpdate(Map<String, Object> params);
+
+	int autoUnblockMembers();
+
+	int blockDuplicateCheck(Map<String, Object> params);
+
+	void blockAdminEndDateUpdate(Map<String, Object> params);
 }
