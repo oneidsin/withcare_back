@@ -45,6 +45,12 @@ public class JoinService {
 			if (params.containsKey("cancer") && params.containsKey("stage")) {
 				ProfileDTO profileDTO = new ProfileDTO();
 				profileDTO.setId(params.get("id"));
+				// 기본 회원 정보도 함께 설정
+				profileDTO.setName(params.get("name"));
+				profileDTO.setYear(params.get("year"));
+				profileDTO.setGender(params.get("gender"));
+				profileDTO.setEmail(params.get("email"));
+				// cancer, stage 정보 설정
 				profileDTO.setCancer_idx(Integer.parseInt(params.get("cancer")));
 				profileDTO.setStage_idx(Integer.parseInt(params.get("stage")));
 				profileDTO.setProfile_yn(false);
