@@ -113,7 +113,10 @@ public class AdminService {
 		return dao.adminMemberTimeline(targetId);
 	}
 
-
+	public List<BadgeDTO> adminBdgList() {
+		return dao.adminBdgList();
+	}
+	
 	public boolean adminBdgAdd(BadgeDTO bdg) {
 		int row = dao.adminBdgAdd(bdg);
 		return row>0;
@@ -167,5 +170,6 @@ public class AdminService {
 	public LevelDTO getLevelById(int lvIdx) {
 		return dao.getLevelById(lvIdx);
 	}
+
 
 }
