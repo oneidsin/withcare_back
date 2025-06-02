@@ -138,6 +138,19 @@
    			SELECT * FROM timeline WHERE time_user_id = #{id} AND time_public_yn = 1 ORDER BY day DESC
    		</select>
    		
+   		<!-- 배지 전체 목록 조회 -->
+	    <select id="adminBdgList" resultType="com.withcare.profile.dto.BadgeDTO">
+	        SELECT 
+	            bdg_idx, 
+	            bdg_name, 
+	            bdg_icon, 
+	            bdg_condition, 
+	            bdg_active_yn 
+	        FROM badge
+	        ORDER BY bdg_idx DESC
+	    </select>
+   		
+   		
    		<!-- 배지 추가 -->
    		<insert id="adminBdgAdd" parameterType="com.withcare.profile.dto.BadgeDTO">
 		    INSERT INTO badge (bdg_name, bdg_icon, bdg_condition, bdg_active_yn)
