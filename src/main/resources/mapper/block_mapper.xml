@@ -67,7 +67,7 @@
                 ORDER BY b.block_start_date DESC
             </otherwise>
         </choose>
-        `LIMIT` #{limit} OFFSET #{offset}
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <!-- 차단 관리 페이지 카운트 -->
@@ -95,6 +95,19 @@
         SET block_yn = TRUE
         WHERE id = #{blocked_id}
     </update>
+
+    <!--  차단 종료일이 지나면 자동 차단 해제  -->
+    <update id="autoUnblockMembers">
+        UPDATE member m
+        SET m.block_yn = 0
+        WHERE m.block_yn = 1
+        AND EXISTS (
+        SELECT 1
+        FROM block_list b
+        WHERE b.blocked_id = m.id
+        AND b.block_end_date < NOW())
+    </update>
+
 
     <!-- 차단 해제(관리자) -->
     <update id="blockAdminCancel">
