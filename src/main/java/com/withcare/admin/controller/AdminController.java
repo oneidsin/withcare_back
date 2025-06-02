@@ -366,38 +366,57 @@ public class AdminController {
 	// 배지 통합 등록/수정
 	@PostMapping("/admin/bdg/save")
 	public Map<String, Object> saveBadge(@RequestParam(value = "bdg_idx", required = false) Integer bdgIdx,
-			@RequestParam("file") MultipartFile file, @RequestParam("bdg_name") String bdgName,
-			@RequestParam("bdg_condition") String bdgCondition, @RequestParam("bdg_active_yn") boolean bdgActiveYn,
-			@RequestHeader Map<String, String> header) {
+	        @RequestParam(value = "file", required = false) MultipartFile file, // required = false로 변경
+	        @RequestParam("bdg_name") String bdgName,
+	        @RequestParam("bdg_condition") String bdgCondition, 
+	        @RequestParam("bdg_active_yn") boolean bdgActiveYn,
+	        @RequestHeader Map<String, String> header) {
 
-		result = new HashMap<>();
-		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
-			result.put("success", false);
-			result.put("msg", "관리자 권한이 필요합니다.");
-			return result;
-		}
-		try {
-			String url = saveFile(file, "badge"); // badge 폴더에 저장
-			BadgeDTO dto = new BadgeDTO();
-			dto.setBdg_name(bdgName);
-			dto.setBdg_icon(url);
-			dto.setBdg_condition(bdgCondition);
-			dto.setBdg_active_yn(bdgActiveYn);
-			boolean success;
-			if (bdgIdx != null) {
-				dto.setBdg_idx(bdgIdx);
-				success = svc.adminBdgUpdate(dto);
-			} else {
-				success = svc.adminBdgAdd(dto);
-			}
-			result.put("success", success);
-			result.put("url", url);
-		} catch (Exception e) {
-			result.put("success", false);
-			result.put("msg", e.getMessage());
-		}
-		return result;
+	    result = new HashMap<>();
+	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+	        result.put("success", false);
+	        result.put("msg", "관리자 권한이 필요합니다.");
+	        return result;
+	    }
+	    
+	    try {
+	        BadgeDTO dto = new BadgeDTO();
+	        dto.setBdg_name(bdgName);
+	        dto.setBdg_condition(bdgCondition);
+	        dto.setBdg_active_yn(bdgActiveYn);
+	        
+	        String url = null;
+	        
+	        // 파일이 있고 비어있지 않을 때만 파일 저장
+	        if (file != null && !file.isEmpty()) {
+	            url = saveFile(file, "badge");
+	            dto.setBdg_icon(url);
+	        } else if (bdgIdx == null) {
+	            // 새 배지 등록인데 파일이 없으면 에러
+	            result.put("success", false);
+	            result.put("msg", "새 배지 등록 시 이미지 파일이 필요합니다.");
+	            return result;
+	        }
+	        // 수정 시 파일이 없으면 기존 이미지 유지 (setBdg_icon 호출하지 않음)
+	        
+	        boolean success;
+	        if (bdgIdx != null) {
+	            dto.setBdg_idx(bdgIdx);
+	            success = svc.adminBdgUpdate(dto);
+	        } else {
+	            success = svc.adminBdgAdd(dto);
+	        }
+	        
+	        result.put("success", success);
+	        if (url != null) {
+	            result.put("url", url);
+	        }
+	    } catch (Exception e) {
+	        result.put("success", false);
+	        result.put("msg", e.getMessage());
+	    }
+	    return result;
 	}
 
 	// 배지 삭제

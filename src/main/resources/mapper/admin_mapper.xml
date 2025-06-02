@@ -159,8 +159,14 @@
    		
    		<!-- 배지 수정 -->
    		<update id="adminBdgUpdate" parameterType="com.withcare.profile.dto.BadgeDTO">
- 			UPDATE badge SET bdg_name = #{bdg_name}, bdg_icon = #{bdg_icon}, bdg_condition = #{bdg_condition}, bdg_active_yn = #{bdg_active_yn}
-    			WHERE bdg_idx = #{bdg_idx}
+ 			UPDATE badge 
+		    SET bdg_name = #{bdg_name},
+		        bdg_condition = #{bdg_condition},
+		        bdg_active_yn = #{bdg_active_yn}
+		        <if test="bdg_icon != null">
+		        , bdg_icon = #{bdg_icon}
+		        </if>
+		    WHERE bdg_idx = #{bdg_idx}
    		</update>
    		
    		<!-- 배지 활성화 여부 설정 -->
