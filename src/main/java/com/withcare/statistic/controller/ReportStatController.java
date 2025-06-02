@@ -1,6 +1,8 @@
 package com.withcare.statistic.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +34,25 @@ public class ReportStatController {
 
     // 신고 타입별 분포 (글 / 댓글 / 회원)
 	@GetMapping("/stat/report-type")
-    public List<ReportTypeStatDTO> getReportType() {
-        return svc.getReportType();
+    public Map<String, Integer> getReportType() {
+        List<ReportTypeStatDTO> list = svc.getReportType();
+
+        Map<String, Integer> result = new HashMap<>();
+        for (ReportTypeStatDTO dto : list) {
+            result.put(dto.getRep_item_type(), dto.getWeekly_count());
+        }
+        return result;
     }
 	
 	// 신고 사유별 분포 (욕설 / 도배 / 혐오 등)
-		@GetMapping("/stat/report-reason")
-	    public List<ReportReasonStatDTO> getReportReason() {
-	        return svc.getReportReason();
-	    }
+	@GetMapping("/stat/report-reason")
+    public Map<String, Integer> getReportReason() {
+        List<ReportReasonStatDTO> list = svc.getReportReason();
+
+        Map<String, Integer> result = new HashMap<>();
+        for (ReportReasonStatDTO dto : list) {
+            result.put(dto.getCate_name(), dto.getWeekly_count());
+        }
+        return result;
+    }
 }

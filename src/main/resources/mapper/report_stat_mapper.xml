@@ -6,12 +6,10 @@
 
 	<!-- 총 신고 수, 전체 7일간 -->
 	<select id="getReport" resultType="com.withcare.statistic.dto.ReportStatDTO">
-	    SELECT
-		    rep_item_type,
-		    COUNT(*) AS total_count,
-		    SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
-		FROM
-		    report
+		SELECT
+			COUNT(*) AS total_count,
+			SUM(CASE WHEN report_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS weekly_count
+		FROM report
 	</select>
 
 	<!-- 신고 타입별로 -->
