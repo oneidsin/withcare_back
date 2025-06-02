@@ -17,5 +17,7 @@ public interface LoginDAO {
 
 	int visitCnt(String id);
 
+	int updateAccessDate(String id);
+
 	int getLvIdx(String id);
 }

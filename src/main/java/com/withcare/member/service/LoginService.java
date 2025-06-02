@@ -22,6 +22,7 @@ public class LoginService {
 		int cnt = dao.login(params);
 		if(cnt > 0) {
 	        dao.visitCnt(params.get("id")); // 로그인 시 방문자 수 저장
+	        dao.updateAccessDate(params.get("id")); // 로그인 시 최근 방문 일자 업데이트
 	        return true;
 	    }
 	    return false;
