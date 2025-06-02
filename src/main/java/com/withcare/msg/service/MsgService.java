@@ -97,7 +97,7 @@ public class MsgService {
         param.put("receiverId", id);
         param.put("status", "S");  // 보관된 쪽지함은 status가 'S'인 것만
         return dao.getInboxCnt(param);
-    }
+ 	}
 
     // MSG DETAIL
     public MsgDTO msgDetail(int idx) {
