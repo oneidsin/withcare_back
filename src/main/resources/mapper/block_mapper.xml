@@ -98,9 +98,9 @@
 
     <!-- 차단 해제(관리자) -->
     <update id="blockAdminCancel">
-        UPDATE block_list
-        SET block_end_date = NULL
-        WHERE blocked_id = #{blocked_id}
+        UPDATE member
+        SET block_yn = FALSE
+        WHERE id = #{blocked_id}
     </update>
 
     <!-- 차단 히스토리 상세보기 -->
