@@ -209,52 +209,70 @@ public class AdminController {
 		return result;
 	}
 	
-	
 	// 작성 게시글 목록 확인
-	@PostMapping("/admin/member/post")
-	public Map<String, Object> adminMemberPost(
-			@RequestBody Map<String, String>param,
-			@RequestHeader Map<String, String>header){
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		
-		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
-			result.put("success", false);
-			return result;
-		}
-		
-		String targetId = param.get("id");
-		List<PostDTO> posts = svc.adminMemberPost(targetId);
-		
-		result.put("success", true);
-		result.put("data", posts);
-		
-		return result;
+	@GetMapping("/admin/member/{id}/posts")
+	public Map<String, Object> adminMemberPosts(
+	        @PathVariable String id,
+	        @RequestHeader Map<String, String> header) {
+	    
+	    Map<String, Object> result = new HashMap<String, Object>();
+	    
+	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    
+	    if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+	        result.put("success", false);
+	        return result;
+	    }
+	    
+	    List<PostDTO> posts = svc.adminMemberPost(id);
+	    
+	    result.put("success", true);
+	    result.put("data", posts);
+	    return result;
 	}
 	
-	// 댓글 + 멘션 목록 조회
-	@PostMapping("/admin/member/comments")
+	// 작성 댓글 목록 확인
+	@GetMapping("/admin/member/{id}/comments")
 	public Map<String, Object> adminMemberComments(
-			@RequestBody Map<String, String>param,
-			@RequestHeader Map<String, String>header){
-		
-		result = new HashMap<String, Object>();
-		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		
-		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
-			result.put("success", false);
-			return result;
-		}
-		
-		String targetId = param.get("id");
-		
-		List<Map<String, Object>> commentList = svc.adminMemberComments(targetId);
-		
-		result.put("success", true);
-		result.put("data", commentList);
-		
-		return result;
+	        @PathVariable String id,
+	        @RequestHeader Map<String, String> header) {
+	    
+	    Map<String, Object> result = new HashMap<String, Object>();
+	    
+	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    
+	    if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+	        result.put("success", false);
+	        return result;
+	    }
+	    
+	    List<Map<String, Object>> comments = svc.adminMemberComments(id);
+	    
+	    result.put("success", true);
+	    result.put("data", comments);
+	    return result;
+	}
+	
+	// 타임라인 목록 확인
+	@GetMapping("/admin/member/{id}/timelines")
+	public Map<String, Object> adminMemberTimelines(
+	        @PathVariable String id,
+	        @RequestHeader Map<String, String> header) {
+	    
+	    Map<String, Object> result = new HashMap<String, Object>();
+	    
+	    String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    
+	    if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId)!=7) {
+	        result.put("success", false);
+	        return result;
+	    }
+	    
+	    List<TimelineDTO> timelines = svc.adminMemberTimeline(id);
+	    
+	    result.put("success", true);
+	    result.put("data", timelines);
+	    return result;
 	}
 	
 	// 추천 누른 게시글 (비추천 X)
