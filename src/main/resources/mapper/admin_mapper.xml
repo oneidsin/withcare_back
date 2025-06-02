@@ -84,7 +84,7 @@
 			    m.id, m.name, m.email, m.join_date, m.access_date,
 			    m.lv_idx, lv.lv_name,
 			    m.admin_yn, m.block_yn,
-			    bl.block_reason,
+			    bl.block_reason, bl.block_start_date, bl.block_end_date,
 			    p.profile_photo, p.intro, p.access_cnt, p.profile_yn,
 			    p.cancer_idx, c.cancer_name,
 			    p.stage_idx, s.stage_name,
