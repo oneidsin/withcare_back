@@ -213,4 +213,9 @@ public class NotiService {
         maintainNotificationLimit(admin_id);
         sendNotification(admin_id, notiDTO);
     }
+
+    public boolean readAllNoti(String id) {
+        int row = dao.readAllNoti(id);
+        return row > 0;
+    }
 }

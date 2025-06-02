@@ -61,6 +61,13 @@
         WHERE noti_idx = #{noti_idx};
     </update>
 
+    <!-- 알림 모두 읽음 처리 -->
+    <update id="readAllNoti">
+        UPDATE notification
+        SET noti_read_yn = true
+        WHERE relate_user_id = #{id} AND noti_read_yn = false
+    </update>
+
     <!-- 사용자의 전체 알림 개수 카운트 -->
     <select id="getNotiCount" resultType="int">
         SELECT COUNT(*)

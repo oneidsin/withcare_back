@@ -31,9 +31,9 @@ public class NotiController {
 
     // SSE 연결을 위한 엔드포인트
     @GetMapping("/noti/subscribe/{id}")
-    public SseEmitter subscribe(@PathVariable String id, @RequestParam("token") String token) {
+    public SseEmitter subscribe(@PathVariable String id, @RequestHeader Map<String, String> header) {
         log.info("SSE subscribe : {}", id);
-        String loginId = (String) JwtToken.JwtUtils.readToken(token).get("id");
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
 
         if (!loginId.equals("") && loginId.equals(id)) {
             return svc.subscribe(id);
@@ -108,6 +108,24 @@ public class NotiController {
 
         if (!loginId.equals("") && loginId.equals(id)) {
             success = svc.readNoti(id, noti_idx);
+        }
+
+        result.put("success", success);
+        return result;
+    }
+
+    // 알림 모두 읽음 처리
+    @PutMapping("/noti/readAll/{id}")
+    public Map<String, Object> readAllNoti(@PathVariable String id,
+                                           @RequestHeader Map<String, String> header) {
+        log.info("read all noti : {}", id);
+        result = new HashMap<>();
+
+        String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
+        boolean success = false;
+
+        if (!loginId.equals("") && loginId.equals(id)) {
+            success = svc.readAllNoti(id);
         }
 
         result.put("success", success);

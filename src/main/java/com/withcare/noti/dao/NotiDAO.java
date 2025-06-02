@@ -23,4 +23,6 @@ public interface NotiDAO {
     int getNotiCount(String user_id);
 
     int deleteOldNoti(String user_id, int count);
+
+    int readAllNoti(String id);
 }
