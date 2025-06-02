@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,10 +28,17 @@ import com.withcare.profile.service.ProfileService;
 import com.withcare.search.dto.SearchDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
+
+
+
 @CrossOrigin
 @RestController
 public class ProfileController {
 
+	
+	 @Value("${file.upload-dir}")
+	   private String uploadDir;
+	 
 	@Autowired
 	ProfileService svc;
 
@@ -54,12 +62,14 @@ public class ProfileController {
 	
 	// 프로필 열람 get
 	@GetMapping("/profile/{id}")
-	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader Map<String, String> header) {
+	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader("authorization") Map<String, String> header) {
 
 		Map<String, Object> result = new HashMap<>();
-
+		log.info(id);
+		log.info("header : "+header);
 		try {
 			String token = header.get("authorization");
+			log.info(token);
 			Map<String, Object> payload = JwtUtils.readToken(token);
 			String loginId = (String) payload.get("id");
 
@@ -86,7 +96,9 @@ public class ProfileController {
 	        @RequestPart("info") ProfileDTO dto,
 	        @RequestPart(value = "profile_image", required = false) MultipartFile file,
 	        @RequestHeader("Authorization") String token) {
-
+		
+			log.info("token : "+token);
+			
 	    try {
 	        // JWT에서 ID 추출
 	        String tokenId = (String) JwtUtils.readToken(token).get("id");
@@ -113,7 +125,6 @@ public class ProfileController {
 	                             .body(Map.of("status", "error", "message", e.getMessage()));
 	    }
 	}
-
 
 
 	// 타인이 프로필 확인하는 기능 get

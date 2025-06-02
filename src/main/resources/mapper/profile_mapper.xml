@@ -13,16 +13,22 @@
 	<select id="getProfileById" parameterType="String"
 		resultType="com.withcare.profile.dto.ProfileDTO">
 		SELECT
-		id,
-		cancer_idx,
-		stage_idx,
-		profile_photo,
-		intro,
-		profile_yn,
-		access_cnt
-		FROM profile
-		WHERE id = #{id} ORDER BY access_cnt
-		DESC LIMIT 1
+		p.id,
+		m.name,
+		m.year,
+		m.gender,
+		m.email,
+		p.cancer_idx,
+		p.stage_idx,
+		p.profile_photo,
+		p.intro,
+		p.profile_yn,
+		p.access_cnt
+		FROM profile p
+		JOIN member m ON p.id = m.id
+		WHERE p.id = #{id}
+		ORDER BY p.access_cnt DESC
+		LIMIT 1
 	</select>
 
 	<!-- 프로필 수정 -->
@@ -30,7 +36,8 @@
 		parameterType="com.withcare.profile.dto.ProfileDTO">
 		UPDATE member m
 		JOIN profile p ON m.id = p.id
-		SET m.name = #{name},
+		SET m.name =
+		#{name},
 		m.year = #{year},
 		m.gender = #{gender},
 		m.email = #{email},
@@ -38,7 +45,8 @@
 		p.stage_idx = #{stage_idx},
 		p.profile_photo = #{profile_photo},
 		p.intro = #{intro},
-		p.profile_yn = #{profile_yn}
+		p.profile_yn =
+		#{profile_yn}
 		WHERE m.id = #{id}
 	</update>
 
