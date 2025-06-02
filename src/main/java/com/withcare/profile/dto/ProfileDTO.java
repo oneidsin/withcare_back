@@ -75,7 +75,7 @@ public class ProfileDTO {
 		this.stage_name = stage_name;
 	}
 
-	public int getCancer_idx() {
+	public Integer getCancer_idx() {
 		return cancer_idx;
 	}
 
@@ -83,7 +83,7 @@ public class ProfileDTO {
 		this.cancer_idx = cancer_idx;
 	}
 
-	public int getStage_idx() {
+	public Integer getStage_idx() {
 		return stage_idx;
 	}
 

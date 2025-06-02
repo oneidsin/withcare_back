@@ -39,6 +39,7 @@ public class ProfileController {
 	 @Value("${file.upload-dir}")
 	   private String uploadDir;
 	 
+	 
 	@Autowired
 	ProfileService svc;
 
@@ -64,30 +65,42 @@ public class ProfileController {
 	@GetMapping("/profile/{id}")
 	public Map<String, Object> getProfile(@PathVariable("id") String id, @RequestHeader("authorization") Map<String, String> header) {
 
-		Map<String, Object> result = new HashMap<>();
-		log.info(id);
-		log.info("header : "+header);
-		try {
-			String token = header.get("authorization");
-			log.info(token);
-			Map<String, Object> payload = JwtUtils.readToken(token);
-			String loginId = (String) payload.get("id");
+	    Map<String, Object> result = new HashMap<>();
+	    log.info(id);
+	    log.info("header : "+header);
+	    try {
+	        String token = header.get("authorization");
+	        log.info(token);
+	        Map<String, Object> payload = JwtUtils.readToken(token);
+	        String loginId = (String) payload.get("id");
 
-			if (loginId != null && loginId.equals(id)) {
-				ProfileDTO dto = svc.getProfile(id);
-				result.put("status", "success");
-				result.put("data", dto);
-			} else {
-				result.put("status", "fail");
-				result.put("message", "인증된 사용자만 접근할 수 있습니다.");
-			}
+	        if (loginId != null && loginId.equals(id)) {
+	            ProfileDTO dto = svc.getProfileById(id);
+	            
+	            // null 값을 0으로 변환하여 JSON 직렬화 문제 해결
+	            if (dto != null) {
+	                if (dto.getCancer_idx() == null) {
+	                    dto.setCancer_idx(0);
+	                }
+	                if (dto.getStage_idx() == null) {
+	                    dto.setStage_idx(0);
+	                }
+	            }
+	            
+	            result.put("status", "success");
+	            result.put("data", dto);
+	        } else {
+	            result.put("status", "fail");
+	            result.put("message", "인증된 사용자만 접근할 수 있습니다.");
+	        }
 
-		} catch (Exception e) {
-			result.put("status", "error");
-			result.put("message", "서버 오류: " + e.getMessage());
-		}
+	    } catch (Exception e) {
+	        log.error("프로필 조회 오류", e);
+	        result.put("status", "error");
+	        result.put("message", "서버 오류: " + e.getMessage());
+	    }
 
-		return result;
+	    return result;
 	}
 	
 	// 프로필 수정

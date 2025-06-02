@@ -13,41 +13,37 @@
 	<select id="getProfileById" parameterType="String"
 		resultType="com.withcare.profile.dto.ProfileDTO">
 		SELECT
-		p.id,
-		m.name,
-		m.year,
-		m.gender,
-		m.email,
-		p.cancer_idx,
-		p.stage_idx,
-		p.profile_photo,
-		p.intro,
-		p.profile_yn,
-		p.access_cnt
-		FROM profile p
-		JOIN member m ON p.id = m.id
-		WHERE p.id = #{id}
-		ORDER BY p.access_cnt DESC
-		LIMIT 1
+		    m.id,
+		    m.name,
+		    CAST(m.year AS CHAR) as year,
+		    m.gender,
+		    m.email,
+		    COALESCE(p.cancer_idx, 0) as cancer_idx,
+		    COALESCE(p.stage_idx, 0) as stage_idx,
+		    p.profile_photo,
+		    p.intro,
+		    COALESCE(p.profile_yn, 1) as profile_yn,
+		    COALESCE(p.access_cnt, 0) as access_cnt
+		    FROM member m
+		    LEFT JOIN profile p ON m.id = p.id
+		    WHERE m.id = #{id}
 	</select>
 
 	<!-- 프로필 수정 -->
 	<update id="updateProfile"
 		parameterType="com.withcare.profile.dto.ProfileDTO">
 		UPDATE member m
-		JOIN profile p ON m.id = p.id
-		SET m.name =
-		#{name},
-		m.year = #{year},
-		m.gender = #{gender},
-		m.email = #{email},
-		p.cancer_idx = #{cancer_idx},
-		p.stage_idx = #{stage_idx},
-		p.profile_photo = #{profile_photo},
-		p.intro = #{intro},
-		p.profile_yn =
-		#{profile_yn}
-		WHERE m.id = #{id}
+	    JOIN profile p ON m.id = p.id
+	    SET m.name = #{name},
+	        m.year = #{year},
+	        m.gender = #{gender},
+	        m.email = #{email},
+	        p.cancer_idx = #{cancer_idx},
+	        p.stage_idx = #{stage_idx},
+	        p.profile_photo = #{profile_photo},
+	        p.intro = #{intro},
+	        p.profile_yn = #{profile_yn}
+	    WHERE m.id = #{id}
 	</update>
 
 	<!-- 프로필 추가 -->
