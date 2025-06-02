@@ -20,6 +20,8 @@ public class AdminMemberDetailDTO {
 	private boolean admin_yn;
 	private boolean block_yn;
 	private String block_reason;
+	private Date block_start_date;
+	private Date block_end_date;
 
 	private String profile_photo;
 	private String intro;
@@ -177,6 +179,17 @@ public class AdminMemberDetailDTO {
 	public void setBdg_sym_yn(boolean bdg_sym_yn) {
 		this.bdg_sym_yn = bdg_sym_yn;
 	}
-	
+	public Date getBlock_start_date() {
+		return block_start_date;
+	}
+	public void setBlock_start_date(Date block_start_date) {
+		this.block_start_date = block_start_date;
+	}
+	public Date getBlock_end_date() {
+		return block_end_date;
+	}
+	public void setBlock_end_date(Date block_end_date) {
+		this.block_end_date = block_end_date;
+	}
 	
 }
