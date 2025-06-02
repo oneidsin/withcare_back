@@ -96,6 +96,10 @@ public class BlockService {
     // 차단 처리(관리자)
     public boolean blockProcess(Map<String, Object> params) {
         int row = dao.blockProcess(params);
+        if(row > 0) {
+            // member 테이블에 block_yn 을 true 로 변경
+            dao.blockYnUpdate(params);
+        }
         return row > 0;
     }
 

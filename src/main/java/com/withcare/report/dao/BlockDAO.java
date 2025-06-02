@@ -30,4 +30,6 @@ public interface BlockDAO {
 	Map<String, Object> blockDetail(Map<String, Object> params);
 
 	int blockMsgDel(String blockedId);
+
+	void blockYnUpdate(Map<String, Object> params);
 }

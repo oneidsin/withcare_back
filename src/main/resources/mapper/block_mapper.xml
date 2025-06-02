@@ -89,6 +89,13 @@
         VALUES (#{blocked_id}, #{id}, #{block_reason}, NOW(), #{block_end_date})
     </insert>
 
+    <!--  member 테이블에 block_yn 을 true 로 업데이트  -->
+    <update id="blockYnUpdate" parameterType="map">
+        UPDATE member
+        SET block_yn = TRUE
+        WHERE id = #{blocked_id}
+    </update>
+
     <!-- 차단 해제(관리자) -->
     <update id="blockAdminCancel">
         UPDATE block_list
