@@ -67,7 +67,7 @@
                 ORDER BY b.block_start_date DESC
             </otherwise>
         </choose>
-        LIMIT #{limit} OFFSET #{offset}
+        `LIMIT` #{limit} OFFSET #{offset}
     </select>
 
     <!-- 차단 관리 페이지 카운트 -->
