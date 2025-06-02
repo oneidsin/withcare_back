@@ -1,6 +1,7 @@
 	package com.withcare.comment.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.withcare.comment.dao.ComDAO;
 import com.withcare.comment.dto.ComDTO;
 import com.withcare.comment.service.ComService;
 import com.withcare.util.JwtToken.JwtUtils;
@@ -28,6 +30,7 @@ Logger log = LoggerFactory.getLogger(getClass());
 	Map<String, Object> result = null;
 	
 	@Autowired ComService svc;
+	@Autowired ComDAO dao;
 	
 	// WRITE COMMENT & MENTION
 	@PostMapping("/post/detail/{post_idx}/write")
@@ -104,6 +107,15 @@ Logger log = LoggerFactory.getLogger(getClass());
 	    Map<String, Object> result = new HashMap<>();
 	    result = svc.comList(post_idx);
 
+	    return result;
+	}
+	
+	// 멘션 기능 시 전체 유저 가져오는거에욤..
+	@GetMapping("/post/detail/users")
+	public Map<String, Object> getAllUsers() {
+	    Map<String, Object> result = new HashMap<>();
+	    List<String> userList = dao.selectId();  // 기존의 selectId 매퍼 사용
+	    result.put("list", userList);
 	    return result;
 	}
 	
