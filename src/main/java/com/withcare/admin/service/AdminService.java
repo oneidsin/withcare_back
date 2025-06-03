@@ -63,33 +63,67 @@ public class AdminService {
 		for (ComDTO com : comment) {
 			Map<String, Object> item = new HashMap<>();
 			item.put("type", "comment"); // 타입 구분
-			item.put("id", com.getCom_idx()); // 댓글 고유 ID
-			item.put("writerId", com.getId()); // 작성자 ID
-			item.put("content", com.getCom_content()); // 댓글 내용
-			item.put("createDate", com.getCom_create_date()); // 작성 일자
-			item.put("updateDate", com.getCom_update_date()); // 수정 일자
-			item.put("blindYn", com.isCom_blind_yn()); // 블라인드 여부
+			item.put("com_idx", com.getCom_idx()); // 댓글 고유 ID (프론트엔드 필드명에 맞춤)
+			item.put("id", com.getId()); // 작성자 ID
+			item.put("com_content", com.getCom_content()); // 댓글 내용 (프론트엔드 필드명에 맞춤)
+			item.put("com_create_date", com.getCom_create_date()); // 작성 일자 (프론트엔드 필드명에 맞춤)
+			item.put("com_update_date", com.getCom_update_date()); // 수정 일자 (프론트엔드 필드명에 맞춤)
+			item.put("com_blind_yn", com.isCom_blind_yn()); // 블라인드 여부
+			
+			// 게시글 정보 추가 - 댓글이 속한 게시글의 제목과 ID
+			try {
+				// 댓글이 속한 게시글 정보 조회 (DAO에 메서드 추가 필요)
+				Map<String, Object> postInfo = dao.getPostInfoByCommentId(com.getCom_idx());
+				if (postInfo != null) {
+					item.put("post_title", postInfo.get("post_title")); // 게시글 제목
+					item.put("post_idx", postInfo.get("post_idx")); // 게시글 ID
+				} else {
+					item.put("post_title", "삭제된 게시글");
+					item.put("post_idx", null);
+				}
+			} catch (Exception e) {
+				item.put("post_title", "게시글 정보 없음");
+				item.put("post_idx", null);
+			}
+			
 			unifiedList.add(item); // 리스트에 추가
 		}
 		
 		for (MenDTO men : mention) {
 			Map<String, Object> item = new HashMap<>();
 			item.put("type", "mention");
-			item.put("id", men.getMen_idx());
-			item.put("writerId", men.getMen_writer_id());
-			item.put("content", men.getMen_content());
-			item.put("createDate", men.getMen_create_date());
-			item.put("udateDate", men.getMen_update_date());
-			item.put("blindYn", men.isMen_blind_yn());
+			item.put("com_idx", men.getMen_idx()); // 프론트엔드 필드명에 맞춤
+			item.put("id", men.getMen_writer_id());
+			item.put("com_content", men.getMen_content()); // 프론트엔드 필드명에 맞춤
+			item.put("com_create_date", men.getMen_create_date()); // 프론트엔드 필드명에 맞춤
+			item.put("com_update_date", men.getMen_update_date()); // 프론트엔드 필드명에 맞춤
+			item.put("com_blind_yn", men.isMen_blind_yn());
+			
+			// 멘션이 속한 게시글 정보 추가
+			try {
+				// 멘션이 속한 게시글 정보 조회 (DAO에 메서드 추가 필요)
+				Map<String, Object> postInfo = dao.getPostInfoByMentionId(men.getMen_idx());
+				if (postInfo != null) {
+					item.put("post_title", postInfo.get("post_title")); // 게시글 제목
+					item.put("post_idx", postInfo.get("post_idx")); // 게시글 ID
+				} else {
+					item.put("post_title", "삭제된 게시글");
+					item.put("post_idx", null);
+				}
+			} catch (Exception e) {
+				item.put("post_title", "게시글 정보 없음");
+				item.put("post_idx", null);
+			}
+			
 			unifiedList.add(item);
 		}
 		
 		// create_date와 update_date 중 더 나중 날짜를 기준으로 최신순 정렬
 		unifiedList.sort((a, b) -> {
-			Timestamp aCreate = (Timestamp) a.get("createDate");
-		    Timestamp aUpdate = (Timestamp) a.get("updateDate");
-		    Timestamp bCreate = (Timestamp) b.get("createDate");
-		    Timestamp bUpdate = (Timestamp) b.get("updateDate");
+			Timestamp aCreate = (Timestamp) a.get("com_create_date"); // 필드명 변경
+		    Timestamp aUpdate = (Timestamp) a.get("com_update_date"); // 필드명 변경
+		    Timestamp bCreate = (Timestamp) b.get("com_create_date"); // 필드명 변경
+		    Timestamp bUpdate = (Timestamp) b.get("com_update_date"); // 필드명 변경
 		    
 		    // 각각 최신 시간 계산
 		    Timestamp aLatest = (aUpdate != null && aUpdate.after(aCreate)) ? aUpdate : aCreate;
