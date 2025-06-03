@@ -99,7 +99,15 @@ public class ReportService {
                     reportedId = dao.commentWriter(itemIdx);
                     break;
                 case "멘션":
-                    reportedId = dao.mentionWriter(itemIdx);
+                    // itemIdx는 com_idx임
+                    Integer menIdx = dao.findMenIdxByComIdx(itemIdx); // com_idx로 men_idx 찾기
+                    if (menIdx == null) {
+                        result.put("success", false);
+                        result.put("msg", "멘션 정보를 찾을 수 없습니다.");
+                        return result;
+                    }
+                    reportedId = dao.mentionWriter(menIdx); // men_idx로 작성자 찾기
+                    reportDTO.setRep_item_idx(menIdx); // 이후 로직에서 men_idx를 사용하도록 세팅
                     break;
                 default:
                     result.put("success", false);

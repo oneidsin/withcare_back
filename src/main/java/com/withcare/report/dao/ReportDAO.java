@@ -55,4 +55,6 @@ public interface ReportDAO {
   int reportHistoryCount(Map<String, Object> params);
 
   List<String> getAdminIds();
+
+  Integer findMenIdxByComIdx(int itemIdx);
 }

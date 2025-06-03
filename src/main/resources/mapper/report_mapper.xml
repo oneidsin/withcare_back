@@ -322,6 +322,13 @@
   WHERE men_idx = #{itemIdx}
 </select>
 
+<!-- com_idx로 men_idx 조회 -->
+<select id="findMenIdxByComIdx" resultType="int">
+    SELECT men_idx
+    FROM mention
+    WHERE com_idx = #{comIdx}
+</select>
+
 <!-- 신고된 사용자 ID 조회 -->
 <select id="getReportedId" parameterType="int" resultType="String">
   SELECT reported_id
