@@ -104,6 +104,7 @@ public class NotiService {
                         .name("notification") // 이벤트 이름
                         .data(noti) // 알림 데이터
                         .reconnectTime(1000L)); // 연결이 끊어졌을 때 1초 후 재연결 시도
+                log.info("알림 전송 성공 - user: {}", user_id);
             } catch (IOException e) {
                 // IO 예외 발생 시 (연결이 끊어진 경우)
                 log.error("알림 전송 실패 - user: {}, noti: {}", user_id, noti.getNoti_type(), e);
