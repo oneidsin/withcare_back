@@ -16,7 +16,7 @@
             r.status,
             rc.cate_name,
             CASE
-                WHEN r.rep_item_type = '게시글' THEN p.post_title
+                WHEN r.rep_item_type = '게시글' THEN p.post_content
                 WHEN r.rep_item_type = '댓글' THEN c.com_content
                 WHEN r.rep_item_type = '멘션' THEN m.men_content
                 ELSE '알 수 없음'
@@ -59,7 +59,7 @@
         r.rep_item_idx,
         r.report_at,
         CASE
-            WHEN r.rep_item_type = '게시글' THEN p.post_title
+            WHEN r.rep_item_type = '게시글' THEN p.post_content
             WHEN r.rep_item_type = '댓글' THEN c.com_content
             WHEN r.rep_item_type = '멘션' THEN m.men_content
             ELSE '알 수 없음'
