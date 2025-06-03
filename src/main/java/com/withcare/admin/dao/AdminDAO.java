@@ -61,4 +61,10 @@ public interface AdminDAO {
 
 	List<BadgeDTO> adminBdgList();
 
+	// 댓글 ID로 해당 댓글이 속한 게시글 정보 조회
+	Map<String, Object> getPostInfoByCommentId(int comIdx);
+	
+	// 멘션 ID로 해당 멘션이 속한 게시글 정보 조회
+	Map<String, Object> getPostInfoByMentionId(int menIdx);
+
 }

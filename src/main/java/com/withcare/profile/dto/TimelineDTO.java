@@ -14,6 +14,13 @@ public class TimelineDTO {
     private Timestamp time_create_date;
     private Timestamp time_update_date;
     
+    // Getter/Setter 수정
+    public int getTime_idx() {  // int → Long
+        return time_idx;
+    }
+    public void setTime_idx(int time_idx) {  // int → Long
+        this.time_idx = time_idx;
+    }
     
 	public Timestamp getTime_create_date() {
 		return time_create_date;
@@ -27,12 +34,7 @@ public class TimelineDTO {
 	public void setTime_update_date(Timestamp time_update_date) {
 		this.time_update_date = time_update_date;
 	}
-	public int getTime_idx() {
-		return time_idx;
-	}
-	public void setTime_idx(int time_idx) {
-		this.time_idx = time_idx;
-	}
+
 	public String getTime_user_id() {
 		return time_user_id;
 	}
