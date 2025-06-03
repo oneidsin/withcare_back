@@ -335,32 +335,33 @@ public class AdminController {
 	// 배지 목록 조회
 	@GetMapping("/admin/bdg/list")
 	public Map<String, Object> getBadgeList(@RequestHeader Map<String, String> header) {
-		result = new HashMap<>();
-		String loginId = null;
-		try {
-			loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
-		} catch (Exception e) {
-			// 토큰 파싱 오류 또는 토큰 부재 시 처리
-			result.put("success", false);
-			result.put("msg", "인증 토큰이 유효하지 않습니다.");
-			return result;
-		}
+	    result = new HashMap<>();
+	    String loginId = null;
+	    try {
+	        loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+	    } catch (Exception e) {
+	        // 토큰 파싱 오류 또는 토큰 부재 시 처리
+	        result.put("success", false);
+	        result.put("msg", "인증 토큰이 유효하지 않습니다.");
+	        return result;
+	    }
 
-		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
-			result.put("success", false);
-			result.put("msg", "관리자 권한이 필요합니다.");
-			return result;
-		}
+	    // 수정: 레벨 체크 제거, 로그인만 확인
+	    if (loginId == null || loginId.isEmpty()) {
+	        result.put("success", false);
+	        result.put("msg", "로그인이 필요합니다.");
+	        return result;
+	    }
 
-		try {
-			List<BadgeDTO> badgeList = svc.adminBdgList();
-			result.put("success", true);
-			result.put("badges", badgeList);
-		} catch (Exception e) {
-			result.put("success", false);
-			result.put("msg", "배지 목록을 불러오는데 실패했습니다: " + e.getMessage());
-		}
-		return result;
+	    try {
+	        List<BadgeDTO> badgeList = svc.adminBdgList();
+	        result.put("success", true);
+	        result.put("badges", badgeList);
+	    } catch (Exception e) {
+	        result.put("success", false);
+	        result.put("msg", "배지 목록을 불러오는데 실패했습니다: " + e.getMessage());
+	    }
+	    return result;
 	}
 
 	// 배지 통합 등록/수정
