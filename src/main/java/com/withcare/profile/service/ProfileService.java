@@ -93,5 +93,21 @@ public class ProfileService {
 			throw new RuntimeException("프로필 이미지 저장에 실패했습니다.", e);
 		}
 	}
+	// 카운트 메서드들 추가
+    public int getUserPostCount(String id) {
+        return dao.getUserPostCount(id);
+    }
+    
+    public int getUserCommentCount(String id) {
+        return dao.getUserCommentCount(id);
+    }
+    
+    public int getUserLikeCount(String id) {
+        return dao.getUserLikeCount(id);
+    }
+    
+    public int getUserTimelineCount(String id) {
+        return dao.getUserTimelineCount(id);
+    }
 	
 }
