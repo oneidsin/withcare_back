@@ -232,4 +232,21 @@
 			SELECT * FROM level WHERE lv_idx = #{lvIdx}
 		</select>
 		
+		<!-- 댓글 ID로 해당 댓글이 속한 게시글 정보 조회 -->
+   		<select id="getPostInfoByCommentId" parameterType="int" resultType="map">
+   			SELECT p.post_idx, p.post_title
+   			FROM post p
+   			JOIN comment c ON p.post_idx = c.post_idx
+   			WHERE c.com_idx = #{comIdx}
+   		</select>
+   		
+   		<!-- 멘션 ID로 해당 멘션이 속한 게시글 정보 조회 -->
+   		<select id="getPostInfoByMentionId" parameterType="int" resultType="map">
+   			SELECT p.post_idx, p.post_title
+   			FROM post p
+   			JOIN comment c ON p.post_idx = c.post_idx
+   			JOIN mention m ON c.com_idx = m.com_idx
+   			WHERE m.men_idx = #{menIdx}
+   		</select>
+   		
    </mapper>
