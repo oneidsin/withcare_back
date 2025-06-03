@@ -219,4 +219,18 @@ public class NotiService {
         int row = dao.readAllNoti(id);
         return row > 0;
     }
+
+    public Integer getPostIdByCommentIdx(int comIdx) {
+        return dao.getPostIdByCommentIdx(comIdx);
+    }
+
+    public Integer getPostIdByMentionIdx(int menIdx) {
+        Integer comIdx = dao.getPostIdByMentionIdx(menIdx);
+        Integer postIdx = 0;
+        // null 아니면 comIdx 로 postIdx 가져옴
+        if (comIdx != null) {
+            postIdx = dao.getPostIdByCommentIdx(comIdx);
+        }
+        return postIdx;
+    }
 }

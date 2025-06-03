@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,8 @@ public class NotiController {
     NotiService svc;
 
     Map<String, Object> result = null;
+    @Autowired
+    private NotiService notiService;
 
     // SSE 연결을 위한 엔드포인트
     @GetMapping("/noti/subscribe/{id}")
@@ -130,5 +133,27 @@ public class NotiController {
 
         result.put("success", success);
         return result;
+    }
+
+    // 알림 링크 idx 제공 API (comment)
+    @GetMapping("/api/comment/{comIdx}/post-id")
+    public ResponseEntity<Integer> getPostIdByCommentIdx(@PathVariable int comIdx) {
+        Integer postIdx = notiService.getPostIdByCommentIdx(comIdx);
+        if (postIdx != null) {
+            return ResponseEntity.ok(postIdx);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 알림 링크 idx 제공 API (mention)
+    @GetMapping("/api/mention/{menIdx}/post-id")
+    public ResponseEntity<Integer> getPostIdByMentionIdx(@PathVariable int menIdx) {
+        Integer postIdx = notiService.getPostIdByMentionIdx(menIdx);
+        if (postIdx != null) {
+            return ResponseEntity.ok(postIdx);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
