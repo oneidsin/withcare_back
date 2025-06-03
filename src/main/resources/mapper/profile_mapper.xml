@@ -88,6 +88,22 @@
 		COALESCE(men_update_date, men_create_date) DESC LIMIT 5
 	</select>
 
+	<!-- 전체 개수만 가져오는 쿼리들 추가 -->
+	<select id="getUserPostCount" parameterType="String" resultType="int">
+	    SELECT COUNT(*) FROM post WHERE id = #{id}
+	</select>
+	
+	<select id="getUserCommentCount" parameterType="String" resultType="int">
+	    SELECT COUNT(*) FROM comment WHERE id = #{id}
+	</select>
+	
+	<select id="getUserLikeCount" parameterType="String" resultType="int">
+	    SELECT COUNT(*) FROM likeYn WHERE id = #{id}
+	</select>
+	
+	<select id="getUserTimelineCount" parameterType="String" resultType="int">
+	    SELECT COUNT(*) FROM mention WHERE men_id = #{id}
+	</select>
 
 </mapper>
    

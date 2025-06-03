@@ -160,6 +160,9 @@ public class SearchController {
                 boolean hasSearchHistory = svc.searchHistory(loginId);
                 if (hasSearchHistory) {
                     recommendPost = svc.recommendPost(loginId);
+                    if (recommendPost == null || recommendPost.isEmpty()) {
+                        recommendPost = svc.recommendDefault();
+                    }
                 } else {
                     recommendPost = svc.recommendDefault();
                 }

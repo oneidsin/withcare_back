@@ -190,45 +190,63 @@ public class ProfileController {
 		return result;
 	}
 
+	// 프로필 활동내역
 	@GetMapping("/profile/activity/{id}")
 	public Map<String, Object> getUserActivity(@PathVariable("id") String id,
-			@RequestHeader Map<String, String> header) {
+	        @RequestHeader Map<String, String> header) {
 
-		Map<String, Object> result = new HashMap<>();
+	    Map<String, Object> result = new HashMap<>();
 
-		try {
-			// 1. 토큰 추출 및 검증
-			String token = header.get("authorization");
-			if (token == null || token.trim().isEmpty()) {
-				result.put("status", "fail");
-				result.put("message", "로그인이 필요합니다.");
-				return result;
-			}
+	    try {
+	        // 1. 토큰 추출 및 검증
+	        String token = header.get("authorization");
+	        if (token == null || token.trim().isEmpty()) {
+	            result.put("status", "fail");
+	            result.put("message", "로그인이 필요합니다.");
+	            return result;
+	        }
 
-			// 2. 토큰 유효성 검사만 (사용자 ID 비교는 하지 않음)
-			JwtUtils.readToken(token); // 예외 발생 시 catch로 이동
+	        // 2. 토큰 유효성 검사만 (사용자 ID 비교는 하지 않음)
+	        JwtUtils.readToken(token); // 예외 발생 시 catch로 이동
 
-			// 3. 해당 사용자 활동 정보 조회
-			List<PostDTO> posts = svc.getUserPosts(id);
-			List<ComDTO> comments = svc.getUserComments(id);
-			List<LikeDislikeDTO> likes = svc.getUserLikes(id);
-			List<SearchDTO> searches = svc.getUserSearches(id);
-			List<MenDTO> mentions = svc.getUserMentions(id);
+	        // 3. 해당 사용자 활동 정보 조회 (기존 로직)
+	        List<PostDTO> posts = svc.getUserPosts(id);
+	        List<ComDTO> comments = svc.getUserComments(id);
+	        List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+	        List<SearchDTO> searches = svc.getUserSearches(id);
+	        List<MenDTO> mentions = svc.getUserMentions(id);
 
-			// 4. 응답 조립
-			result.put("status", "success");
-			result.put("posts", posts);
-			result.put("comments", comments);
-			result.put("likes", likes);
-			result.put("searches", searches);
-			result.put("mentions", mentions);
+	        // 📌 NEW: 전체 개수 정보 조회 (레벨 시스템용)
+	        int postCount = svc.getUserPostCount(id);
+	        int commentCount = svc.getUserCommentCount(id);
+	        int likeCount = svc.getUserLikeCount(id);
+	        int timelineCount = svc.getUserTimelineCount(id);
 
-		} catch (Exception e) {
-			result.put("status", "error");
-			result.put("message", "서버 오류: " + e.getMessage());
-		}
+	        // 4. 응답 조립
+	        result.put("status", "success");
+	        
+	        // 기존 활동 내역 (최근 5개씩)
+	        result.put("posts", posts);
+	        result.put("comments", comments);
+	        result.put("likes", likes);
+	        result.put("searches", searches);
+	        result.put("mentions", mentions);
+	        
+	        // 🎯 NEW: 전체 개수 정보 (레벨 계산용)
+	        result.put("postCount", postCount);
+	        result.put("commentCount", commentCount);
+	        result.put("likeCount", likeCount);
+	        result.put("timelineCount", timelineCount);
 
-		return result;
+	    } catch (Exception e) {
+	        result.put("status", "error");
+	        result.put("message", "서버 오류: " + e.getMessage());
+	    }
+
+	    return result;
 	}
+	
+	
+	
 
 }

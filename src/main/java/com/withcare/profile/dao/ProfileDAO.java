@@ -37,4 +37,12 @@ public interface ProfileDAO {
 	List<MenDTO> getUserMentions(String id);
 
 	String saveProfileImage(MultipartFile file);
+
+	int getUserPostCount(String id);
+
+	int getUserCommentCount(String id);
+
+	int getUserLikeCount(String id);
+
+	int getUserTimelineCount(String id);
 }
