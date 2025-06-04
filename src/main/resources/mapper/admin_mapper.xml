@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC   "-//mybatis.org//DTD Mapper 3.0//EN"
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-   
+
    <mapper namespace="com.withcare.admin.dao.AdminDAO">
-   	
+
    	<!-- 유저 레벨 조회 -->
 	   	<select id="userLevel" parameterType="String" resultType="int">
 	   		SELECT lv_idx FROM member WHERE id = #{id}
 	   	</select>
-   	
+
    	<!-- 관리자 권한 부여 -->
    		<update id="levelUpdate" parameterType="map">
 		      UPDATE member SET lv_idx = #{lv_idx}
@@ -20,10 +20,10 @@
                 </if>
  			   WHERE id = #{id}
    		</update>
-   		
+
 	<!-- 관리자 전용 회원 리스트 조회 -->
 		<select id="adminMemberList" resultType="com.withcare.admin.dto.AdminMemberDTO">
-		  SELECT 
+		  SELECT
 		    m.id,
 		    m.admin_yn,
 		    m.block_yn,
@@ -46,15 +46,15 @@
 		    <if test="searchId != null and searchId != ''">
 		        AND m.id LIKE CONCAT('%', #{searchId}, '%')
 		    </if>
-		
+
 		    <if test="adminYN != null">
 		        AND m.admin_yn = #{adminYN}
 		    </if>
-		
+
 			<if test="blockYN != null">
 			    AND m.block_yn = #{blockYN}
 			</if>
-		
+
 		    <if test="delYN != null">
 		        AND m.user_del_yn = #{delYN}
 		    </if>
@@ -81,49 +81,97 @@
 	  	<!-- start 부터 size 개 잘라서 보여줌 -->
 		  LIMIT #{size} OFFSET #{start}
 		</select>
-   		
-		<select id="adminMemberDetail" resultType="com.withcare.admin.dto.AdminMemberDetailDTO" parameterType="String">
-			SELECT 
-			    m.id, m.name, m.email, m.join_date, m.access_date,
-			    m.lv_idx, lv.lv_name,
-			    m.admin_yn, m.block_yn,
-			    bl.block_reason, bl.block_start_date, bl.block_end_date,
-			    p.profile_photo, p.intro, p.access_cnt, p.profile_yn,
-			    p.cancer_idx, c.cancer_name,
-			    p.stage_idx, s.stage_name,
-			    b.bdg_idx, b.bdg_name
-			FROM member m
-			LEFT JOIN profile p ON m.id = p.id
-			LEFT JOIN stage s ON p.stage_idx = s.stage_idx
-			LEFT JOIN cancer c ON p.cancer_idx = c.cancer_idx
-			LEFT JOIN level lv ON m.lv_idx = lv.lv_idx
-			LEFT JOIN member_badge mb ON m.id = mb.id AND mb.bdg_sym_yn = true
-			LEFT JOIN badge b ON mb.bdg_idx = b.bdg_idx
-			LEFT JOIN block_list bl ON m.id = bl.blocked_id AND m.block_yn = true
-			WHERE m.id = #{id}
-		</select>
-   		
+
+<!--		<select id="adminMemberDetail" resultType="com.withcare.admin.dto.AdminMemberDetailDTO" parameterType="String">-->
+<!--			SELECT -->
+<!--			    m.id, m.name, m.email, m.join_date, m.access_date,-->
+<!--			    m.lv_idx, lv.lv_name,-->
+<!--			    m.admin_yn, m.block_yn,-->
+<!--			    bl.block_reason, bl.block_start_date, bl.block_end_date,-->
+<!--			    p.profile_photo, p.intro, p.access_cnt, p.profile_yn,-->
+<!--			    p.cancer_idx, c.cancer_name,-->
+<!--			    p.stage_idx, s.stage_name,-->
+<!--			    b.bdg_idx, b.bdg_name-->
+<!--			FROM member m-->
+<!--			LEFT JOIN profile p ON m.id = p.id-->
+<!--			LEFT JOIN stage s ON p.stage_idx = s.stage_idx-->
+<!--			LEFT JOIN cancer c ON p.cancer_idx = c.cancer_idx-->
+<!--			LEFT JOIN level lv ON m.lv_idx = lv.lv_idx-->
+<!--			LEFT JOIN member_badge mb ON m.id = mb.id AND mb.bdg_sym_yn = true-->
+<!--			LEFT JOIN badge b ON mb.bdg_idx = b.bdg_idx-->
+<!--			LEFT JOIN block_list bl ON m.id = bl.blocked_id AND m.block_yn = true-->
+<!--			WHERE m.id = #{id}-->
+<!--		</select>-->
+
+    <select id="adminMemberDetail"
+            resultType="com.withcare.admin.dto.AdminMemberDetailDTO"
+            parameterType="String">
+        SELECT
+            m.id,
+            m.name,
+            m.email,
+            m.join_date,
+            m.access_date,
+            m.lv_idx,
+            lv.lv_name,
+            m.admin_yn,
+            m.block_yn,
+            bl.block_reason,
+            bl.block_start_date,
+            bl.block_end_date,
+            p.profile_photo,
+            p.intro,
+            p.access_cnt,
+            p.profile_yn,
+            p.cancer_idx,
+            c.cancer_name,
+            p.stage_idx,
+            s.stage_name,
+            b.bdg_idx,
+            b.bdg_name
+        FROM member m
+                 LEFT JOIN profile p ON m.id = p.id
+                 LEFT JOIN stage s ON p.stage_idx = s.stage_idx
+                 LEFT JOIN cancer c ON p.cancer_idx = c.cancer_idx
+                 LEFT JOIN level lv ON m.lv_idx = lv.lv_idx
+                 LEFT JOIN member_badge mb ON m.id = mb.id AND mb.bdg_sym_yn = true
+                 LEFT JOIN badge b ON mb.bdg_idx = b.bdg_idx
+                 LEFT JOIN (
+            SELECT
+                bl1.*
+            FROM block_list bl1
+                     JOIN (
+                SELECT
+                    blocked_id,
+                    MAX(block_start_date) AS max_start
+                FROM block_list
+                GROUP BY blocked_id
+            ) bl2 ON bl1.blocked_id = bl2.blocked_id AND bl1.block_start_date = bl2.max_start
+        ) bl ON m.id = bl.blocked_id
+        WHERE m.id = #{id}
+    </select>
+
    		<!-- 관리자 회원 게시글 리스트 보기 -->
 		 <select id="adminMemberPost" parameterType="String" resultType="com.withcare.post.dto.PostDTO">
 		    SELECT post_idx, post_title, post_content, post_create_date, post_update_date FROM post
 		    WHERE id = #{targetId}
-		    ORDER BY 
-		        CASE 
+		    ORDER BY
+		        CASE
 		            WHEN post_update_date IS NOT NULL AND post_update_date > post_create_date THEN post_update_date
 		            ELSE post_create_date
 		        END DESC
 		</select>
-   		
+
    		<!-- 관리자 회원 댓글 리스트 보기 -->
    		<select id="adminMemberCom" parameterType="String" resultType="com.withcare.comment.dto.ComDTO">
    			SELECT * FROM comment WHERE id = #{targetId} ORDER BY com_create_date DESC
    		</select>
-   		
+
    		<!-- 관리자 회원 멘션 리스트 보기 -->
    		<select id="adminMemberMen" parameterType="String" resultType="com.withcare.comment.dto.MenDTO">
    			SELECT * FROM mention WHERE men_writer_id = #{targetId} ORDER BY men_create_date DESC
    		</select>
-   		
+
    		<!-- 관리자 회원 추천 게시글 리스트 보기 -->
    		<select id="adminMemberLike" parameterType="String" resultType="com.withcare.post.dto.LikeDislikeDTO">
 		    SELECT
@@ -135,34 +183,34 @@
 		    WHERE l.id = #{targetId} AND l.like_type = 1
 		    ORDER BY l.like_date DESC
    		</select>
-   		
+
    		<!-- 유저 타임라인 보기 -->
    		<select id="adminMemberTimeline" parameterType="String" resultType="com.withcare.profile.dto.TimelineDTO">
    			SELECT * FROM timeline WHERE time_user_id = #{id} AND time_public_yn = 1 ORDER BY day DESC
    		</select>
-   		
+
    		<!-- 배지 전체 목록 조회 -->
 	    <select id="adminBdgList" resultType="com.withcare.profile.dto.BadgeDTO">
-	        SELECT 
-	            bdg_idx, 
-	            bdg_name, 
-	            bdg_icon, 
-	            bdg_condition, 
-	            bdg_active_yn 
+	        SELECT
+	            bdg_idx,
+	            bdg_name,
+	            bdg_icon,
+	            bdg_condition,
+	            bdg_active_yn
 	        FROM badge
 	        ORDER BY bdg_idx DESC
 	    </select>
-   		
-   		
+
+
    		<!-- 배지 추가 -->
    		<insert id="adminBdgAdd" parameterType="com.withcare.profile.dto.BadgeDTO">
 		    INSERT INTO badge (bdg_name, bdg_icon, bdg_condition, bdg_active_yn)
 		    	VALUES (#{bdg_name}, #{bdg_icon}, #{bdg_condition}, #{bdg_active_yn})
    		</insert>
-   		
+
    		<!-- 배지 수정 -->
    		<update id="adminBdgUpdate" parameterType="com.withcare.profile.dto.BadgeDTO">
- 			UPDATE badge 
+ 			UPDATE badge
 		    SET bdg_name = #{bdg_name},
 		        bdg_condition = #{bdg_condition},
 		        bdg_active_yn = #{bdg_active_yn}
@@ -171,23 +219,23 @@
 		        </if>
 		    WHERE bdg_idx = #{bdg_idx}
    		</update>
-   		
+
    		<!-- 배지 활성화 여부 설정 -->
  		<update id="adminBdgDelete" parameterType="com.withcare.profile.dto.BadgeDTO">
  			UPDATE badge SET bdg_active_yn = #{bdg_active_yn}
     			WHERE bdg_idx = #{bdg_idx}
    		</update>
-   		
+
    		<!-- 레벨 추가 -->
    		<insert id="adminLevelAdd" parameterType="com.withcare.profile.dto.LevelDTO">
 		    INSERT INTO level (lv_no, lv_name, lv_icon, post_cnt, com_cnt, like_cnt, time_cnt, access_cnt)
 		    	VALUES (#{lv_no}, #{lv_name}, #{lv_icon}, #{post_cnt}, #{com_cnt}, #{like_cnt}, #{time_cnt}, #{access_cnt})
    		</insert>
-   		
+
    		<!-- 레벨 수정 -->
 		<update id="adminLevelUpdate" parameterType="com.withcare.profile.dto.LevelDTO">
- 			UPDATE level SET 
-	 			lv_no = #{lv_no}, 
+ 			UPDATE level SET
+	 			lv_no = #{lv_no},
 	 			lv_name = #{lv_name},
 	 			lv_icon = #{lv_icon},
 		        post_cnt = #{post_cnt},
@@ -197,19 +245,19 @@
 		        access_cnt = #{access_cnt}
 	    	WHERE lv_idx = #{lv_idx}
    		</update>
-   		
+
    		<!-- 해당 레벨을 보유한 사용자가 몇 명인지 확인 (1명이라도 있으면 레벨 삭제 불가) -->
 		<select id="adminLevelCnt" resultType="int">
 		    SELECT COUNT(*) FROM member WHERE lv_idx = #{lv_idx}
 		</select>
-		
+
 		<!-- 레벨 삭제 -->
 		<delete id="adminLevelDelete">
 		    DELETE FROM level WHERE lv_idx = #{lv_idx}
 		</delete>
-		
+
 		<select id="adminMemberCnt" resultType="int">
-		  SELECT COUNT(*) 
+		  SELECT COUNT(*)
 		  FROM member m
 		  <where>
 		    <if test="searchId != null and searchId != ''">
@@ -226,15 +274,15 @@
 		    </if>
 		  </where>
 		</select>
-		
+
 		<select id="levelList" resultType="com.withcare.profile.dto.LevelDTO">
 			SELECT * FROM level ORDER BY lv_idx ASC
 		</select>
-		
+
 		<select id="getLevelById" parameterType="int" resultType="com.withcare.profile.dto.LevelDTO">
 			SELECT * FROM level WHERE lv_idx = #{lvIdx}
 		</select>
-		
+
 		<!-- 댓글 ID로 해당 댓글이 속한 게시글 정보 조회 -->
    		<select id="getPostInfoByCommentId" parameterType="int" resultType="map">
    			SELECT p.post_idx, p.post_title
@@ -242,7 +290,7 @@
    			JOIN comment c ON p.post_idx = c.post_idx
    			WHERE c.com_idx = #{comIdx}
    		</select>
-   		
+
    		<!-- 멘션 ID로 해당 멘션이 속한 게시글 정보 조회 -->
    		<select id="getPostInfoByMentionId" parameterType="int" resultType="map">
    			SELECT p.post_idx, p.post_title
@@ -251,5 +299,5 @@
    			JOIN mention m ON c.com_idx = m.com_idx
    			WHERE m.men_idx = #{menIdx}
    		</select>
-   		
+
    </mapper>
