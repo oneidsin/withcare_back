@@ -35,14 +35,18 @@ public class LoginController {
 	@PostMapping(value="/login")
 	public Map<String, Object> login(@RequestBody Map<String, String> info){
 		
-		result = new HashMap<String, Object>();
-		boolean success = svc.login(info);
+		// 로그인 서비스 호출 -- 각 조건에 따라 성공 여부와 메세지를 반환
+		result = svc.login(info);
 		
-		if (success) {
+		boolean isSuccess = Boolean.parseBoolean(String.valueOf(result.get("success")));
+
+		// 로그인 성공시 토큰 발급
+		if (isSuccess) {
 			String token = JwtUtils.setToken("id", info.get("id"));
 			result.put("token", token);
-			result.put("success", success);
+			result.put("id",info.get("id"));
 		}
+
 		return result;
 	}
 	

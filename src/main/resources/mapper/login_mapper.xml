@@ -5,8 +5,16 @@
 
 <mapper namespace="com.withcare.member.dao.LoginDAO">
 
-<select id="login" parameterType="map" resultType="int">
+<!-- <select id="login" parameterType="map" resultType="int">
     SELECT COUNT(id) FROM member WHERE id = #{id} AND pw = #{pw} AND user_del_yn = 0 AND block_yn = 0
+</select> -->
+
+<select id="getLoginInfo" parameterType="map" resultType="map">
+    SELECT id, pw, user_del_yn, block_yn
+    FROM member
+    WHERE id = #{id}
+    AND (user_del_yn = 0 OR user_del_yn IS NULL)
+    AND (block_yn = 0 OR block_yn IS NULL)
 </select>
  
  <select id="findId" resultType="String">

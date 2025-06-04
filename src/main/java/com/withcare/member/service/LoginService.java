@@ -16,18 +16,61 @@ public class LoginService {
 	
 	Logger log = LoggerFactory.getLogger(getClass());
 	
+	Map<String, Object> result = null;
+	
 	@Autowired LoginDAO dao;
 
-	public boolean login(Map<String, String> params) {
-		int cnt = dao.login(params);
-		if(cnt > 0) {
-	        dao.visitCnt(params.get("id")); // 로그인 시 방문자 수 저장
-	        dao.updateAccessDate(params.get("id")); // 로그인 시 최근 방문 일자 업데이트
-	        return true;
+	public Map<String, Object> login(Map<String, String> params) {
+		
+		result = new HashMap<>();
+		
+		// 사용자 정보(id, pw, user_del_yn, block_yn) 조회
+	    Map<String, Object> member = dao.getLoginInfo(params);
+
+	    // 1. 아이디가 존재하지 않는 경우
+	    if (member == null) {
+	        result.put("success", false);
+	        result.put("msg", "존재하지 않는 아이디입니다.");
+	        return result;
 	    }
-	    return false;
+
+	    // 2. 탈퇴한 회원인 경우
+	    if ("1".equals(String.valueOf(member.get("user_del_yn")))) {
+	        result.put("success", false);
+	        result.put("msg", "탈퇴한 회원입니다.");
+	        return result;
+	    }
+	    
+	    // 3. 차단된 회원인 경우
+	    if ("1".equals(String.valueOf(member.get("block_yn")))) {
+	        result.put("success", false);
+	        result.put("msg", "차단된 회원입니다.");
+	        return result;
+	    }
+
+	    // 4. 비밀번호 불일치
+	    String inputPw = params.get("pw");
+	    String actualPw = String.valueOf(member.get("pw"));
+
+	    if (!actualPw.equals(inputPw)) {
+	        result.put("success", false);
+	        result.put("msg", "비밀번호가 일치하지 않습니다.");
+	        return result;
+	    }
+
+	
+		 // 5. 로그인 성공 - 방문수 & 접속일 업데이트
+		 dao.visitCnt(params.get("id")); // 방문수 증가
+		 dao.updateAccessDate(params.get("id")); // 접속 일자 업데이트
+	
+		 result.put("success", true);
+		 result.put("msg", "로그인 성공");
+	
+		 return result;
+	 
 	}
 
+	
 	public String findId(String name, String year, String email) {
 		return dao.findId(name, year, email);
 	}

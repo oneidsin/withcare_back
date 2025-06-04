@@ -20,4 +20,6 @@ public interface LoginDAO {
 	int updateAccessDate(String id);
 
 	int getLvIdx(String id);
+
+	Map<String, Object> getLoginInfo(Map<String, String> params);
 }
