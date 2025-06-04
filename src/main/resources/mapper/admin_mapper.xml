@@ -15,6 +15,9 @@
   				<if test="lv_idx == 7">
     				, admin_yn = TRUE
   				</if>
+                <if test="lv_idx != 7">
+                    , admin_yn = FALSE
+                </if>
  			   WHERE id = #{id}
    		</update>
    		
