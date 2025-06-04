@@ -61,10 +61,10 @@
         </where>
         <choose>
             <when test="sort == 'asc'">
-                ORDER BY b.block_start_date ASC
+                ORDER BY b.block_end_date ASC
             </when>
             <otherwise>
-                ORDER BY b.block_start_date DESC
+                ORDER BY b.block_end_date DESC
             </otherwise>
         </choose>
         LIMIT #{limit} OFFSET #{offset}
