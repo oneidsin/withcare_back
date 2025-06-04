@@ -193,21 +193,104 @@ public class SearchController {
     // 둘 다 포함 > 암 종류만 포함 > 병기만 포함
     @PostMapping("/cancer")
     public Map<String, Object> searchCancer(
-    		@RequestHeader Map<String, String>header){
-    	
+            @RequestHeader Map<String, String> header,
+            @RequestBody(required = false) Map<String, Object> params) {
+        
         result = new HashMap<>();
-		
+        log.info("▶▶▶ /search/cancer API 호출됨, 파라미터: {}", params);
+        
         try {
-            String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            // 토큰에서 로그인 ID 추출
+            String loginId = null;
+            try {
+                loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+                log.info("▶▶▶ 로그인 ID: {}", loginId);
+            } catch (Exception e) {
+                log.error("▶▶▶ 토큰에서 로그인 ID 추출 실패", e);
+                result.put("success", false);
+                result.put("message", "로그인 정보가 유효하지 않습니다.");
+                return result;
+            }
+            
+            if (loginId == null || loginId.trim().isEmpty()) {
+                log.warn("▶▶▶ 로그인 ID가 없습니다. 기본 추천 게시글을 반환합니다.");
+                result.put("success", true);
+                result.put("data", svc.recommendDefault());
+                return result;
+            }
+            
             // 로그인 사용자 프로필 정보 가져오기
             ProfileDTO profileDTO = svc.profileCancer(loginId);
+            
+            // 프로필 정보가 없는 경우 기본 추천 게시글 반환
+            if (profileDTO == null) {
+                log.warn("▶▶▶ 프로필 정보가 없습니다. 기본 추천 게시글을 반환합니다.");
+                result.put("success", true);
+                result.put("data", svc.recommendDefault());
+                return result;
+            }
+            
             profileDTO.setId(loginId);
             
-            List<SearchResultDTO> results = svc.searchCancer(profileDTO);
+            // 암 종류 정보 확인
+            boolean hasCancerInfo = false;
+            if (profileDTO.getCancer_idx() > 0 && profileDTO.getCancer_name() != null) {
+                hasCancerInfo = true;
+                log.info("▶▶▶ 암 종류 정보: cancer_idx={}, cancer_name={}", 
+                        profileDTO.getCancer_idx(), profileDTO.getCancer_name());
+            } else {
+                log.info("▶▶▶ 암 종류 정보 없음");
+            }
             
+            // 병기 정보 확인
+            boolean hasStageInfo = false;
+            if (profileDTO.getStage_idx() > 0 && profileDTO.getStage_name() != null) {
+                hasStageInfo = true;
+                log.info("▶▶▶ 병기 정보: stage_idx={}, stage_name={}", 
+                        profileDTO.getStage_idx(), profileDTO.getStage_name());
+            } else {
+                log.info("▶▶▶ 병기 정보 없음");
+            }
+            
+            log.info("▶▶▶ 암 종류 정보 있음: {}, 병기 정보 있음: {}", hasCancerInfo, hasStageInfo);
+            
+            // 암 종류나 병기 정보가 하나도 없는 경우 기본 추천 게시글 반환
+            if (!hasCancerInfo && !hasStageInfo) {
+                log.warn("▶▶▶ 암 종류와 병기 정보가 모두 없습니다. 기본 추천 게시글을 반환합니다.");
+                result.put("success", true);
+                result.put("data", svc.recommendDefault());
+                return result;
+            }
+            
+            // 암 관련 게시글 검색
+            log.info("▶▶▶ 암 관련 게시글 검색 시작");
+            List<SearchResultDTO> results = svc.searchCancer(profileDTO);
+            log.info("▶▶▶ 검색 결과 수: {}", results != null ? results.size() : 0);
+            
+            if (results != null && !results.isEmpty()) {
+                log.info("▶▶▶ 검색 결과 첫 번째 게시글: board_idx={}, title={}",
+                        results.get(0).getBoard_idx(), results.get(0).getTitle());
+                
+                if (results.get(0).getLike_count() != null) {
+                    log.info("▶▶▶ 첫 번째 게시글 추천 수: {}", results.get(0).getLike_count());
+                } else {
+                    log.info("▶▶▶ 첫 번째 게시글 추천 수: null");
+                }
+            }
+            
+            // 검색 결과가 없는 경우 기본 추천 게시글 반환
+            if (results == null || results.isEmpty()) {
+                log.warn("▶▶▶ 검색 결과가 없습니다. 기본 추천 게시글을 반환합니다.");
+                result.put("success", true);
+                result.put("data", svc.recommendDefault());
+                return result;
+            }
+            
+            log.info("▶▶▶ 암 관련 게시글 검색 완료, 결과 반환");
             result.put("success", true);
             result.put("data", results);
         } catch (Exception e) {
+            log.error("▶▶▶ 암 관련 게시글 검색 중 오류 발생", e);
             result.put("success", false);
             result.put("message", "로그인 정보가 유효하지 않습니다.");
         }

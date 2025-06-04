@@ -1,24 +1,27 @@
 package com.withcare;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
+import com.withcare.util.JwtToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.withcare.util.JwtToken;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @EnableScheduling
 @SpringBootApplication
 public class WithCareApplication {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final String uploadDir;
+
+    public WithCareApplication(Environment env) {
+        this.uploadDir = env.getProperty("file.upload-dir");
+    }
 
     public static void main(String[] args) {
         // 현재 실행 위치 출력

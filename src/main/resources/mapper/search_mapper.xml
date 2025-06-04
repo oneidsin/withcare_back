@@ -226,57 +226,40 @@
 		p.post_idx,
 		p.board_idx,
 		p.post_title AS title,
-		p.post_content AS
-		content,
+		p.post_content AS content,
 		p.id AS writer,
 		p.post_create_date AS created_date,
 		IFNULL(l.like_count, 0) AS like_count,
 		CASE
-		WHEN (p.post_title LIKE
-		CONCAT('%', #{cancerKeyword}, '%') OR
-		p.post_content LIKE CONCAT('%',
-		#{cancerKeyword}, '%'))
-		AND (p.post_title LIKE CONCAT('%',
-		#{stageKeyword}, '%') OR
-		p.post_content LIKE CONCAT('%',
-		#{stageKeyword}, '%')) THEN 1
-		WHEN (p.post_title LIKE CONCAT('%',
-		#{cancerKeyword}, '%') OR
-		p.post_content LIKE CONCAT('%',
-		#{cancerKeyword}, '%')) THEN 2
-		WHEN (p.post_title LIKE CONCAT('%',
-		#{stageKeyword}, '%') OR
-		p.post_content LIKE CONCAT('%',
-		#{stageKeyword}, '%')) THEN 3
+		WHEN (p.post_title LIKE CONCAT('%', #{cancerKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{cancerKeyword}, '%'))
+		AND (p.post_title LIKE CONCAT('%', #{stageKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{stageKeyword}, '%')) THEN 1
+		WHEN (p.post_title LIKE CONCAT('%', #{cancerKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{cancerKeyword}, '%')) THEN 2
+		WHEN (p.post_title LIKE CONCAT('%', #{stageKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{stageKeyword}, '%')) THEN 3
 		ELSE 4
 		END AS relevance <!-- 추천수 담는 바구니 느낌 -->
 		FROM post p
 		LEFT JOIN (
 		SELECT post_idx, COUNT(*) AS like_count
-		FROM
-		likeyn
+		FROM likeyn
 		WHERE like_type = 1
 		GROUP BY post_idx
-		) l ON p.post_idx =
-		l.post_idx
-		WHERE p.board_idx in (5, 6) <!-- 이게 board_idx 어떤 거에서 가져올 지 선택하는 
-			겁니다. -->
+		) l ON p.post_idx = l.post_idx
+		WHERE p.board_idx in (5, 6) <!-- 이게 board_idx 어떤 거에서 가져올 지 선택하는 겁니다. -->
 		AND p.post_blind_yn = FALSE <!-- 블라인드 게시글 안 보여줌 -->
 		AND p.post_create_date >= NOW() - INTERVAL 1 YEAR <!-- 1년 이내 게시글 -->
 		AND (
-		(#{cancerKeyword} IS NOT NULL AND (p.post_title LIKE CONCAT('%',
-		#{cancerKeyword}, '%')
-		OR p.post_content LIKE CONCAT('%',
-		#{cancerKeyword}, '%')))
-		OR
-		(#{stageKeyword} IS NOT NULL AND
-		(p.post_title LIKE CONCAT('%', #{stageKeyword}, '%')
-		OR p.post_content
-		LIKE CONCAT('%', #{stageKeyword}, '%')))
+			<if test="cancerKeyword != null">
+				(p.post_title LIKE CONCAT('%', #{cancerKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{cancerKeyword}, '%'))
+			</if>
+			<if test="cancerKeyword != null and stageKeyword != null">
+				OR
+			</if>
+			<if test="stageKeyword != null">
+				(p.post_title LIKE CONCAT('%', #{stageKeyword}, '%') OR p.post_content LIKE CONCAT('%', #{stageKeyword}, '%'))
+			</if>
 		)
-		ORDER BY p.post_create_date
-		DESC <!-- 최신순 정렬 -->
-		LIMIT 5 <!-- 몇 개 보여줄지. 지금 5개 -->
+		ORDER BY relevance ASC, like_count DESC, p.post_create_date DESC
+		LIMIT 20
 	</select>
 
 </mapper>
