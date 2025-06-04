@@ -51,26 +51,54 @@ public class PostService {
 			return true;
 		}
 		
+		// 파일 개수 제한 검증 (최대 10개)
+		if (files.length > 10) {
+			log.error("파일 개수 초과: {} 개 (최대 10개)", files.length);
+			throw new IllegalArgumentException("이미지는 최대 10장까지만 업로드할 수 있습니다.");
+		}
+		
+		// 기존 파일 개수 확인
+		List<Map<String, String>> existingFiles = fileList(post_idx);
+		if (existingFiles.size() + files.length > 10) {
+			log.error("총 파일 개수 초과: 기존 {} + 신규 {} = {} (최대 10개)", 
+					existingFiles.size(), files.length, existingFiles.size() + files.length);
+			throw new IllegalArgumentException("기존 파일과 합쳐 최대 10장까지만 업로드할 수 있습니다. 현재 " + 
+                    existingFiles.size() + "개의 파일이 이미 존재합니다.");
+		}
+		
+		// 총 파일 크기 검증 (10MB = 10 * 1024 * 1024 바이트)
+		long totalSize = 0;
+		for (MultipartFile file : files) {
+		    if (!file.isEmpty()) {
+		        totalSize += file.getSize();
+		    }
+		}
+		
+		if (totalSize > 10 * 1024 * 1024) {
+		    double totalSizeMB = totalSize / (1024.0 * 1024.0);
+		    log.error("총 파일 크기 초과: {}MB (최대 10MB)", String.format("%.2f", totalSizeMB));
+		    throw new IllegalArgumentException(String.format("이미지 총 용량이 제한을 초과합니다: %.2fMB (최대 10MB)", totalSizeMB));
+		}
+		
 		List<String> savedFileNames = new ArrayList<>();
 		try {
 			for (MultipartFile file : files) {
 				if (file.isEmpty()) continue;
 				
-				if (file.getSize() > 10 * 1024 * 1024) {
-					throw new IllegalArgumentException("파일 사이즈 초과");
-				}
-				
 				if (!file.getContentType().startsWith("image/")) {
+					log.error("이미지 파일이 아님: {}", file.getContentType());
 					throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다.");
 				}
 
 				String original = file.getOriginalFilename();
 				if (original == null || original.lastIndexOf(".") == -1) {
+					log.error("잘못된 파일 이름: {}", original);
 					throw new IllegalArgumentException("파일 이름이 잘못되었습니다.");
 				}
 
 				String ext = original.substring(original.lastIndexOf(".") + 1).toLowerCase();
 				if (!ext.equals("jpg") && !ext.equals("jpeg") && !ext.equals("png")) {
+					log.error("지원하지 않는 파일 확장자: {}", ext);
 					throw new IllegalArgumentException("jpg, jpeg, png 확장자만 업로드 가능합니다.");
 				}
 
@@ -105,7 +133,11 @@ public class PostService {
 					log.error("파일 시스템 삭제 실패: " + savedName, ex);
 				}
 			}
-			return false;
+			// 예외 다시 던지기
+			if (e instanceof IllegalArgumentException) {
+			    throw (IllegalArgumentException) e;
+			}
+			throw new RuntimeException("파일 업로드 중 오류가 발생했습니다: " + e.getMessage(), e);
 		}
 	}
 
@@ -239,24 +271,69 @@ public class PostService {
 	}
 
 	public boolean updateFiles(int post_idx, MultipartFile[] files, List<String> keepFileIdx) {
-		// 현재 게시글에 등록된 파일 리스트 조회
-		List<Map<String, String>>currentFiles = dao.fileList(post_idx);
-		
-		// 삭제 대상 파일 결정 (keepFileIdx 에 없는 파일 삭제)
-		for (Map<String, String> file : currentFiles) {
-			String fileIdx = String.valueOf(file.get("file_idx")); // 비교를 위해 문자열인지 확인
-			if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) {
-				// DB 에서 삭제
-				dao.fileDelete(fileIdx);
-				// 실제 파일 삭제
-				deleteFileIdx(file.get("file_url"));
+		try {
+			// 현재 게시글에 등록된 파일 리스트 조회
+			List<Map<String, String>>currentFiles = dao.fileList(post_idx);
+			
+			// 유지할 파일 개수 확인
+			int keepCount = 0;
+			if (keepFileIdx != null) {
+				keepCount = keepFileIdx.size();
 			}
+			
+			// 새 파일 개수 확인
+			int newFileCount = 0;
+			if (files != null) {
+				newFileCount = files.length;
+			}
+			
+			// 총 파일 개수 검증
+			if (keepCount + newFileCount > 10) {
+				log.error("총 파일 개수 초과: 유지 {} + 신규 {} = {} (최대 10개)", 
+						keepCount, newFileCount, keepCount + newFileCount);
+				throw new IllegalArgumentException("기존 파일과 합쳐 최대 10장까지만 업로드할 수 있습니다. 현재 유지할 파일 " + 
+	                    keepCount + "개, 새 파일 " + newFileCount + "개로 총 " + (keepCount + newFileCount) + "개입니다.");
+			}
+			
+			// 새 파일들의 총 크기 검증 (10MB = 10 * 1024 * 1024 바이트)
+			if (files != null && files.length > 0) {
+				long totalSize = 0;
+				for (MultipartFile file : files) {
+					if (!file.isEmpty()) {
+						totalSize += file.getSize();
+					}
+				}
+				
+				if (totalSize > 10 * 1024 * 1024) {
+					double totalSizeMB = totalSize / (1024.0 * 1024.0);
+					log.error("총 파일 크기 초과: {}MB (최대 10MB)", String.format("%.2f", totalSizeMB));
+					throw new IllegalArgumentException(String.format("이미지 총 용량이 제한을 초과합니다: %.2fMB (최대 10MB)", totalSizeMB));
+				}
+			}
+			
+			// 삭제 대상 파일 결정 (keepFileIdx 에 없는 파일 삭제)
+			for (Map<String, String> file : currentFiles) {
+				String fileIdx = String.valueOf(file.get("file_idx")); // 비교를 위해 문자열인지 확인
+				if (keepFileIdx == null || !keepFileIdx.contains(fileIdx)) {
+					// DB 에서 삭제
+					dao.fileDelete(fileIdx);
+					// 실제 파일 삭제
+					deleteFileIdx(file.get("file_url"));
+				}
+			}
+			// 새 파일 저장
+			if (files != null && files.length>0) {
+				return saveFiles(post_idx,files); // savefiles 로직 재사용
+			}
+			return true; // 추가할 새 파일은 없지만 이전 파일이 성공적으로 삭제되었을 수 있음
+		} catch (Exception e) {
+			log.error("파일 업데이트 중 오류", e);
+			// 예외 다시 던지기
+			if (e instanceof IllegalArgumentException) {
+			    throw (IllegalArgumentException) e;
+			}
+			throw new RuntimeException("파일 업데이트 중 오류가 발생했습니다: " + e.getMessage(), e);
 		}
-		// 새 파일 저장
-		if (files != null && files.length>0) {
-			return saveFiles(post_idx,files); // savefiles 로직 재사용
-		}
-		return true; // 추가할 새 파일은 없지만 이전 파일이 성공적으로 삭제되었을 수 있음
 	}
 
 	public int userLevel(String loginId) {

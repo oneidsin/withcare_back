@@ -114,13 +114,29 @@ public class PostController {
 	    	String postWriter = svc.postWriter(post_idx);
 	    	
 	        if (postWriter != null && loginId.equals(postWriter)) {
-	            success = svc.saveFiles(post_idx, files); // 작성자랑 login 아이디가 맞으면 파일 저장
+	            try {
+	                success = svc.saveFiles(post_idx, files); // 작성자랑 login 아이디가 맞으면 파일 저장
+	                if (!success) {
+	                    result.put("message", "파일 업로드 실패: 이미지는 최대 10장까지만 업로드할 수 있습니다.");
+	                }
+	            } catch (IllegalArgumentException e) {
+	                // 파일 크기, 타입 등의 검증 실패
+	                success = false;
+	                result.put("message", e.getMessage());
+	            } catch (Exception e) {
+	                // 기타 예외
+	                log.error("파일 업로드 중 오류", e);
+	                success = false;
+	                result.put("message", "파일 업로드 중 오류가 발생했습니다.");
+	            }
 	        } else {
 	            // 작성자 불일치
 	            success = false;
+	            result.put("message", "작성자만 파일을 업로드할 수 있습니다.");
 	        }
-	    }else {
+	    } else {
 	    	success = false;
+	    	result.put("message", "로그인이 필요합니다.");
 	    }
 	    
 	    result.put("success", success);
@@ -199,9 +215,24 @@ public class PostController {
 	        login = true;
 	        String postWriter = svc.postWriter(post_idx);
 	        if (postWriter != null && loginId.equals(postWriter)) { // 작성자 ID랑 로그인 ID 가 동일할 때만
-		    	success = svc.updateFiles(post_idx, files, keepFileIdx);
-			}else {
+		    	try {
+		    	    success = svc.updateFiles(post_idx, files, keepFileIdx);
+		    	    if (!success) {
+		    	        result.put("message", "파일 업데이트 실패: 이미지는 최대 10장까지만 업로드할 수 있습니다.");
+		    	    }
+		    	} catch (IllegalArgumentException e) {
+		    	    // 파일 크기, 타입 등의 검증 실패
+		    	    success = false;
+		    	    result.put("message", e.getMessage());
+		    	} catch (Exception e) {
+		    	    // 기타 예외
+		    	    log.error("파일 업데이트 중 오류", e);
+		    	    success = false;
+		    	    result.put("message", "파일 업데이트 중 오류가 발생했습니다.");
+		    	}
+			} else {
 				success = false;
+				result.put("message", "작성자만 파일을 수정할 수 있습니다.");
 			}
 	    }
 	    result.put("loginYN", login);
