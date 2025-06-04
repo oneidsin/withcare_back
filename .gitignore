@@ -39,3 +39,4 @@ mvnw.cmd
 src/test/
 .mvn/
 upload/
+src/main/resources/log4jdbc.properties

@@ -34,8 +34,8 @@ public class PostService {
 	@Autowired PostDAO dao;
 	@Autowired BoardDAO boardDao;
 	
-	@Value("${file.upload-dir}")
-	private String uploadDir; // 우선 user.home 에 있는 uploads 폴더로 경로 지정해뒀습니다. (서혜 언니는 다른 경로 지정 필수)
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 	
 	public boolean postWrite(PostDTO dto) {
 	    // 게시판 com_yn 가져오기

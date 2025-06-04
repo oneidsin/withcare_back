@@ -26,8 +26,8 @@ public class ProfileService {
 
 	@Autowired ProfileDAO dao;
 	
-	@Value("${file.upload-dir}")
-	private String uploadDir;
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 	
 	Logger log = LoggerFactory.getLogger(getClass());
 
