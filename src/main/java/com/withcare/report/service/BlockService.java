@@ -113,6 +113,7 @@ public class BlockService {
         log.info("자동 차단 해제 회원 수: {}", result);
     }
 
+    // 차단 해제(관리자)
     public boolean blockAdminCancel(Map<String, Object> params) {
         int row = dao.blockAdminCancel(params);
         if (row > 0) {
@@ -122,6 +123,7 @@ public class BlockService {
         return row > 0;
     }
 
+    // 차단 상세보기
     public Map<String, Object> blockDetail(Map<String, Object> params) {
         return dao.blockDetail(params);
     }
