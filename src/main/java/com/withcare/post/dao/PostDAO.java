@@ -45,6 +45,9 @@ public interface PostDAO {
 	int likeCnt(int post_idx);
 
 	int dislikeCnt(int post_idx);
+	
+	// 게시글의 댓글 수 조회
+	int commentCount(int post_idx);
 
 	String postWriter(int post_idx); // 게시글의 작성자 ID 가져오기
 

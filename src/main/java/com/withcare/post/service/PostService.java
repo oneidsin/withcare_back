@@ -216,6 +216,7 @@ public class PostService {
 	        postMap.put("post", dto);
 	        postMap.put("likes", dao.likeCnt(dto.getPost_idx()));
 	        postMap.put("dislikes", dao.dislikeCnt(dto.getPost_idx()));
+	        postMap.put("commentCount", dao.commentCount(dto.getPost_idx()));
             // 목록 보기 최적화를 위해 선택적으로 첫 번째 사진 또는 사진 수를 포함
 	        List<Map<String, String>> photos = dao.fileList(dto.getPost_idx());
 	        postMap.put("photos", photos);
@@ -246,6 +247,7 @@ public class PostService {
 	        postMap.put("post", dto);
 	        postMap.put("likes", dao.likeCnt(dto.getPost_idx()));
 	        postMap.put("dislikes", dao.dislikeCnt(dto.getPost_idx()));
+	        postMap.put("commentCount", dao.commentCount(dto.getPost_idx()));
 	        List<Map<String, String>> photos = dao.fileList(dto.getPost_idx());
 	        postMap.put("photos", photos);
 	        postMapList.add(postMap);

@@ -202,6 +202,11 @@
 			SELECT COUNT(*) FROM likeyn WHERE post_idx=#{param1} AND like_type=-1
 		</select>
 		
+		<!-- 게시글의 댓글 수 조회 -->
+		<select id="commentCount" parameterType="int" resultType="int">
+			SELECT COUNT(*) FROM comment WHERE post_idx=#{post_idx} AND (com_blind_yn = false OR com_blind_yn IS NULL)
+		</select>
+		
 		<!-- 게시글 페이지 수 -->
 		<select id="postPages" parameterType="int" resultType="int">
 		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
