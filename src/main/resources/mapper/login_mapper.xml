@@ -9,15 +9,24 @@
     SELECT COUNT(id) FROM member WHERE id = #{id} AND pw = #{pw} AND user_del_yn = 0 AND block_yn = 0
 </select> -->
 
-<select id="getLoginInfo" parameterType="map" resultType="map">
+
+<select id="login" parameterType="map" resultType="map">
+    SELECT id
+    FROM member
+    WHERE id = #{id}
+    AND pw = #{pw}
+    AND user_del_yn = 0
+    AND block_yn = 0
+</select> 
+
+<!-- 탈퇴/차단 여부 확인용 -->
+<select id="checkMemberStatus" parameterType="map" resultType="map">
     SELECT id, pw, user_del_yn, block_yn
     FROM member
     WHERE id = #{id}
-    AND (user_del_yn = 0 OR user_del_yn IS NULL)
-    AND (block_yn = 0 OR block_yn IS NULL)
 </select>
- 
- <select id="findId" resultType="String">
+
+<select id="findId" resultType="String">
     SELECT id FROM member WHERE name = #{name} AND year = #{year} AND email = #{email}
 </select>
 
