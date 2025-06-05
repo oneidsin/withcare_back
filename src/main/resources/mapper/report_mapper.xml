@@ -34,7 +34,14 @@
                 LEFT JOIN mention m ON r.rep_item_type = '멘션' AND r.rep_item_idx = m.men_idx
                 LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
         WHERE
-            r.status IN ('미처리', '처리중')
+            <choose>
+                <when test="status != null and status != ''">
+                    r.status = #{status}
+                </when>
+                <otherwise>
+                    r.status IN ('미처리', '처리중')
+                </otherwise>
+            </choose>
         ORDER BY
             r.report_at DESC,
             rh.process_date DESC
@@ -59,6 +66,7 @@
         r.rep_item_idx,
         r.report_at,
         r.rep_reason,
+        r.status,
         CASE
             WHEN r.rep_item_type = '게시글' THEN p.post_content
             WHEN r.rep_item_type = '댓글' THEN c.com_content
@@ -81,9 +89,15 @@
 
     <!-- 신고 처리(처리 완료일 경우) -->
     <insert id="reportProcess" parameterType="map">
-    INSERT INTO report_history(rep_idx, rep_admin_id, process_date, rep_yn)
-    VALUES (#{rep_idx}, #{id}, NOW(), #{rep_yn})
+    INSERT INTO report_history(rep_idx, rep_admin_id, process_date, rep_yn, rep_reason)
+    VALUES (#{rep_idx}, #{id}, NOW(), #{rep_yn}, #{rep_reason})
     </insert>
+
+    <!-- 신고 처리 완료시에 신고 테이블 상태도 변경 -->
+    <update id="reportUpdate" parameterType="map">
+        UPDATE report SET status = '처리 완료', rep_reason = #{rep_reason}
+        WHERE rep_idx = #{rep_idx}
+    </update>
 
     <!-- 신고 상태 업데이트 (처리중) -->
     <update id="reportStatusUpdate" parameterType="map">
@@ -189,6 +203,13 @@
     WHERE
         rh.rep_list_idx = #{rep_list_idx}
     </select>
+
+    <!-- 신고 히스토리 수정 -->
+    <update id="reportHistoryUpdate" parameterType="map">
+        UPDATE report_history
+        SET rep_reason = #{rep_reason}
+        WHERE rep_list_idx = #{rep_list_idx}
+    </update>
 
     <!-- 히스토리 카운트 -->
     <select id="reportHistoryCount" parameterType="map" resultType="int">

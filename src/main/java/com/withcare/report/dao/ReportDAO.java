@@ -57,4 +57,8 @@ public interface ReportDAO {
   List<String> getAdminIds();
 
   Integer findMenIdxByComIdx(int itemIdx);
+
+  void reportUpdate(Map<String, Object> params);
+
+  int reportHistoryUpdate(Map<String, Object> params);
 }

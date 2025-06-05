@@ -240,6 +240,11 @@ public class ReportService {
             // 신고 히스토리에 추가
             int row = dao.reportProcess(params);
 
+            // 신고 테이블 상태도 처리 완료로 변경
+            if (row > 0) {
+                dao.reportUpdate(params);
+            }
+
             // 신고 처리 완료시 무조건 블라인드 처리
             String itemType = (String) params.get("rep_item_type");
             int itemIdx = Integer.parseInt(params.get("rep_item_idx").toString());
@@ -268,4 +273,9 @@ public class ReportService {
         return dao.reportHistoryDetail(params);
     }
 
+    // 신고 히스토리 사유 업데이트
+    public boolean reportHistoryUpdate(Map<String, Object> params) {
+        int row = dao.reportHistoryUpdate(params);
+        return row > 0;
+    }
 }
