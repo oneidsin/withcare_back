@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.withcare.post.service.PostService;
 import com.withcare.report.dto.BlockListDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,9 @@ public class BlockService {
 
     @Autowired
     BlockDAO dao;
+    
+    @Autowired
+    PostService postService;
 
     // 쪽지 차단
     public boolean block(Map<String, Object> params) {
@@ -102,6 +106,13 @@ public class BlockService {
             dao.blockProcess(params);
             // member 테이블에 block_yn 을 true 로 변경
             dao.blockYnUpdate(params);
+            
+            // 차단된 사용자의 게시글을 블라인드 처리
+            String blockedId = (String) params.get("blocked_id");
+            if (blockedId != null && !blockedId.isEmpty()) {
+                int blindCount = postService.blindPostsByBlockedUser(blockedId);
+                log.info("차단된 사용자 {} 의 게시글 {} 개가 블라인드 처리되었습니다.", blockedId, blindCount);
+            }
         }
         return row > 0;
     }

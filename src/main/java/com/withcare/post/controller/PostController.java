@@ -381,9 +381,11 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
+	    int userLv = 0;
 
         try {
             loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            userLv = svc.userLevel(loginId);
         } catch (Exception e) {
             // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행
         }
@@ -392,12 +394,18 @@ public class PostController {
             login = true;
         }
         
-	    Map<String, Object> listResult = svc.postList(page, board_idx, sort, searchType, keyword);
+        Map<String, Object> listResult;
+        // 관리자(userLv=7)인 경우 블라인드 처리된 게시글도 표시
+        if (userLv == 7) {
+            listResult = svc.postListForAdmin(page, board_idx, sort, searchType, keyword);
+        } else {
+            listResult = svc.postList(page, board_idx, sort, searchType, keyword);
+        }
+        
 	    result.putAll(listResult);
 	    result.put("success", true);
 	    result.put("loginYN", login);
 	    result.put("loginId", loginId);
-	    
 	    return result;
 	}
 	

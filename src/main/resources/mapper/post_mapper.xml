@@ -46,9 +46,30 @@
 		    p.post_idx, p.board_idx, p.post_title, p.post_content,
 		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
 		    p.post_blind_yn, p.anony_yn,
-		    CASE WHEN p.anony_yn = TRUE THEN '익명' ELSE p.id END AS writer
+		    CASE 
+		      WHEN p.anony_yn = TRUE THEN '익명'
+		      WHEN m.user_del_yn = TRUE THEN '알 수 없음'
+		      ELSE p.id 
+		    END AS writer
 		  FROM post p
+		  LEFT JOIN member m ON p.id = m.id
 		  WHERE post_idx=#{post_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
+		</select>
+		
+		<!-- 관리자용 게시글 상세보기 (블라인드 처리된 게시글도 조회) -->
+		<select id="postDetailForAdmin" parameterType="int" resultMap="PostResultMap">
+		  SELECT 
+		    p.post_idx, p.board_idx, p.post_title, p.post_content,
+		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
+		    p.post_blind_yn, p.anony_yn,
+		    CASE 
+		      WHEN p.anony_yn = TRUE THEN '익명'
+		      WHEN m.user_del_yn = TRUE THEN '알 수 없음'
+		      ELSE p.id 
+		    END AS writer
+		  FROM post p
+		  LEFT JOIN member m ON p.id = m.id
+		  WHERE post_idx=#{post_idx}
 		</select>
    		
    		<!-- 조회수 증가 (상세보기 시) -->
@@ -62,8 +83,13 @@
 		    p.post_idx, p.board_idx, p.post_title, p.post_content,
 		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
 		    p.post_blind_yn, p.anony_yn,
-		    CASE WHEN p.anony_yn = TRUE THEN '익명' ELSE p.id END AS writer
+		    CASE 
+		      WHEN p.anony_yn = TRUE THEN '익명'
+		      WHEN m.user_del_yn = TRUE THEN '알 수 없음'
+		      ELSE p.id 
+		    END AS writer
 		  FROM post p
+		  LEFT JOIN member m ON p.id = m.id
 		  <choose>
 		    <when test="param4 == 'recommend'">
 		      LEFT JOIN (
@@ -76,6 +102,63 @@
 		  </choose>
 		  WHERE p.board_idx = #{param3}
 		    AND (p.post_blind_yn = false OR p.post_blind_yn IS NULL)
+		    
+		  <!-- 🔥 검색 조건은 여기서 분기 -->
+		  <if test="searchType != null and keyword != null and keyword != ''">
+		    <choose>
+		      <when test="searchType == 'title'">
+		        AND p.post_title LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
+		      <when test="searchType == 'content'">
+		        AND p.post_content LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
+		      <when test="searchType == 'title_content'">
+		        AND (p.post_title LIKE CONCAT('%', #{keyword}, '%')
+		          OR p.post_content LIKE CONCAT('%', #{keyword}, '%'))
+		      </when>
+		      <when test="searchType == 'id'">
+		        AND p.id LIKE CONCAT('%', #{keyword}, '%')
+		      </when>
+		    </choose>
+		  </if>
+		
+		  <!-- 🔽 정렬 기준 -->
+		  <choose>
+		    <when test="param4 == 'recommend'">
+		      ORDER BY IFNULL(l.like_cnt, 0) DESC, p.post_idx DESC
+		    </when>
+		    <otherwise>
+		      ORDER BY p.post_idx DESC
+		    </otherwise>
+		  </choose>
+		
+		  LIMIT #{param2} OFFSET #{param1}
+		</select>
+		
+		<!-- 관리자용 게시글 목록 조회 (블라인드 처리된 게시글도 표시) -->
+		<select id="postListForAdmin" resultMap="PostResultMap">
+		  SELECT 
+		    p.post_idx, p.board_idx, p.post_title, p.post_content,
+		    p.post_view_cnt, p.com_yn, p.post_create_date, p.post_update_date,
+		    p.post_blind_yn, p.anony_yn,
+		    CASE 
+		      WHEN p.anony_yn = TRUE THEN '익명'
+		      WHEN m.user_del_yn = TRUE THEN '알 수 없음'
+		      ELSE p.id 
+		    END AS writer
+		  FROM post p
+		  LEFT JOIN member m ON p.id = m.id
+		  <choose>
+		    <when test="param4 == 'recommend'">
+		      LEFT JOIN (
+		        SELECT post_idx, COUNT(*) AS like_cnt
+		        FROM likeyn
+		        WHERE like_type = 1
+		        GROUP BY post_idx
+		      ) l ON p.post_idx = l.post_idx
+		    </when>
+		  </choose>
+		  WHERE p.board_idx = #{param3}
 		    
 		  <!-- 🔥 검색 조건은 여기서 분기 -->
 		  <if test="searchType != null and keyword != null and keyword != ''">
@@ -122,6 +205,31 @@
 		<!-- 게시글 페이지 수 -->
 		<select id="postPages" parameterType="int" resultType="int">
 		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx} AND (post_blind_yn = false OR post_blind_yn IS NULL)
+			<if test="searchType != null and keyword != null and keyword != ''">
+				<choose>
+				  <when test="searchType == 'title'">
+				    AND post_title LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+			      <when test="searchType == 'content'">
+					  AND post_content LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+				  <when test="searchType == 'title_content'">
+					  AND (post_title LIKE CONCAT('%', #{keyword}, '%')
+					    OR post_content LIKE CONCAT('%', #{keyword}, '%'))
+				  </when>
+				  <when test="searchType == 'id'">
+					  AND id LIKE CONCAT('%', #{keyword}, '%')
+				  </when>
+					 <otherwise>
+					      ORDER BY post_idx DESC
+					  </otherwise>
+				</choose>		
+			</if>  
+		</select>
+		
+		<!-- 관리자용 게시글 총 개수 조회 (블라인드 처리된 게시글도 포함) -->
+		<select id="postPagesForAdmin" parameterType="int" resultType="int">
+		    SELECT COUNT(*) FROM post WHERE board_idx = #{board_idx}
 			<if test="searchType != null and keyword != null and keyword != ''">
 				<choose>
 				  <when test="searchType == 'title'">
@@ -198,6 +306,11 @@
 			SELECT board_idx FROM post WHERE post_idx = #{postIdx}
 		</select>
 		
+		<!-- 차단된 사용자의 모든 게시글 블라인드 처리 -->
+		<update id="blindPostsByBlockedUser" parameterType="String">
+			UPDATE post SET post_blind_yn = true WHERE id = #{userId}
+		</update>
+		
 		<resultMap id="PostResultMap" type="com.withcare.post.dto.PostDTO">
 		    <id property="post_idx" column="post_idx"/>
 		    <result property="board_idx" column="board_idx"/>
@@ -212,6 +325,5 @@
 		    <!-- 핵심 라인 -->
 		    <result property="id" column="writer"/>
 		</resultMap>
-		
 		
    </mapper>

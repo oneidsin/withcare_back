@@ -171,7 +171,14 @@ public class PostService {
 			dao.upHit(post_idx); // 상세보기 시 조회수 증가
 		}
 		
-        PostDTO dto = dao.postDetail(post_idx);
+        // 관리자(userLv=7)인 경우 블라인드 여부 상관없이 게시글 조회
+        PostDTO dto;
+        if (userLv == 7) {
+            dto = dao.postDetailForAdmin(post_idx);
+        } else {
+            dto = dao.postDetail(post_idx);
+        }
+        
         if (dto == null) {
             return detailResult;
         }
@@ -210,6 +217,35 @@ public class PostService {
 	        postMap.put("likes", dao.likeCnt(dto.getPost_idx()));
 	        postMap.put("dislikes", dao.dislikeCnt(dto.getPost_idx()));
             // 목록 보기 최적화를 위해 선택적으로 첫 번째 사진 또는 사진 수를 포함
+	        List<Map<String, String>> photos = dao.fileList(dto.getPost_idx());
+	        postMap.put("photos", photos);
+	        postMapList.add(postMap);
+	    }
+	    
+	    result.put("list", postMapList);
+	    result.put("totalPages", totalPages);
+	    result.put("totalPosts", totalPosts);
+
+	    return result;
+	}
+
+	// 관리자용 게시글 목록 조회 (블라인드 처리된 게시글도 표시)
+	public Map<String, Object> postListForAdmin(int page, int board_idx, String sort, String searchType, String keyword) {
+	    Map<String, Object> result = new HashMap<String, Object>();
+	    result.put("page", page);
+	    int offset = (page - 1) * post_count; // 페이지 시작 위치 계산
+
+	    List<PostDTO> postList = dao.postListForAdmin(offset, post_count, board_idx, sort, searchType, keyword); // 관리자용 게시글 목록 조회
+	    int totalPosts = dao.postPagesForAdmin(board_idx, searchType, keyword);
+	    int totalPages = (int) Math.ceil((double) totalPosts / post_count); // 한 페이지당 보여줄 게시글 개수로 나눈 후 올림
+	    
+	    List<Map<String, Object>> postMapList = new ArrayList<>();
+
+	    for (PostDTO dto : postList) {
+	        Map<String, Object> postMap = new HashMap<>();
+	        postMap.put("post", dto);
+	        postMap.put("likes", dao.likeCnt(dto.getPost_idx()));
+	        postMap.put("dislikes", dao.dislikeCnt(dto.getPost_idx()));
 	        List<Map<String, String>> photos = dao.fileList(dto.getPost_idx());
 	        postMap.put("photos", photos);
 	        postMapList.add(postMap);
@@ -356,6 +392,16 @@ public class PostService {
 
 	public List<Integer> getLikeStatus(String id, int post_idx) {
 		return dao.LikeType(id, post_idx);
+	}
+
+	/**
+	 * 차단된 사용자의 모든 게시글을 블라인드 처리합니다.
+	 * @param userId 차단된 사용자 ID
+	 * @return 블라인드 처리된 게시글 수
+	 */
+	public int blindPostsByBlockedUser(String userId) {
+		log.info("차단된 사용자 {} 의 게시글 블라인드 처리", userId);
+		return dao.blindPostsByBlockedUser(userId);
 	}
 
 }
