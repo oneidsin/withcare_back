@@ -1,6 +1,7 @@
 package com.withcare.search.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,41 +74,19 @@ public class SearchService {
 
 	// 프로필 정보 기반 정보 게시판 게시글 불러오기 *board_idx 5, 6번
 	public List<SearchResultDTO> searchCancer(ProfileDTO profileDTO) {
-		String cancerKeyword = null;
-		String stageKeyword = null;
-		
-		// 암 종류 정보 확인
-		if (profileDTO.getCancer_idx() > 0 && profileDTO.getCancer_name() != null && !profileDTO.getCancer_name().trim().isEmpty()) {
-			cancerKeyword = profileDTO.getCancer_name();
-			log.info("▶ 암 종류 키워드 설정: {}", cancerKeyword);
-		} else {
-			log.info("▶ 암 종류 정보가 없습니다.");
-		}
-		
-		// 병기 정보 확인
-		if (profileDTO.getStage_idx() > 0 && profileDTO.getStage_name() != null && !profileDTO.getStage_name().trim().isEmpty()) {
-			stageKeyword = profileDTO.getStage_name();
-			log.info("▶ 병기 키워드 설정: {}", stageKeyword);
-		} else {
-			log.info("▶ 병기 정보가 없습니다.");
-		}
-		
-		log.info("▶ 사용자 프로필: 암 종류 = {}, 병기 = {}", cancerKeyword, stageKeyword);
 
-		// 암 종류나 병기 중 하나라도 있으면 검색 수행
-		if (cancerKeyword != null || stageKeyword != null) {
-			log.info("▶ 암 종류 또는 병기 정보가 있어 관련 게시글을 검색합니다.");
-			try {
-				List<SearchResultDTO> results = dao.searchCancer(cancerKeyword, stageKeyword);
-				log.info("▶ 검색 결과 수: {}", results != null ? results.size() : 0);
-				return results;
-			} catch (Exception e) {
-				log.error("▶ 암 관련 게시글 검색 중 오류 발생", e);
-				return recommendDefault();
-			}
-		} else {
-			// 둘 다 없으면 기본 추천 게시글 반환
-			log.info("▶ 암 종류와 병기 정보가 모두 없어 기본 추천 게시글을 반환합니다.");
+		log.info("▶ 사용자 프로필: 암 종류 = {}, 병기 = {}", profileDTO.getCancer_name(), profileDTO.getStage_name());
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("cancerKeyword", profileDTO.getCancer_name());
+		params.put("stageKeyword", profileDTO.getStage_name());
+
+		try {
+			List<SearchResultDTO> results = dao.searchCancer(params);
+			log.info("▶ 검색 결과 수: {}", results != null ? results.size() : 0);
+			return results;
+		} catch (Exception e) {
+			log.error("▶ 암 관련 게시글 검색 중 오류 발생", e);
 			return recommendDefault();
 		}
 	}

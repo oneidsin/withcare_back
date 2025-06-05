@@ -234,20 +234,17 @@ public class SearchController {
             
             // 암 종류 정보 확인
             boolean hasCancerInfo = false;
-            if (profileDTO.getCancer_idx() > 0 && profileDTO.getCancer_name() != null) {
+            if (profileDTO.getCancer_idx() != null && profileDTO.getCancer_idx() > 0 && profileDTO.getCancer_name() != null) {
                 hasCancerInfo = true;
-                log.info("▶▶▶ 암 종류 정보: cancer_idx={}, cancer_name={}", 
-                        profileDTO.getCancer_idx(), profileDTO.getCancer_name());
+                log.info("▶▶▶ 암 종류 정보: cancer_idx={}, cancer_name={}", profileDTO.getCancer_idx(), profileDTO.getCancer_name());
             } else {
                 log.info("▶▶▶ 암 종류 정보 없음");
             }
-            
-            // 병기 정보 확인
+
             boolean hasStageInfo = false;
-            if (profileDTO.getStage_idx() > 0 && profileDTO.getStage_name() != null) {
+            if (profileDTO.getStage_idx() != null && profileDTO.getStage_idx() > 0 && profileDTO.getStage_name() != null) {
                 hasStageInfo = true;
-                log.info("▶▶▶ 병기 정보: stage_idx={}, stage_name={}", 
-                        profileDTO.getStage_idx(), profileDTO.getStage_name());
+                log.info("▶▶▶ 병기 정보: stage_idx={}, stage_name={}", profileDTO.getStage_idx(), profileDTO.getStage_name());
             } else {
                 log.info("▶▶▶ 병기 정보 없음");
             }

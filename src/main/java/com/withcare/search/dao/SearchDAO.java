@@ -29,7 +29,7 @@ public interface SearchDAO {
 
 		List<Map<String, Object>> searchPopular();
 
-		List<SearchResultDTO> searchCancer(String cancerKeyword, String stageKeyword);
+		List<SearchResultDTO> searchCancer(Map<String, Object> params);
 
 		Integer searchHistory(String loginId);
 
