@@ -169,15 +169,13 @@ public class ReportService {
                             reportDTO.getRep_idx(),
                             reportDTO.getRep_item_type(),
                             reportDTO.getReporter_id(),
-                            adminId
-                    );
+                            adminId);
                 }
             }
         } catch (Exception e) {
             log.error("관리자 알림 전송 중 오류", e);
         }
     }
-
 
     // 신고 관리 페이지(미처리 신고 리스트)
     public Map<String, Object> reportList(Map<String, Object> params) {
@@ -188,8 +186,8 @@ public class ReportService {
         params.put("offset", offset);
         params.put("limit", pageSize);
 
-        List<Map<String, Object>> list = dao.reportList(params);         // LIMIT/OFFSET 적용된 리스트
-        int totalCount = dao.reportListCount(params);                    // 전체 개수
+        List<Map<String, Object>> list = dao.reportList(params); // LIMIT/OFFSET 적용된 리스트
+        int totalCount = dao.reportListCount(params); // 전체 개수
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);
@@ -223,7 +221,6 @@ public class ReportService {
         return result;
     }
 
-
     // 신고 처리 화면
     public List<Map<String, Object>> reportView(Map<String, Object> params) {
         return dao.reportView(params);
@@ -231,31 +228,44 @@ public class ReportService {
 
     // 신고 처리
     public boolean reportProcess(Map<String, Object> params) {
-        int row = dao.reportProcess(params);
+        String status = (String) params.get("status"); // 처리 타입: "processing" 또는 "complete"
 
-        // 신고 항목 블라인드 처리
-        String itemType = (String) params.get("rep_item_type");
-        int itemIdx = Integer.parseInt(params.get("rep_item_idx").toString());
-
-        if ("게시글".equals(itemType)) {
-            dao.blindPost(itemIdx);
-        } else if ("댓글".equals(itemType)) {
-            dao.blindComment(itemIdx);
-        } else if ("멘션".equals(itemType)) {
-            dao.blindMention(itemIdx);
-        }
-
-        // 신고 처리 완료시 신고 테이블에 있는 status 도 '처리 완료' 로 변경
-        if (row > 0) {
+        if ("처리중".equals(status)) {
+            // 처리중으로 상태 변경 (히스토리에는 추가하지 않음)
+            params.put("status", "처리중");
             dao.reportStatusUpdate(params);
+            return true;
+        } else if ("처리 완료".equals(status)) {
+            // 처리 완료
+            // 신고 히스토리에 추가
+            int row = dao.reportProcess(params);
+
+            // 신고 처리 완료시 무조건 블라인드 처리
+            String itemType = (String) params.get("rep_item_type");
+            int itemIdx = Integer.parseInt(params.get("rep_item_idx").toString());
+
+            if ("게시글".equals(itemType)) {
+                dao.blindPost(itemIdx);
+            } else if ("댓글".equals(itemType)) {
+                dao.blindComment(itemIdx);
+            } else if ("멘션".equals(itemType)) {
+                dao.blindMention(itemIdx);
+            }
+
+            // 신고 처리 완료시 신고 테이블에 있는 status 도 '처리 완료' 로 변경
+            // if (row > 0) {
+            // params.put("status", "처리 완료");
+            // dao.reportStatusUpdate(params);
+            // }
+            return row > 0;
         }
-        return row > 0;
+
+        return false;
     }
 
     // 신고 히스토리 상세보기
     public List<Map<String, Object>> reportHistoryDetail(Map<String, Object> params) {
         return dao.reportHistoryDetail(params);
     }
-
 
 }

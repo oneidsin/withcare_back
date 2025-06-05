@@ -30,8 +30,7 @@ public class ReportController {
             @RequestParam String id,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestHeader Map<String, String> header
-    ) {
+            @RequestHeader Map<String, String> header) {
         result = new HashMap<>();
         String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
         boolean login = false;
@@ -49,11 +48,10 @@ public class ReportController {
         return result;
     }
 
-
     // 신고 처리 페이지(관리자)
     @PostMapping("/admin/report/list/view")
     public Map<String, Object> reportView(@RequestBody Map<String, Object> params,
-                                          @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -72,7 +70,7 @@ public class ReportController {
     // 신고 처리 진행(관리자)
     @PostMapping("/admin/report/list/view/process")
     public Map<String, Object> reportProcess(@RequestBody Map<String, Object> params,
-                                             @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("신고 처리 대상 : {}", params);
         log.info("header : {}", header);
         result = new HashMap<>();
@@ -100,8 +98,7 @@ public class ReportController {
             @RequestParam(defaultValue = "desc") String sortOrder,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestHeader Map<String, String> header
-    ) {
+            @RequestHeader Map<String, String> header) {
         Map<String, Object> result = new HashMap<>();
 
         String loginId = (String) JwtToken.JwtUtils.readToken(header.get("authorization")).get("id");
@@ -129,7 +126,7 @@ public class ReportController {
     // 신고 히스토리 상세보기
     @PostMapping("/admin/report/history/detail")
     public Map<String, Object> reportHistoryDetail(@RequestBody Map<String, Object> params,
-                                                   @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -148,7 +145,7 @@ public class ReportController {
     // 신고 카테고리 불러오기
     @GetMapping("/admin/report-manage/report-cate-list")
     public Map<String, Object> reportCateList(@RequestParam("id") String id,
-                                              @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -167,7 +164,7 @@ public class ReportController {
     // 신고 카테고리 추가
     @PostMapping("/admin/report-manage/report-cate-add")
     public Map<String, Object> reportCateAdd(@RequestBody Map<String, Object> params,
-                                             @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -186,7 +183,7 @@ public class ReportController {
     // 신고 카테고리 수정
     @PutMapping("/admin/report-manage/report-cate-update")
     public Map<String, Object> reportCateUpdate(@RequestBody Map<String, Object> params,
-                                                @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -205,7 +202,7 @@ public class ReportController {
     // 신고 카테고리 활성화 여부
     @PutMapping("/admin/report-manage/report-cate-active")
     public Map<String, Object> reportCateActive(@RequestBody Map<String, Object> params,
-                                                @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("header : {}", header);
         result = new HashMap<>();
 
@@ -225,7 +222,7 @@ public class ReportController {
     // 신고하기
     @PostMapping("/report")
     public Map<String, Object> report(@RequestBody ReportDTO dto,
-                                      @RequestHeader Map<String, String> header) {
+            @RequestHeader Map<String, String> header) {
         log.info("신고 접수 : {}", dto);
         log.info("header : {}", header);
         result = new HashMap<>();

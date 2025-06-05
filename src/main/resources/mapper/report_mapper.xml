@@ -4,7 +4,7 @@
 
 <mapper namespace="com.withcare.report.dao.ReportDAO">
 
-    <!-- 신고 관리 페이지(미처리 신고 리스트) -->
+    <!-- 신고 관리 페이지(미처리, 처리중 신고 리스트) -->
     <select id="reportList" parameterType="map" resultType="map">
         SELECT
             r.rep_idx,
@@ -34,7 +34,7 @@
                 LEFT JOIN mention m ON r.rep_item_type = '멘션' AND r.rep_item_idx = m.men_idx
                 LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
         WHERE
-            r.status != '처리 완료'
+            r.status IN ('미처리', '처리중')
         ORDER BY
             r.report_at DESC,
             rh.process_date DESC
@@ -45,12 +45,12 @@
     <select id="reportListCount" resultType="int">
         SELECT COUNT(*)
         FROM report
-        WHERE status = '미처리'
+        WHERE status IN ('미처리', '처리중')
     </select>
 
 
-<!-- 신고 처리 페이지 -->
-<select id="reportView" parameterType="map" resultType="map">
+    <!-- 신고 처리 페이지 -->
+    <select id="reportView" parameterType="map" resultType="map">
     SELECT
         r.rep_idx,
         r.reported_id,
@@ -58,6 +58,7 @@
         r.rep_item_type,
         r.rep_item_idx,
         r.report_at,
+        r.rep_reason,
         CASE
             WHEN r.rep_item_type = '게시글' THEN p.post_content
             WHEN r.rep_item_type = '댓글' THEN c.com_content
@@ -76,38 +77,38 @@
                       ON r.rep_item_type = '멘션' AND r.rep_item_idx = m.men_idx
     WHERE
         r.rep_idx = #{rep_idx}
-</select>
+    </select>
 
-<!-- 신고 처리 -->
-<insert id="reportProcess" parameterType="map">
-    INSERT INTO report_history(rep_idx, rep_admin_id, process_date, rep_yn, rep_reason)
-    VALUES (#{rep_idx}, #{id}, NOW(), '처리 완료', #{rep_reason})
-</insert>
+    <!-- 신고 처리(처리 완료일 경우) -->
+    <insert id="reportProcess" parameterType="map">
+    INSERT INTO report_history(rep_idx, rep_admin_id, process_date, rep_yn)
+    VALUES (#{rep_idx}, #{id}, NOW(), #{rep_yn})
+    </insert>
 
-<!-- 신고 처리시 히스토리가 아닌 신고 테이블에 있는 status도 처리 완료로 변경 -->
-<update id="reportStatusUpdate" parameterType="map">
+    <!-- 신고 상태 업데이트 (처리중) -->
+    <update id="reportStatusUpdate" parameterType="map">
     UPDATE report
-    SET status = '처리 완료'
+    SET status = #{status}, rep_reason = #{rep_reason}
     WHERE rep_idx = #{rep_idx}
-</update>
+    </update>
 
-<!-- 게시글 블라인드 -->
-<update id="blindPost">
+    <!-- 게시글 블라인드 -->
+    <update id="blindPost">
     UPDATE post SET post_blind_yn = 1 WHERE post_idx = #{itemIdx}
-</update>
+    </update>
 
-<!-- 댓글 블라인드 -->
-<update id="blindComment">
+    <!-- 댓글 블라인드 -->
+    <update id="blindComment">
     UPDATE comment SET com_blind_yn = 1 WHERE com_idx = #{itemIdx}
-</update>
+    </update>
 
-<!-- 멘션 블라인드 -->
-<update id="blindMention">
+    <!-- 멘션 블라인드 -->
+    <update id="blindMention">
     UPDATE mention SET men_blind_yn = 1 WHERE men_idx = #{itemIdx}
-</update>
+    </update>
 
-<!-- 신고 히스토리 불러오기 -->
-<select id="reportHistory" parameterType="map" resultType="map">
+    <!-- 신고 히스토리 불러오기 -->
+    <select id="reportHistory" parameterType="map" resultType="map">
     SELECT
         r.rep_idx,
         r.reporter_id,
@@ -124,37 +125,37 @@
     FROM report r
     LEFT JOIN report_history rh ON r.rep_idx = rh.rep_idx
     LEFT JOIN report_category rc ON r.rep_cate_idx = rc.rep_cate_idx
-    <where>
-        <if test="reporterId != null and reporterId != ''">
+        <where>
+            <if test="reporterId != null and reporterId != ''">
             AND r.reporter_id = #{reporterId}
-        </if>
-        <if test="reportedId != null and reportedId != ''">
+            </if>
+            <if test="reportedId != null and reportedId != ''">
             AND r.reported_id = #{reportedId}
-        </if>
-        <if test="category != null and category != ''">
+            </if>
+            <if test="category != null and category != ''">
             AND r.rep_cate_idx = #{category} 
-        </if>
-        <if test="reportType != null and reportType != ''">
+            </if>
+            <if test="reportType != null and reportType != ''">
             AND r.rep_item_type = #{reportType}
-        </if>
+            </if>
         AND r.status = '처리 완료'
         AND rh.rep_idx IS NOT NULL
-    </where>
+        </where>
     ORDER BY
-    <choose>
-        <when test="sortOrder == 'asc'">
+        <choose>
+            <when test="sortOrder == 'asc'">
             r.report_at ASC
-        </when>
-        <otherwise>
+            </when>
+            <otherwise>
             r.report_at DESC
-        </otherwise>
-    </choose>
+            </otherwise>
+        </choose>
     LIMIT #{limit} OFFSET #{offset}
-</select>
+    </select>
 
 
-<!-- 신고 히스토리 상세보기 -->
-<select id="reportHistoryDetail" parameterType="map" resultType="map">
+    <!-- 신고 히스토리 상세보기 -->
+    <select id="reportHistoryDetail" parameterType="map" resultType="map">
     SELECT
         rh.rep_list_idx,
         r.rep_idx,
@@ -187,7 +188,7 @@
         mention m ON r.rep_item_type = '멘션' AND r.rep_item_idx = m.men_idx
     WHERE
         rh.rep_list_idx = #{rep_list_idx}
-</select>
+    </select>
 
     <!-- 히스토리 카운트 -->
     <select id="reportHistoryCount" parameterType="map" resultType="int">
@@ -214,59 +215,59 @@
 
 
     <!-- 신고 카테고리 불러오기 -->
-<select id="reportCateList" resultType="map">
+    <select id="reportCateList" resultType="map">
   SELECT * FROM report_category
-</select>
+    </select>
 
-<!-- 신고 카테고리 중복 체크 -->
-<select id="checkDuplicateCate" parameterType="map" resultType="int">
+    <!-- 신고 카테고리 중복 체크 -->
+    <select id="checkDuplicateCate" parameterType="map" resultType="int">
   SELECT COUNT(*)
   FROM report_category
   WHERE cate_name = #{cate_name}
-</select>
+    </select>
 
-<!-- 신고 카테고리 수정 시 중복 체크 (현재 카테고리 제외) -->
-<select id="checkDuplicateCateForUpdate" parameterType="map" resultType="int">
+    <!-- 신고 카테고리 수정 시 중복 체크 (현재 카테고리 제외) -->
+    <select id="checkDuplicateCateForUpdate" parameterType="map" resultType="int">
   SELECT COUNT(*)
   FROM report_category
   WHERE cate_name = #{cate_name}
   AND rep_cate_idx != #{rep_cate_idx}
-</select>
+    </select>
 
-<!-- 신고 카테고리 추가 -->
-<insert id="reportCateAdd" parameterType="map">
+    <!-- 신고 카테고리 추가 -->
+    <insert id="reportCateAdd" parameterType="map">
   INSERT INTO report_category (cate_name, cate_active_yn)
   VALUES (#{cate_name}, true)
-</insert>
+    </insert>
 
-<!-- 신고 카테고리 수정 -->
-<update id="reportCateUpdate" parameterType="map">
+    <!-- 신고 카테고리 수정 -->
+    <update id="reportCateUpdate" parameterType="map">
   UPDATE report_category
   SET cate_name = #{cate_name}
   WHERE rep_cate_idx = #{rep_cate_idx}
-</update>
+    </update>
 
-<!-- 신고 카테고리 활성화 여부 -->
-<update id="reportCateActive" parameterType="map">
+    <!-- 신고 카테고리 활성화 여부 -->
+    <update id="reportCateActive" parameterType="map">
   UPDATE report_category
   SET cate_active_yn = #{cate_active_yn}
   WHERE rep_cate_idx = #{rep_cate_idx}
-</update>
+    </update>
 
 
 
-<!-- 유저가 신고하는 기능들 -->
-<!-- 신고하기 전 중복 체크 -->
-<select id="checkDuplicateReport" parameterType="map" resultType="int">
+    <!-- 유저가 신고하는 기능들 -->
+    <!-- 신고하기 전 중복 체크 -->
+    <select id="checkDuplicateReport" parameterType="map" resultType="int">
   SELECT COUNT(*)
   FROM report
   WHERE reporter_id = #{reporter_id}
   AND rep_item_type = #{rep_item_type}
   AND rep_item_idx = #{rep_item_idx}
-</select>
+    </select>
 
-<!-- 신고하기 -->
-<insert id="report" parameterType="com.withcare.report.dto.ReportDTO" useGeneratedKeys="true" keyProperty="rep_idx">
+    <!-- 신고하기 -->
+    <insert id="report" parameterType="com.withcare.report.dto.ReportDTO" useGeneratedKeys="true" keyProperty="rep_idx">
   INSERT INTO report (
   reporter_id,
   reported_id,
@@ -282,72 +283,72 @@
   '미처리',
   #{rep_item_idx}
   )
-</insert>
+    </insert>
 
-<!-- 중복 신고 확인 -->
-<select id="isDuplicateReport" resultType="boolean">
+    <!-- 중복 신고 확인 -->
+    <select id="isDuplicateReport" resultType="boolean">
   SELECT COUNT(*) > 0
   FROM report
   WHERE reporter_id = #{reporterId}
   AND rep_item_idx = #{itemIdx}
   AND rep_item_type = #{itemType}
-</select>
+    </select>
 
-<!-- 카테고리 유효성 검사 -->
-<select id="checkCategoryValid" resultType="boolean">
+    <!-- 카테고리 유효성 검사 -->
+    <select id="checkCategoryValid" resultType="boolean">
   SELECT COUNT(*) > 0
   FROM report_category
   WHERE rep_cate_idx = #{categoryIdx}
   AND cate_active_yn = true
-</select>
+    </select>
 
-<!-- 게시물 작성자 ID 조회 -->
-<select id="postWriter" resultType="string">
+    <!-- 게시물 작성자 ID 조회 -->
+    <select id="postWriter" resultType="string">
   SELECT id
   FROM post
   WHERE post_idx = #{itemIdx}
-</select>
+    </select>
 
-<!-- 댓글 작성자 ID 조회 -->
-<select id="commentWriter" resultType="string">
+    <!-- 댓글 작성자 ID 조회 -->
+    <select id="commentWriter" resultType="string">
   SELECT id
   FROM comment
   WHERE com_idx = #{itemIdx}
-</select>
+    </select>
 
-<!-- 멘션 작성자 ID 조회 -->
-<select id="mentionWriter" resultType="string">
+    <!-- 멘션 작성자 ID 조회 -->
+    <select id="mentionWriter" resultType="string">
   SELECT men_writer_id
   FROM mention
   WHERE men_idx = #{itemIdx}
-</select>
+    </select>
 
-<!-- com_idx로 men_idx 조회 -->
-<select id="findMenIdxByComIdx" resultType="int">
+    <!-- com_idx로 men_idx 조회 -->
+    <select id="findMenIdxByComIdx" resultType="int">
     SELECT men_idx
     FROM mention
     WHERE com_idx = #{comIdx}
-</select>
+    </select>
 
-<!-- 신고된 사용자 ID 조회 -->
-<select id="getReportedId" parameterType="int" resultType="String">
+    <!-- 신고된 사용자 ID 조회 -->
+    <select id="getReportedId" parameterType="int" resultType="String">
   SELECT reported_id
   FROM report
   WHERE rep_idx = #{repIdx}
-</select>
+    </select>
 
-<!-- 차단 리스트에 추가 -->
-<insert id="addToBlockList" parameterType="map">
+    <!-- 차단 리스트에 추가 -->
+    <insert id="addToBlockList" parameterType="map">
   INSERT INTO block_list (
     blocked_id,
     block_admin_id,
     block_reason,
     block_end_date
   ) VALUES (#{blocked_id}, #{block_admin_id}, #{block_reason}, #{block_end_date})
-</insert>
+    </insert>
 
-<!-- 관리자 ID 목록 조회 -->
-<select id="getAdminIds" resultType="String">
+    <!-- 관리자 ID 목록 조회 -->
+    <select id="getAdminIds" resultType="String">
     SELECT id FROM member WHERE admin_yn = 1
-</select>
+    </select>
 </mapper>
