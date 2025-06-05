@@ -15,6 +15,7 @@
 		SELECT
 		    m.id,
 		    m.name,
+			m.lv_idx,
 		    CAST(m.year AS CHAR) as year,
 		    m.gender,
 		    m.email,
@@ -52,7 +53,7 @@
 		(id, cancer_idx, stage_idx, profile_photo, intro,
 		profile_yn,
 		access_cnt)
-		VALUES (#{id}, NULL, NULL, NULL, NULL, 0, 0)
+		VALUES (#{id}, NULL, NULL, NULL, NULL, 1, 0)
 	</insert>
 
 	<select id="getUserPosts" parameterType="String"
@@ -105,6 +106,28 @@
 	    SELECT COUNT(*) FROM mention WHERE men_id = #{id}
 	</select>
 
+	<select id="getUserLvIdx" parameterType="String" resultType="Integer">
+  	 	 SELECT lv_idx 
+   		 FROM member 
+    	WHERE id = #{id}
+	</select>
+
+<select id="getPublicUserBadges" parameterType="String" resultType="java.util.HashMap">
+    SELECT 
+        b.bdg_idx,
+        b.bdg_name,
+        b.bdg_condition,
+        b.bdg_icon,
+        1 as is_acquired,
+        CASE WHEN mb.bdg_sym_yn = 1 THEN 1 ELSE 0 END as bdg_sym_yn,
+        NULL as acquired_date
+    FROM badge b
+    INNER JOIN member_badge mb ON b.bdg_idx = mb.bdg_idx 
+    WHERE mb.id = #{userId}
+      AND b.bdg_active_yn = 1
+    ORDER BY 
+        mb.bdg_sym_yn DESC
+</select>
 </mapper>
    
    

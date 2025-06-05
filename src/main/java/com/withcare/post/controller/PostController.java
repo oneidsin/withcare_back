@@ -81,7 +81,7 @@ public class PostController {
 	        
 	        // 프론트엔드에서 전송한 com_yn 값을 유지하도록 코드 제거
 	        // 기존 com_yn 값을 로그로 출력
-	        log.info("게시글 작성 - 댓글 허용 여부(컨트롤러): {}", dto.isCom_yn());
+	        log.info("게시글 작성 - 댓글 허용 여부(컨트롤러): {}", dto.getCom_yn());
 	        
 	        success = svc.postWrite(dto); // 게시글 작성 서비스 호출
 	        result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
@@ -306,7 +306,6 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
-	    boolean success = false;
 	    int userLv = 0;
 	        
 	    try {
@@ -382,9 +381,11 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
+	    int userLv = 0;
 
         try {
             loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+            userLv = svc.userLevel(loginId);
         } catch (Exception e) {
             // 토큰 없거나 유효하지 않은 경우, 그냥 로그인 false 처리하고 진행
         }
@@ -393,12 +394,18 @@ public class PostController {
             login = true;
         }
         
-	    Map<String, Object> listResult = svc.postList(page, board_idx, sort, searchType, keyword);
+        Map<String, Object> listResult;
+        // 관리자(userLv=7)인 경우 블라인드 처리된 게시글도 표시
+        if (userLv == 7) {
+            listResult = svc.postListForAdmin(page, board_idx, sort, searchType, keyword);
+        } else {
+            listResult = svc.postList(page, board_idx, sort, searchType, keyword);
+        }
+        
 	    result.putAll(listResult);
 	    result.put("success", true);
 	    result.put("loginYN", login);
 	    result.put("loginId", loginId);
-	    
 	    return result;
 	}
 	

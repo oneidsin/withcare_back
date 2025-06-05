@@ -18,12 +18,21 @@ public interface PostDAO {
 	int postDelete(PostDTO dto);
 
 	PostDTO postDetail(int post_idx);
+	
+	// 관리자용 게시글 상세보기 (블라인드 처리된 게시글도 조회)
+	PostDTO postDetailForAdmin(int post_idx);
 
 	int upHit(int post_idx);
 
 	List<PostDTO> postList(int offset, int post_count, int board_idx, String sort, String searchType, String keyword);
 	
+	// 관리자용 게시글 목록 조회 (블라인드 처리된 게시글도 표시)
+	List<PostDTO> postListForAdmin(int offset, int post_count, int board_idx, String sort, String searchType, String keyword);
+	
 	int postPages(int board_idx, String searchType, String keyword);
+	
+	// 관리자용 게시글 총 개수 조회 (블라인드 처리된 게시글도 포함)
+	int postPagesForAdmin(int board_idx, String searchType, String keyword);
 
 	List<Integer> LikeType(String id, int post_idx);
 
@@ -54,4 +63,7 @@ public interface PostDAO {
 	int fileDeleteUrl(String savedName); // file_url로 파일 레코드 삭제
 
 	int getBoardIdx(int postIdx);
+	
+	// 차단된 사용자의 모든 게시글 블라인드 처리
+	int blindPostsByBlockedUser(String userId);
 }
