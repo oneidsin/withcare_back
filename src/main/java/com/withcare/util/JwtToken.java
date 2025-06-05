@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.crypto.SecretKey;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -41,8 +43,10 @@ public class JwtToken {
             return setToken(map);
         }
 
-        public static Map<String, Object> readToken(String token) {
-            Map<String, Object> resp = new HashMap<>();
+        public static Map<String, Object> readToken(String token) throws JwtException {
+            if (token == null || token.isEmpty()) {
+                throw new JwtException("토큰이 없습니다.");
+            }
 
             try {
                 Claims claims = Jwts.parserBuilder()
@@ -50,14 +54,17 @@ public class JwtToken {
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
+                
+                Map<String, Object> resp = new HashMap<>();
                 for (String key : claims.keySet()) {
                     resp.put(key, claims.get(key));
                 }
+                return resp;
+            } catch (ExpiredJwtException e) {
+                throw new JwtException("토큰이 만료되었습니다.");
             } catch (Exception e) {
-                e.printStackTrace();
-                resp.put("id", "");
+                throw new JwtException("유효하지 않은 토큰입니다.");
             }
-            return resp;
         }
     }
 }
