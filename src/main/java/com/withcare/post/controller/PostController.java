@@ -81,7 +81,7 @@ public class PostController {
 	        
 	        // 프론트엔드에서 전송한 com_yn 값을 유지하도록 코드 제거
 	        // 기존 com_yn 값을 로그로 출력
-	        log.info("게시글 작성 - 댓글 허용 여부(컨트롤러): {}", dto.isCom_yn());
+	        log.info("게시글 작성 - 댓글 허용 여부(컨트롤러): {}", dto.getCom_yn());
 	        
 	        success = svc.postWrite(dto); // 게시글 작성 서비스 호출
 	        result.put("idx", dto.getPost_idx()); // 작성한 게시글 idx 가져오기
@@ -306,7 +306,6 @@ public class PostController {
 	    Map<String, Object> result = new HashMap<>();
 	    String loginId = null;
 	    boolean login = false;
-	    boolean success = false;
 	    int userLv = 0;
 	        
 	    try {

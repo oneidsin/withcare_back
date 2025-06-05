@@ -43,7 +43,7 @@ public class PostService {
 	    // dto.setCom_yn(boardComYn);
 	    
 	    // 디버그 로그 추가: 서비스 메서드 내부에서 com_yn 값 확인
-	    log.info("게시글 작성 - 댓글 허용 여부(서비스): {}", dto.isCom_yn());
+	    log.info("게시글 작성 - 댓글 허용 여부(서비스): {}", dto.getCom_yn());
 	    
 	    int row = dao.postWrite(dto);
 	    return row > 0;
