@@ -15,6 +15,7 @@
 		SELECT
 		    m.id,
 		    m.name,
+			m.lv_idx,
 		    CAST(m.year AS CHAR) as year,
 		    m.gender,
 		    m.email,
@@ -105,6 +106,32 @@
 	    SELECT COUNT(*) FROM mention WHERE men_id = #{id}
 	</select>
 
+	<select id="getUserLvIdx" parameterType="String" resultType="Integer">
+  	 	 SELECT lv_idx 
+   		 FROM member 
+    	WHERE id = #{id}
+	</select>
+
+		<!-- 배지 관련 쿼리 추가 -->
+	<!-- 공개 사용자 배지 조회 (획득한 배지만) - 기존 DTO 활용 -->
+	<select id="getPublicUserBadges" parameterType="String" resultType="java.util.HashMap">
+	    SELECT 
+	        b.bdg_idx,
+	        b.bdg_name,
+	        b.bdg_condition,
+	        b.bdg_icon,
+	        1 as is_acquired,  -- 이미 획득한 배지만 조회하므로 항상 1
+	        CASE WHEN ub.bdg_sym_yn = 1 THEN 1 ELSE 0 END as bdg_sym_yn,
+	        DATE_FORMAT(ub.bdg_acq_date, '%Y-%m-%d') as acquired_date
+	    FROM badge b
+	    INNER JOIN user_badge ub ON b.bdg_idx = ub.bdg_idx 
+	    WHERE ub.id = #{userId}
+	      AND b.bdg_active_yn = 1  -- 활성화된 배지만
+	    ORDER BY 
+	        ub.bdg_sym_yn DESC,  -- 메인 배지 우선
+	        ub.bdg_acq_date DESC  -- 최근 획득 순
+	</select>
+	
 </mapper>
    
    

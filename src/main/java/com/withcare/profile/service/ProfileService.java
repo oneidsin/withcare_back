@@ -3,7 +3,9 @@ package com.withcare.profile.service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -109,5 +111,27 @@ public class ProfileService {
     public int getUserTimelineCount(String id) {
         return dao.getUserTimelineCount(id);
     }
-	
+
+	 public int getUserLvIdx(String id) {  // 추가 필요!
+        try {
+            Integer lvIdx = dao.getUserLvIdx(id);
+            return (lvIdx != null) ? lvIdx : 1;
+        } catch (Exception e) {
+            log.error("사용자 레벨 조회 실패: {}", e.getMessage());
+            return 1;
+        }
+	 }
+
+	/**
+	 * 공개 사용자 배지 조회 (간단 버전)
+ 	*/
+	public List<Map<String, Object>> getPublicUserBadges(String userId) throws Exception {
+   		 try {
+    	    // 단순히 배지만 조회 (컨트롤러에서 이미 사용자 존재 여부 확인됨)
+    	    return dao.getPublicUserBadges(userId);
+    	} catch (Exception e) {
+       	 log.error("공개 배지 조회 실패: {}", e.getMessage());
+       	 return new ArrayList<>(); // 에러 시 빈 리스트 반환
+   	 }
+	}
 }

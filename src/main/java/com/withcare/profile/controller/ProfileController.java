@@ -1,5 +1,6 @@
 package com.withcare.profile.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,7 +247,69 @@ public class ProfileController {
 	    return result;
 	}
 	
-	
-	
+	// ProfileController.java의 getPublicProfile 메서드 수정
+
+@GetMapping("/profile/public/{id}")
+public Map<String, Object> getPublicProfile(@PathVariable("id") String id) {
+    Map<String, Object> result = new HashMap<>();
+    try {
+        // 토큰 검증 없이 바로 데이터 조회
+        ProfileDTO profile = svc.getProfileById(id);
+        
+        // 레벨 정보 조회
+        try {
+            int userLvIdx = svc.getUserLvIdx(id);
+            Map<String, Object> levelInfo = new HashMap<>();
+            levelInfo.put("lv_idx", userLvIdx);
+            result.put("levelInfo", levelInfo);
+        } catch (Exception levelError) {
+            log.warn("레벨 정보 조회 실패 for user {}: {}", id, levelError.getMessage());
+        }
+        
+        // 배지 정보 조회 (기존 DTO 활용)
+        try {
+            List<Map<String, Object>> badges = svc.getPublicUserBadges(id);
+            result.put("badges", badges);
+            result.put("badgeCount", badges.size());
+            
+            // 메인 배지 정보 별도 추출
+            Map<String, Object> mainBadge = badges.stream()
+                .filter(badge -> {
+                    Object bdgSymYn = badge.get("bdg_sym_yn");
+                    return bdgSymYn != null && 
+                           (bdgSymYn.equals(1) || bdgSymYn.equals(true) || "1".equals(bdgSymYn.toString()));
+                })
+                .findFirst()
+                .orElse(null);
+            result.put("mainBadge", mainBadge);
+            
+        } catch (Exception badgeError) {
+            log.warn("배지 정보 조회 실패 for user {}: {}", id, badgeError.getMessage());
+            result.put("badges", new ArrayList<>());
+            result.put("badgeCount", 0);
+            result.put("mainBadge", null);
+        }
+        
+        // 활동 정보 조회
+        List<PostDTO> posts = svc.getUserPosts(id);
+        List<ComDTO> comments = svc.getUserComments(id);
+        List<LikeDislikeDTO> likes = svc.getUserLikes(id);
+        List<SearchDTO> searches = svc.getUserSearches(id);
+        List<MenDTO> mentions = svc.getUserMentions(id);
+        
+        result.put("status", "success");
+        result.put("profile", profile);
+        result.put("posts", posts);
+        result.put("comments", comments);
+        result.put("likes", likes);
+        result.put("searches", searches);
+        result.put("mentions", mentions);
+        
+    } catch (Exception e) {
+        result.put("status", "error");
+        result.put("message", "서버 오류: " + e.getMessage());
+    }
+    return result;
+}
 
 }
