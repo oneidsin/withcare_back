@@ -33,11 +33,11 @@ public class CrawlCycleScheduler {
             for (CrawlManagementDTO source : source_list) {
                 try {
                     boolean should_crawl = false;
-                    int cycle_minutes = source.getCrawl_cycle(); // 분 단위
+                    int cycle_hours = source.getCrawl_cycle(); // 시간 단위
 
                     // 주기가 유효한지 확인
-                    if (cycle_minutes <= 0) {
-                        log.warn("유효하지 않은 크롤링 주기: {} 분, 출처: {}", cycle_minutes, source.getSource_name());
+                    if (cycle_hours <= 0) {
+                        log.warn("유효하지 않은 크롤링 주기: {} 시, 출처: {}", cycle_hours, source.getSource_name());
                         continue;
                     }
 
@@ -61,9 +61,9 @@ public class CrawlCycleScheduler {
                         // 3. base_time 이후로 주기에 맞춰 반복 실행
                         LocalDateTime next_crawl_time = base_time;
 
-                        while (next_crawl_time.plusMinutes(cycle_minutes).isBefore(now) ||
-                                next_crawl_time.plusMinutes(cycle_minutes).isEqual(now)) {
-                            next_crawl_time = next_crawl_time.plusMinutes(cycle_minutes);
+                        while (next_crawl_time.plusHours(cycle_hours).isBefore(now) ||
+                                next_crawl_time.plusHours(cycle_hours).isEqual(now)) {
+                            next_crawl_time = next_crawl_time.plusHours(cycle_hours);
                             should_crawl = true;
                         }
                     }
@@ -104,10 +104,10 @@ public class CrawlCycleScheduler {
         } catch (Exception e) {
             log.error("출처 {} 크롤링 중 오류 발생: {}", source_name, e.getMessage(), e);
         } finally {
-            // ✅ 크롤링 성공/실패 상관없이 무조건 마지막 크롤링 일시 업데이트
+            // 크롤링 성공/실패 상관없이 무조건 마지막 크롤링 일시 업데이트
             try {
                 crawlManagementDAO.updateLastCrawlAt(source.getSource_idx());
-                log.info("last_crawl_at 무조건 업데이트 완료: {}", source_name);
+                log.info("last_crawl_at 업데이트 완료: {}", source_name);
             } catch (Exception e) {
                 log.error("last_crawl_at 업데이트 실패: {}", e.getMessage(), e);
             }
