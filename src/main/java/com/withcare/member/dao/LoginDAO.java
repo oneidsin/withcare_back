@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface LoginDAO {
 
-	int login(Map<String, String> params);
+	// int login(Map<String, String> params);
+
+	Map<String, Object> login(Map<String, String> params);
 
 	String findId(String name, String year, String email);
 
@@ -20,6 +22,6 @@ public interface LoginDAO {
 	int updateAccessDate(String id);
 
 	int getLvIdx(String id);
-
-	Map<String, Object> getLoginInfo(Map<String, String> params);
+	
+	Map<String, Object> checkMemberStatus(Map<String, String> params);
 }
