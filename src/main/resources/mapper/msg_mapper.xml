@@ -10,7 +10,7 @@
 		INSERT INTO message (sender_id, receiver_id, msg_content, msg_sent_at,
 		msg_read, sender_msg_status, receiver_msg_status)
 		VALUES (#{sender_id}, #{receiver_id}, #{msg_content}, #{msg_sent_at},
-		#{msg_read},"N","N")
+		#{msg_read}, #{sender_msg_status}, #{receiver_msg_status})
 	</insert>
 	
 	<!-- OUTBOX -->

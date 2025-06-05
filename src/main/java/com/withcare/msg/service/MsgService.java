@@ -28,7 +28,14 @@ public class MsgService {
         dto.setMsg_sent_at(new Timestamp(System.currentTimeMillis()));
         dto.setMsg_read(false);
         dto.setSender_msg_status("N");// N : 초기 상태 S : 보관 D : 삭제
-        dto.setReceiver_msg_status("N");
+        //dto.setReceiver_msg_status("N");
+
+        // 차단 여부 확인 후 receiver_msg_status 설정
+        if (dao.isBlocked(dto.getReceiver_id(), dto.getSender_id())) {
+            dto.setReceiver_msg_status("D"); // 차단된 사용자 쪽지는 삭제 상태
+        } else {
+            dto.setReceiver_msg_status("N");
+        }
 
         dao.sendMsg(dto);
 
