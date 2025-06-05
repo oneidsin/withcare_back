@@ -33,6 +33,14 @@ public class ComService {
 
     public Map<String, Object> writeCom(ComDTO dto) {
         result = new HashMap<>();
+        
+        // 게시글의 댓글 허용 여부 체크
+        Boolean isCommentAllowed = dao.getPostCommentPermission(dto.getPost_idx());
+        if (isCommentAllowed == null || !isCommentAllowed) {
+            result.put("success", false);
+            result.put("message", "댓글이 허용되지 않은 게시글입니다.");
+            return result;
+        }
 
         // 댓글 작성
         int row = dao.writeCom(dto);
@@ -70,8 +78,9 @@ public class ComService {
             result.put("success", true);
             result.put("idx", dto.getCom_idx());
             result.put("mentioned", mentionId);
-        } else if (row == 0) {
+        } else {
             result.put("success", false);
+            result.put("message", "댓글 등록에 실패했습니다.");
             result.put("mentioned", new HashSet<String>());
         }
 

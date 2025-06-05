@@ -41,14 +41,19 @@ Logger log = LoggerFactory.getLogger(getClass());
 		String id = (String) JwtUtils.readToken(header.get("authorization")).get("id"); // 작성자 정보 삽
 		boolean login = false;
 		
-		dto.setId(id);
-		
-		if (id != null && !id.isEmpty()) {
-			result = svc.writeCom(dto); // 멘션 처리 서비스에서
-			login = true;
-		}
-		
-		result.put("idx", dto.getCom_idx());
+		if (id == null || id.isEmpty()) {
+	        result.put("success", false);
+	        result.put("message", "로그인이 필요합니다.");
+	        result.put("loginYN", login);
+	        return result;
+	    }
+	    
+	    dto.setId(id);
+	    dto.setPost_idx(post_idx);  // post_idx 설정 추가
+	    
+	    result = svc.writeCom(dto); // 서비스에서 댓글 허용 여부 체크 후 댓글 작성
+	    login = true;
+	    
 		result.put("loginYN", login);
 		
 		return result;

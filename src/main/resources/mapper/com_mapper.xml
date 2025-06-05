@@ -31,7 +31,7 @@
 	    SELECT lv_idx FROM member WHERE id = #{id}
 	</select>
 	
-	<!-- COMMENT LIST 이거 수정해야됨 -->
+	<!-- COMMENT LIST  -->
     <select id="comList" parameterType="int" resultType="com.withcare.comment.dto.ComDTO">
         SELECT * FROM comment WHERE post_idx = #{post_idx} AND com_blind_yn = false ORDER BY com_idx ASC
     </select>
@@ -55,6 +55,11 @@
 	<!-- 게시글 작성자 ID 가져오기 -->
 	<select id="getPostWriterId">
 		SELECT id FROM post WHERE post_idx = #{post_idx}
+	</select>
+	
+	<!-- 게시글의 댓글 허용 여부 체크 -->
+	<select id="getPostCommentPermission" parameterType="int" resultType="Boolean">
+	    SELECT com_yn FROM post WHERE post_idx = #{post_idx}
 	</select>
 
    </mapper>

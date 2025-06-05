@@ -42,4 +42,7 @@ public interface ComDAO {
 
 	// 멘션 작성자 ID 조회
 	String mentionWriter(Integer menIdx);
+	
+	// 게시글의 댓글 허용 여부 체크
+	Boolean getPostCommentPermission(int post_idx);
 }
