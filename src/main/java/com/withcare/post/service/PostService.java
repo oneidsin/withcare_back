@@ -38,9 +38,13 @@ public class PostService {
     private String uploadDir;
 	
 	public boolean postWrite(PostDTO dto) {
-	    // 게시판 com_yn 가져오기
-	    boolean boardComYn = boardDao.boardComYn(dto.getBoard_idx());
-	    dto.setCom_yn(boardComYn);
+	    // 게시판 com_yn 가져오기 - 이 부분을 제거하고 프론트엔드에서 전송한 값을 사용
+	    // boolean boardComYn = boardDao.boardComYn(dto.getBoard_idx());
+	    // dto.setCom_yn(boardComYn);
+	    
+	    // 디버그 로그 추가: 서비스 메서드 내부에서 com_yn 값 확인
+	    log.info("게시글 작성 - 댓글 허용 여부(서비스): {}", dto.isCom_yn());
+	    
 	    int row = dao.postWrite(dto);
 	    return row > 0;
 	}

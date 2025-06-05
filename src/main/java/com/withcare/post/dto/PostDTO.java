@@ -10,7 +10,7 @@ public class PostDTO {
 	private String post_title;
 	private String post_content;
 	private int post_view_cnt;
-	private boolean com_yn;
+	private Integer com_yn;
 	private Date post_create_date;
 	private Date post_update_date;
 	private boolean post_blind_yn;
@@ -72,14 +72,6 @@ public class PostDTO {
 		this.post_view_cnt = post_view_cnt;
 	}
 
-	public boolean isCom_yn() {
-		return com_yn;
-	}
-
-	public void setCom_yn(boolean com_yn) {
-		this.com_yn = com_yn;
-	}
-
 	public Date getPost_create_date() {
 		return post_create_date;
 	}
@@ -102,6 +94,14 @@ public class PostDTO {
 
 	public void setPost_blind_yn(boolean post_blind_yn) {
 		this.post_blind_yn = post_blind_yn;
+	}
+
+	public Integer getCom_yn() {
+		return com_yn;
+	}
+
+	public void setCom_yn(Integer com_yn) {
+		this.com_yn = com_yn;
 	}
 
 }

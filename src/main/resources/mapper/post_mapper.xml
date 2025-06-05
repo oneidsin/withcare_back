@@ -7,7 +7,7 @@
    		<!-- 게시글 작성 -->
 		<insert id="postWrite" parameterType="com.withcare.post.dto.PostDTO" useGeneratedKeys="true" keyProperty="post_idx" keyColumn="post_idx">
 		    INSERT INTO post (board_idx, id, post_title, post_content, com_yn, post_blind_yn, anony_yn)
-		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn}, #{post_blind_yn}, #{anony_yn})
+		    VALUES (#{board_idx}, #{id}, #{post_title}, #{post_content}, #{com_yn, jdbcType=BIT}, #{post_blind_yn}, #{anony_yn})
 		</insert>
    		
    		<!-- 작성자 정보 가져오기 (post_idx 에 맞는) -->
