@@ -18,7 +18,15 @@
 	
 	<!-- BLIND COMMENT -->
 	<update id="delCom" parameterType="com.withcare.comment.dto.ComDTO">
-		UPDATE comment SET com_blind_yn = #{com_blind_yn} WHERE com_idx = #{com_idx}
+	UPDATE comment
+	SET com_blind_yn = #{com_blind_yn}
+	WHERE com_idx = #{com_idx}
+	</update>
+	
+	<update id="blindMenIfExist" parameterType="int">
+	UPDATE mention
+	SET men_blind_yn = 1
+	WHERE com_idx = #{com_idx}
 	</update>
 	
 	<!-- 작성자 ID 가져오기 -->

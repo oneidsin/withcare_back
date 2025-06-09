@@ -45,4 +45,7 @@ public interface ComDAO {
 	
 	// 게시글의 댓글 허용 여부 체크
 	Boolean getPostCommentPermission(int post_idx);
+
+	// 댓글의 멘션 블라인드 처리
+	int blindMenIfExist(int com_idx);
 }

@@ -116,7 +116,6 @@ public class ComService {
 
     // DELETE COMMENT
     public boolean delCom(ComDTO dto, String id) {
-
         String writerId = dao.writerId(dto.getCom_idx());
         if (id == null) {
             return false;
@@ -126,7 +125,14 @@ public class ComService {
             return false;
         }
 
+        dto.setCom_blind_yn(true);  // 명시적으로 blind 처리
         int row = dao.delCom(dto);
+        
+        // 댓글에 연결된 멘션이 있다면 함께 블라인드 처리
+        if (row > 0) {
+            dao.blindMenIfExist(dto.getCom_idx());
+        }
+        
         return row > 0;
     }
 
