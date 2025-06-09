@@ -87,9 +87,4 @@
     <select id="getPostIdByCommentIdx" resultType="int">
         SELECT post_idx FROM comment WHERE com_idx = #{comIdx}
     </select>
-
-    <!-- 알림 링크 idx 제공 API (mention)(우선 com_idx 를 알아야 함) -->
-    <select id="getPostIdByMentionIdx" resultType="int">
-        SELECT com_idx FROM mention WHERE men_idx = #{menIdx}
-    </select>
 </mapper>

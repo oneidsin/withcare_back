@@ -150,6 +150,7 @@ public class NotiController {
     @GetMapping("/api/mention/{menIdx}/post-id")
     public ResponseEntity<Integer> getPostIdByMentionIdx(@PathVariable int menIdx) {
         Integer postIdx = notiService.getPostIdByMentionIdx(menIdx);
+        log.info("mention 알림 링크 제공 : {}", postIdx);
         if (postIdx != null) {
             return ResponseEntity.ok(postIdx);
         } else {

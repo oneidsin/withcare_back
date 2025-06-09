@@ -27,6 +27,4 @@ public interface NotiDAO {
     int readAllNoti(String id);
 
     Integer getPostIdByCommentIdx(int comIdx);
-
-    Integer getPostIdByMentionIdx(int menIdx);
 }

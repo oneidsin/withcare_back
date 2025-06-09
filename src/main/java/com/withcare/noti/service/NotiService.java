@@ -225,12 +225,6 @@ public class NotiService {
     }
 
     public Integer getPostIdByMentionIdx(int menIdx) {
-        Integer comIdx = dao.getPostIdByMentionIdx(menIdx);
-        Integer postIdx = 0;
-        // null 아니면 comIdx 로 postIdx 가져옴
-        if (comIdx != null) {
-            postIdx = dao.getPostIdByCommentIdx(comIdx);
-        }
-        return postIdx;
+        return dao.getPostIdByCommentIdx(menIdx);
     }
 }
