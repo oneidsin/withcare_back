@@ -74,7 +74,7 @@ public class CrawlService {
                         String post_title = driver.findElement(By.cssSelector("div.art_top > h2")).getText();
 
                         // 키워드 필터링: 제목에 '암' 또는 '암환자'가 포함되지 않으면 제외
-                        if (!(post_title.contains("암") || post_title.contains("암환자"))) {
+                        if (!(post_title.contains("암") || post_title.contains("암환자") || post_title.contains("청년"))) {
                             log.info("제외된 기사 제목(키워드 불일치): {}", post_title);
                             continue;
                         }
@@ -106,7 +106,7 @@ public class CrawlService {
                         // 크롤링한 데이터를 result 에 저장
                         Map<String, Object> result = new HashMap<>();
                         result.put("id", id); // 작성자 id
-                        result.put("board_idx", 2);
+                        result.put("board_idx", 6);
                         result.put("post_title", post_title);
                         result.put("post_content", post_content);
 
@@ -229,7 +229,7 @@ public class CrawlService {
                         // 크롤링한 데이터를 result 에 저장
                         Map<String, Object> result = new HashMap<>();
                         result.put("id", id); // 작성자 id
-                        result.put("board_idx", 2);
+                        result.put("board_idx", 6);
                         result.put("post_title", post_title);
                         result.put("post_content", post_content);
 
@@ -346,7 +346,7 @@ public class CrawlService {
                         // 크롤링한 데이터를 result 에 저장
                         Map<String, Object> result = new HashMap<>();
                         result.put("id", id); // 작성자 id
-                        result.put("board_idx", 2);
+                        result.put("board_idx", 6);
                         result.put("post_title", post_title);
                         result.put("post_content", post_content);
 
