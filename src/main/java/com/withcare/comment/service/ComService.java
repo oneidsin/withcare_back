@@ -50,8 +50,12 @@ public class ComService {
             int post_idx = dto.getPost_idx();
             String writer_id = dto.getId();
             String post_writer_id = dao.getPostWriterId(dto.getPost_idx());
+
+            // 게시글의 익명 여부 확인
+            Boolean isAnonymous = dao.getPostAnonymousYn(post_idx);
+
             if (!writer_id.equals(post_writer_id)) { // 본인 댓글은 알림 제외
-                notiService.sendCommentNoti(com_idx, post_idx, writer_id, post_writer_id);
+                notiService.sendCommentNoti(com_idx, post_idx, writer_id, post_writer_id, isAnonymous);
             }
 
             // 댓글 내용에서 멘션된 아이디 조회
@@ -71,7 +75,7 @@ public class ComService {
 
                 // 멘션 알림 저장 - 본인을 멘션한 경우는 알림 제외
                 if (!menId.equals(dto.getId())) {
-                    notiService.sendMentionNoti(dto.getCom_idx(), dto.getPost_idx(), dto.getId(), menId);
+                    notiService.sendMentionNoti(dto.getCom_idx(), dto.getPost_idx(), dto.getId(), menId, isAnonymous);
                 }
             }
 

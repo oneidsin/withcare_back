@@ -48,4 +48,6 @@ public interface ComDAO {
 
 	// 댓글의 멘션 블라인드 처리
 	int blindMenIfExist(int com_idx);
+
+    Boolean getPostAnonymousYn(int postIdx);
 }
