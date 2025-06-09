@@ -58,12 +58,16 @@ public class CrawlCycleScheduler {
                             base_time = base_time.plusDays(1);
                         }
 
-                        // 3. base_time 이후로 주기에 맞춰 반복 실행
+                        // 3. base_time부터 주기별로 계산해서 가장 최근 실행되어야 할 시간 찾기
                         LocalDateTime next_crawl_time = base_time;
-
-                        while (next_crawl_time.plusHours(cycle_hours).isBefore(now) ||
-                                next_crawl_time.plusHours(cycle_hours).isEqual(now)) {
+                        while (next_crawl_time.plusHours(cycle_hours).isBefore(now)) {
                             next_crawl_time = next_crawl_time.plusHours(cycle_hours);
+                        }
+
+                        // 4. 마지막 크롤링 시간과 비교
+                        if (source.getLast_crawl_at() == null ||
+                                source.getLast_crawl_at().toInstant().atZone(ZoneId.of("Asia/Seoul")).toLocalDateTime()
+                                        .isBefore(next_crawl_time)) {
                             should_crawl = true;
                         }
                     }
