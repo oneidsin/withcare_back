@@ -220,11 +220,41 @@ public class NotiService {
         return row > 0;
     }
 
-    public Integer getPostIdByCommentIdx(int comIdx) {
-        return dao.getPostIdByCommentIdx(comIdx);
+    public Map<String, Object> getPostInfoByCommentIdx(int comIdx) {
+        Map<String, Object> result = dao.getPostIdByCommentIdx(comIdx);
+
+        if (result == null) {
+            return Map.of("success", false, "error", "COMMENT_NOT_FOUND");
+        }
+
+        // Boolean 타입으로 받아옴
+        Boolean commentBlindYn = (Boolean) result.get("com_blind_yn");
+        Boolean postBlindYn = (Boolean) result.get("post_blind_yn");
+        Integer postIdx = (Integer) result.get("post_idx");
+
+        if (Boolean.TRUE.equals(commentBlindYn)) {
+            return Map.of("success", false, "error", "COMMENT_BLINDED");
+        } else if (Boolean.TRUE.equals(postBlindYn)) {
+            return Map.of("success", false, "error", "POST_BLINDED");
+        } else {
+            return Map.of("success", true, "postIdx", postIdx);
+        }
     }
 
-    public Integer getPostIdByMentionIdx(int menIdx) {
-        return dao.getPostIdByCommentIdx(menIdx);
+    public Map<String, Object> checkMessageExists(int msgId) {
+        Map<String, Object> result = dao.checkMessageExists(msgId);
+
+        if (result == null) {
+            return Map.of("success", false, "error", "MESSAGE_NOT_FOUND");
+        }
+
+        // 수신자 쪽지 상태 확인 ('D'이면 삭제됨)
+        String receiverMsgStatus = (String) result.get("receiver_msg_status");
+
+        if ("D".equals(receiverMsgStatus)) {
+            return Map.of("success", false, "error", "MESSAGE_DELETED");
+        } else {
+            return Map.of("success", true, "exists", true);
+        }
     }
 }

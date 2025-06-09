@@ -137,24 +137,15 @@ public class NotiController {
 
     // 알림 링크 idx 제공 API (comment)
     @GetMapping("/api/comment/{comIdx}/post-id")
-    public ResponseEntity<Integer> getPostIdByCommentIdx(@PathVariable int comIdx) {
-        Integer postIdx = notiService.getPostIdByCommentIdx(comIdx);
-        if (postIdx != null) {
-            return ResponseEntity.ok(postIdx);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Map<String, Object>> getPostIdByCommentIdx(@PathVariable int comIdx) {
+        Map<String, Object> result = notiService.getPostInfoByCommentIdx(comIdx);
+        return ResponseEntity.ok(result);
     }
 
-    // 알림 링크 idx 제공 API (mention)
-    @GetMapping("/api/mention/{menIdx}/post-id")
-    public ResponseEntity<Integer> getPostIdByMentionIdx(@PathVariable int menIdx) {
-        Integer postIdx = notiService.getPostIdByMentionIdx(menIdx);
-        log.info("mention 알림 링크 제공 : {}", postIdx);
-        if (postIdx != null) {
-            return ResponseEntity.ok(postIdx);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    // 쪽지 링크 idx 제공 API (msg)
+    @GetMapping("/api/message/{msgId}/check")
+    public ResponseEntity<Map<String, Object>> checkMessageExists(@PathVariable int msgId) {
+        Map<String, Object> result = notiService.checkMessageExists(msgId);
+        return ResponseEntity.ok(result);
     }
 }

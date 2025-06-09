@@ -83,8 +83,21 @@
         LIMIT #{count}
     </delete>
 
-    <!-- 알림 링크 idx 제공 API (comment) -->
-    <select id="getPostIdByCommentIdx" resultType="int">
-        SELECT post_idx FROM comment WHERE com_idx = #{comIdx}
+    <!-- 댓글, 멘션 알림 링크 idx 제공 API -->
+    <select id="getPostIdByCommentIdx" resultType="map">
+        SELECT
+            c.post_idx,
+            c.com_blind_yn,
+            p.post_blind_yn
+        FROM comment c
+                 INNER JOIN post p ON c.post_idx = p.post_idx
+        WHERE c.com_idx = #{comIdx}
+    </select>
+
+    <!-- 쪽지 알림 링크 idx 제공 API -->
+    <select id="checkMessageExists" resultType="map">
+        SELECT msg_idx, receiver_msg_status
+        FROM message
+        WHERE msg_idx = #{msgId}
     </select>
 </mapper>

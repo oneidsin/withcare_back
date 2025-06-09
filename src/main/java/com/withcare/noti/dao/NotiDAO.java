@@ -26,5 +26,7 @@ public interface NotiDAO {
 
     int readAllNoti(String id);
 
-    Integer getPostIdByCommentIdx(int comIdx);
+    Map<String, Object> getPostIdByCommentIdx(int comIdx);
+
+    Map<String, Object> checkMessageExists(int msgId);
 }
