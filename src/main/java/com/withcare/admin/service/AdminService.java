@@ -17,7 +17,9 @@ import com.withcare.comment.dto.MenDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
 import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.CancerDTO;
 import com.withcare.profile.dto.LevelDTO;
+import com.withcare.profile.dto.StageDTO;
 import com.withcare.profile.dto.TimelineDTO;
 
 @Service
@@ -205,5 +207,54 @@ public class AdminService {
 		return dao.getLevelById(lvIdx);
 	}
 
+	// ===== 암 종류 관리 =====
+	
+	public List<CancerDTO> adminCancerList() {
+		return dao.adminCancerList();
+	}
+	
+	public boolean adminCancerAdd(CancerDTO cancer) {
+		int row = dao.adminCancerAdd(cancer);
+		return row > 0;
+	}
+	
+	public boolean adminCancerUpdate(CancerDTO cancer) {
+		int row = dao.adminCancerUpdate(cancer);
+		return row > 0;
+	}
+	
+	public boolean adminCancerDelete(int cancerIdx) {
+		int row = dao.adminCancerDelete(cancerIdx);
+		return row > 0;
+	}
+	
+	public int adminCancerUserCnt(int cancerIdx) {
+		return dao.adminCancerUserCnt(cancerIdx);
+	}
+
+	// ===== 병기 관리 =====
+	
+	public List<StageDTO> adminStageList() {
+		return dao.adminStageList();
+	}
+	
+	public boolean adminStageAdd(StageDTO stage) {
+		int row = dao.adminStageAdd(stage);
+		return row > 0;
+	}
+	
+	public boolean adminStageUpdate(StageDTO stage) {
+		int row = dao.adminStageUpdate(stage);
+		return row > 0;
+	}
+	
+	public boolean adminStageDelete(int stageIdx) {
+		int row = dao.adminStageDelete(stageIdx);
+		return row > 0;
+	}
+	
+	public int adminStageUserCnt(int stageIdx) {
+		return dao.adminStageUserCnt(stageIdx);
+	}
 
 }

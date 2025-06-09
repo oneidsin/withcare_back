@@ -300,4 +300,74 @@
    			WHERE m.men_idx = #{menIdx}
    		</select>
 
+   		<!-- ===== 암 종류 관리 ===== -->
+   		
+   		<!-- 암 종류 전체 목록 조회 -->
+   		<select id="adminCancerList" resultType="com.withcare.profile.dto.CancerDTO">
+   			SELECT cancer_idx, cancer_name 
+   			FROM cancer 
+   			ORDER BY cancer_idx ASC
+   		</select>
+   		
+   		<!-- 암 종류 추가 -->
+   		<insert id="adminCancerAdd" parameterType="com.withcare.profile.dto.CancerDTO">
+   			INSERT INTO cancer (cancer_name) 
+   			VALUES (#{cancer_name})
+   		</insert>
+   		
+   		<!-- 암 종류 수정 -->
+   		<update id="adminCancerUpdate" parameterType="com.withcare.profile.dto.CancerDTO">
+   			UPDATE cancer 
+   			SET cancer_name = #{cancer_name}
+   			WHERE cancer_idx = #{cancer_idx}
+   		</update>
+   		
+   		<!-- 암 종류 삭제 -->
+   		<delete id="adminCancerDelete" parameterType="int">
+   			DELETE FROM cancer 
+   			WHERE cancer_idx = #{cancerIdx}
+   		</delete>
+   		
+   		<!-- 해당 암 종류를 선택한 사용자 수 조회 -->
+   		<select id="adminCancerUserCnt" parameterType="int" resultType="int">
+   			SELECT COUNT(*) 
+   			FROM profile 
+   			WHERE cancer_idx = #{cancerIdx}
+   		</select>
+
+   		<!-- ===== 병기 관리 ===== -->
+   		
+   		<!-- 병기 전체 목록 조회 -->
+   		<select id="adminStageList" resultType="com.withcare.profile.dto.StageDTO">
+   			SELECT stage_idx, stage_name 
+   			FROM stage 
+   			ORDER BY stage_idx ASC
+   		</select>
+   		
+   		<!-- 병기 추가 -->
+   		<insert id="adminStageAdd" parameterType="com.withcare.profile.dto.StageDTO">
+   			INSERT INTO stage (stage_name) 
+   			VALUES (#{stage_name})
+   		</insert>
+   		
+   		<!-- 병기 수정 -->
+   		<update id="adminStageUpdate" parameterType="com.withcare.profile.dto.StageDTO">
+   			UPDATE stage 
+   			SET stage_name = #{stage_name}
+   			WHERE stage_idx = #{stage_idx}
+   		</update>
+   		
+   		<!-- 병기 삭제 -->
+   		<delete id="adminStageDelete" parameterType="int">
+   			DELETE FROM stage 
+   			WHERE stage_idx = #{stageIdx}
+   		</delete>
+   		
+   		<!-- 해당 병기를 선택한 사용자 수 조회 -->
+   		<select id="adminStageUserCnt" parameterType="int" resultType="int">
+   			SELECT COUNT(*) 
+   			FROM profile 
+   			WHERE stage_idx = #{stageIdx}
+   		</select>
+
    </mapper>

@@ -12,7 +12,9 @@ import com.withcare.comment.dto.MenDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
 import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.CancerDTO;
 import com.withcare.profile.dto.LevelDTO;
+import com.withcare.profile.dto.StageDTO;
 import com.withcare.profile.dto.TimelineDTO;
 
 @Mapper
@@ -66,5 +68,29 @@ public interface AdminDAO {
 	
 	// 멘션 ID로 해당 멘션이 속한 게시글 정보 조회
 	Map<String, Object> getPostInfoByMentionId(int menIdx);
+
+	// ===== 암 종류 관리 =====
+	
+	List<CancerDTO> adminCancerList();
+	
+	int adminCancerAdd(CancerDTO cancer);
+	
+	int adminCancerUpdate(CancerDTO cancer);
+	
+	int adminCancerDelete(int cancerIdx);
+	
+	int adminCancerUserCnt(int cancerIdx);
+
+	// ===== 병기 관리 =====
+	
+	List<StageDTO> adminStageList();
+	
+	int adminStageAdd(StageDTO stage);
+	
+	int adminStageUpdate(StageDTO stage);
+	
+	int adminStageDelete(int stageIdx);
+	
+	int adminStageUserCnt(int stageIdx);
 
 }

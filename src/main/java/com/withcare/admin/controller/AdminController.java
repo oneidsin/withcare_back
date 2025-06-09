@@ -32,7 +32,9 @@ import com.withcare.member.dto.MemberDTO;
 import com.withcare.post.dto.LikeDislikeDTO;
 import com.withcare.post.dto.PostDTO;
 import com.withcare.profile.dto.BadgeDTO;
+import com.withcare.profile.dto.CancerDTO;
 import com.withcare.profile.dto.LevelDTO;
+import com.withcare.profile.dto.StageDTO;
 import com.withcare.profile.dto.TimelineDTO;
 import com.withcare.util.JwtToken.JwtUtils;
 
@@ -574,6 +576,206 @@ public class AdminController {
 		} catch (Exception e) {
 			result.put("success", false);
 			result.put("message", "Error checking admin privilege");
+		}
+
+		return result;
+	}
+
+	// ===== 암 종류 관리 =====
+	
+	// 암 종류 목록 조회
+	@GetMapping("/admin/cancer/list")
+	public Map<String, Object> getCancerList(@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = null;
+		try {
+			loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "인증 토큰이 유효하지 않습니다.");
+			return result;
+		}
+
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			List<CancerDTO> cancerList = svc.adminCancerList();
+			result.put("success", true);
+			result.put("cancers", cancerList);
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "암 종류 목록을 불러오는데 실패했습니다: " + e.getMessage());
+		}
+		return result;
+	}
+
+	// 암 종류 등록/수정
+	@PostMapping("/admin/cancer/save")
+	public Map<String, Object> saveCancer(@RequestBody CancerDTO cancerDTO,
+			@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			boolean success;
+			if (cancerDTO.getCancer_idx() > 0) {
+				// 수정
+				success = svc.adminCancerUpdate(cancerDTO);
+			} else {
+				// 등록
+				success = svc.adminCancerAdd(cancerDTO);
+			}
+			result.put("success", success);
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", e.getMessage());
+		}
+		return result;
+	}
+
+	// 암 종류 삭제
+	@DeleteMapping("/admin/cancer/delete")
+	public Map<String, Object> deleteCancer(@RequestParam("cancer_idx") int cancerIdx,
+			@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			// 사용자 보유 여부 체크
+			int userCount = svc.adminCancerUserCnt(cancerIdx);
+			if (userCount > 0) {
+				result.put("success", false);
+				result.put("msg", "해당 암 종류를 선택한 사용자가 있어 삭제할 수 없습니다.");
+				return result;
+			}
+
+			// DB 삭제
+			boolean deleted = svc.adminCancerDelete(cancerIdx);
+			if (deleted) {
+				result.put("success", true);
+			} else {
+				result.put("success", false);
+				result.put("msg", "암 종류 삭제에 실패했습니다.");
+			}
+
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "서버 오류: " + e.getMessage());
+		}
+
+		return result;
+	}
+
+	// ===== 병기 관리 =====
+	
+	// 병기 목록 조회
+	@GetMapping("/admin/stage/list")
+	public Map<String, Object> getStageList(@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = null;
+		try {
+			loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "인증 토큰이 유효하지 않습니다.");
+			return result;
+		}
+
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			List<StageDTO> stageList = svc.adminStageList();
+			result.put("success", true);
+			result.put("stages", stageList);
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "병기 목록을 불러오는데 실패했습니다: " + e.getMessage());
+		}
+		return result;
+	}
+
+	// 병기 등록/수정
+	@PostMapping("/admin/stage/save")
+	public Map<String, Object> saveStage(@RequestBody StageDTO stageDTO,
+			@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			boolean success;
+			if (stageDTO.getStage_idx() > 0) {
+				// 수정
+				success = svc.adminStageUpdate(stageDTO);
+			} else {
+				// 등록
+				success = svc.adminStageAdd(stageDTO);
+			}
+			result.put("success", success);
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", e.getMessage());
+		}
+		return result;
+	}
+
+	// 병기 삭제
+	@DeleteMapping("/admin/stage/delete")
+	public Map<String, Object> deleteStage(@RequestParam("stage_idx") int stageIdx,
+			@RequestHeader Map<String, String> header) {
+		result = new HashMap<>();
+		String loginId = (String) JwtUtils.readToken(header.get("authorization")).get("id");
+
+		if (loginId == null || loginId.isEmpty() || svc.userLevel(loginId) != 7) {
+			result.put("success", false);
+			result.put("msg", "관리자 권한이 필요합니다.");
+			return result;
+		}
+
+		try {
+			// 사용자 보유 여부 체크
+			int userCount = svc.adminStageUserCnt(stageIdx);
+			if (userCount > 0) {
+				result.put("success", false);
+				result.put("msg", "해당 병기를 선택한 사용자가 있어 삭제할 수 없습니다.");
+				return result;
+			}
+
+			// DB 삭제
+			boolean deleted = svc.adminStageDelete(stageIdx);
+			if (deleted) {
+				result.put("success", true);
+			} else {
+				result.put("success", false);
+				result.put("msg", "병기 삭제에 실패했습니다.");
+			}
+
+		} catch (Exception e) {
+			result.put("success", false);
+			result.put("msg", "서버 오류: " + e.getMessage());
 		}
 
 		return result;
