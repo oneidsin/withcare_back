@@ -61,4 +61,6 @@ public interface ReportDAO {
   void reportUpdate(Map<String, Object> params);
 
   int reportHistoryUpdate(Map<String, Object> params);
+
+  int getComIdxFromMention(int itemIdx);
 }

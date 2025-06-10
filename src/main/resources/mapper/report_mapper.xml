@@ -99,7 +99,7 @@
         WHERE rep_idx = #{rep_idx}
     </update>
 
-    <!-- 신고 상태 업데이트 (처리중) -->
+    <!-- 신고 상태 업데이트 (처리중, 미처리) -->
     <update id="reportStatusUpdate" parameterType="map">
     UPDATE report
     SET status = #{status}, rep_reason = #{rep_reason}
@@ -120,6 +120,11 @@
     <update id="blindMention">
     UPDATE mention SET men_blind_yn = 1 WHERE men_idx = #{itemIdx}
     </update>
+
+    <!-- getComIdxFromMention -->
+    <select id="getComIdxFromMention">
+        SELECT com_idx FROM mention WHERE men_idx = #{itemIdx}
+    </select>
 
     <!-- 신고 히스토리 불러오기 -->
     <select id="reportHistory" parameterType="map" resultType="map">

@@ -228,7 +228,7 @@ public class ReportService {
 
     // 신고 처리
     public boolean reportProcess(Map<String, Object> params) {
-        String status = (String) params.get("status"); // 처리 타입: "processing" 또는 "complete"
+        String status = (String) params.get("status"); // 처리 타입
 
         if ("처리중".equals(status)) {
             // 처리중으로 상태 변경 (히스토리에는 추가하지 않음)
@@ -255,16 +255,16 @@ public class ReportService {
                 dao.blindComment(itemIdx);
             } else if ("멘션".equals(itemType)) {
                 dao.blindMention(itemIdx);
+                // 댓글 테이블에 있는 것도 블라인드 처리
+                int com_idx = dao.getComIdxFromMention(itemIdx);
+                dao.blindComment(com_idx);
             }
-
-            // 신고 처리 완료시 신고 테이블에 있는 status 도 '처리 완료' 로 변경
-            // if (row > 0) {
-            // params.put("status", "처리 완료");
-            // dao.reportStatusUpdate(params);
-            // }
             return row > 0;
+        } else if ("미처리".equals(status)) {
+            params.put("status", "미처리");
+            dao.reportStatusUpdate(params);
+            return true;
         }
-
         return false;
     }
 
