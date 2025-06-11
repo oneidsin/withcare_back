@@ -45,7 +45,7 @@ public class ComService {
         // 댓글 작성
         int row = dao.writeCom(dto);
         if (row > 0) {
-            // 댓글 작성 성공 시 알림 저장
+            // 댓글 작성 성공 시 필요한 정보 수집
             int com_idx = dto.getCom_idx();
             int post_idx = dto.getPost_idx();
             String writer_id = dto.getId();
@@ -54,30 +54,24 @@ public class ComService {
             // 게시글의 익명 여부 확인
             Boolean isAnonymous = dao.getPostAnonymousYn(post_idx);
 
-            if (!writer_id.equals(post_writer_id)) { // 본인 댓글은 알림 제외
-                notiService.sendCommentNoti(com_idx, post_idx, writer_id, post_writer_id, isAnonymous);
-            }
-
             // 댓글 내용에서 멘션된 아이디 조회
             String content = dto.getCom_content();
-            Set<String> mentionId = getId(content); // 아이디 갖고 올거에요
+            Set<String> mentionId = getId(content);
 
-            // 멘션 정보 저장할 것
+            // 멘션 정보 저장
             for (String menId : mentionId) {
                 MenDTO menDto = new MenDTO();
-                menDto.setCom_idx(dto.getCom_idx()); // 어떤 댓글에서 멘션 했는지
-                menDto.setMen_id(menId); // 멘션 당한 사람 아이디
-                menDto.setMen_writer_id(dto.getId()); // 멘션한 사람 아이디
-                menDto.setMen_content(content); // 원본 댓글 내용
-                menDto.setMen_blind_yn(false); // 블라인드 여부
+                menDto.setCom_idx(dto.getCom_idx());
+                menDto.setMen_id(menId);
+                menDto.setMen_writer_id(dto.getId());
+                menDto.setMen_content(content);
+                menDto.setMen_blind_yn(false);
 
-                dao.writeMention(menDto); // DB에 저장
-
-                // 멘션 알림 저장 - 본인을 멘션한 경우는 알림 제외
-                if (!menId.equals(dto.getId())) {
-                    notiService.sendMentionNoti(dto.getCom_idx(), dto.getPost_idx(), dto.getId(), menId, isAnonymous);
-                }
+                dao.writeMention(menDto);
             }
+
+            // 알림 전송 로직 개선
+            sendNotifications(com_idx, post_idx, writer_id, post_writer_id, mentionId, isAnonymous);
 
             result.put("success", true);
             result.put("idx", dto.getCom_idx());
@@ -89,6 +83,49 @@ public class ComService {
         }
 
         return result;
+    }
+
+    /**
+     * 중복 알림을 방지하면서 적절한 알림을 전송하는 메서드
+     */
+    private void sendNotifications(int com_idx, int post_idx, String writer_id, 
+                                  String post_writer_id, Set<String> mentionIds, Boolean isAnonymous) {
+        
+        // 본인이 작성한 댓글은 알림 제외
+        if (writer_id.equals(post_writer_id)) {
+            // 게시글 작성자가 본인 게시글에 댓글을 단 경우
+            // 멘션된 사용자들에게만 멘션 알림 전송
+            for (String menId : mentionIds) {
+                if (!menId.equals(writer_id)) { // 본인 멘션 제외
+                    notiService.sendMentionNoti(com_idx, post_idx, writer_id, menId, isAnonymous);
+                }
+            }
+        } else {
+            // 다른 사람의 게시글에 댓글을 단 경우
+            boolean postWriterMentioned = mentionIds.contains(post_writer_id);
+            
+            if (postWriterMentioned) {
+                // 게시글 작성자가 멘션된 경우: 멘션 알림만 전송 (중복 방지)
+                notiService.sendMentionNoti(com_idx, post_idx, writer_id, post_writer_id, isAnonymous);
+                
+                // 게시글 작성자를 제외한 다른 멘션된 사용자들에게 멘션 알림 전송
+                for (String menId : mentionIds) {
+                    if (!menId.equals(writer_id) && !menId.equals(post_writer_id)) {
+                        notiService.sendMentionNoti(com_idx, post_idx, writer_id, menId, isAnonymous);
+                    }
+                }
+            } else {
+                // 게시글 작성자가 멘션되지 않은 경우: 댓글 알림 전송
+                notiService.sendCommentNoti(com_idx, post_idx, writer_id, post_writer_id, isAnonymous);
+                
+                // 멘션된 사용자들에게 멘션 알림 전송
+                for (String menId : mentionIds) {
+                    if (!menId.equals(writer_id)) { // 본인 멘션 제외
+                        notiService.sendMentionNoti(com_idx, post_idx, writer_id, menId, isAnonymous);
+                    }
+                }
+            }
+        }
     }
 
     // GET MENTIONED ID
