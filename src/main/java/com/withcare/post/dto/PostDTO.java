@@ -1,6 +1,6 @@
 package com.withcare.post.dto;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class PostDTO {
 
@@ -11,8 +11,8 @@ public class PostDTO {
 	private String post_content;
 	private int post_view_cnt;
 	private Boolean com_yn;
-	private Date post_create_date;
-	private Date post_update_date;
+	private Timestamp post_create_date;
+	private Timestamp post_update_date;
 	private boolean post_blind_yn;
 	private boolean anony_yn;
 	
@@ -72,22 +72,6 @@ public class PostDTO {
 		this.post_view_cnt = post_view_cnt;
 	}
 
-	public Date getPost_create_date() {
-		return post_create_date;
-	}
-
-	public void setPost_create_date(Date post_create_date) {
-		this.post_create_date = post_create_date;
-	}
-
-	public Date getPost_update_date() {
-		return post_update_date;
-	}
-
-	public void setPost_update_date(Date post_update_date) {
-		this.post_update_date = post_update_date;
-	}
-
 	public boolean isPost_blind_yn() {
 		return post_blind_yn;
 	}
@@ -102,6 +86,22 @@ public class PostDTO {
 
 	public void setCom_yn(Boolean com_yn) {
 		this.com_yn = com_yn;
+	}
+
+	public Timestamp getPost_create_date() {
+		return post_create_date;
+	}
+
+	public void setPost_create_date(Timestamp post_create_date) {
+		this.post_create_date = post_create_date;
+	}
+
+	public Timestamp getPost_update_date() {
+		return post_update_date;
+	}
+
+	public void setPost_update_date(Timestamp post_update_date) {
+		this.post_update_date = post_update_date;
 	}
 
 }
