@@ -13,7 +13,13 @@
 	
 	<!-- UPDATE COMMENT -->
 	<update id="updateCom" parameterType="com.withcare.comment.dto.ComDTO">
-		UPDATE comment SET com_content = #{com_content} WHERE com_idx = #{com_idx} AND id = #{id}
+	    UPDATE comment 
+	    SET 
+	        com_content = #{com_content},
+	        com_update_date = NOW()
+	    WHERE 
+	        com_idx = #{com_idx}
+	        AND id = #{id}
 	</update>
 	
 	<!-- BLIND COMMENT -->
