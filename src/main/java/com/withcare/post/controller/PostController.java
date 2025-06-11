@@ -79,6 +79,18 @@ public class PostController {
 	        BoardDTO board = boardService.boardIdx(dto.getBoard_idx());
 	        dto.setAnony_yn(board.isAnony_yn());
 	        
+	        // 게시판 권한 체크 - board_idx가 1, 5, 6인 경우 관리자(lv_idx=7)만 작성 가능
+	        int boardIdx = dto.getBoard_idx();
+	        if (boardIdx == 1 || boardIdx == 5 || boardIdx == 6) {
+	            int userLevel = svc.userLevel(loginId);
+	            if (userLevel != 7) {
+	                result.put("success", false);
+	                result.put("message", "이 게시판은 관리자만 작성할 수 있습니다.");
+	                result.put("loginYN", login);
+	                return result;
+	            }
+	        }
+	        
 	        // 프론트엔드에서 전송한 com_yn 값을 유지하도록 코드 제거
 	        // 기존 com_yn 값을 로그로 출력
 	        log.info("게시글 작성 - 댓글 허용 여부(컨트롤러): {}", dto.getCom_yn());
